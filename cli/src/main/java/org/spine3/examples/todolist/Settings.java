@@ -20,15 +20,32 @@
 
 package org.spine3.examples.todolist;
 
-import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.google.protobuf.Timestamp;
 
 /**
  * @author Illia Shepilov
  */
-public class CliEntryPoint {
+public class Settings {
 
-    public static void main(String[] args) {
-        final Settings settings = new Settings();
-        new JCommander(settings, args);
-    }
+    @Parameter(names = "-taskId", description = "A task identifier")
+    private TaskId taskId;
+
+    @Parameter(names = "-labelId", description = "A label identifier")
+    private TaskLabelId labelId;
+
+    @Parameter(names = {"-description"}, description = "A description for the task", required = true)
+    private String description;
+
+    @Parameter(names = "-priority", description = "A priority for the task", required = true, converter = PriorityConverter.class)
+    private TaskPriority priority;
+
+    @Parameter(names = "-dueDate", description = "A task due date", required = true, converter = TimeConverter.class)
+    private Timestamp dueDate;
+
+    @Parameter(names = "-title", description = "A label title", required = true)
+    private String title;
+
+    @Parameter(names = "-color", description = "A label color", converter = ColorConverter.class)
+    private LabelColor color;
 }
