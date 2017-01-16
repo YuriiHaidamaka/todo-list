@@ -22,30 +22,63 @@ package org.spine3.examples.todolist;
 
 import com.beust.jcommander.Parameter;
 import com.google.protobuf.Timestamp;
+import org.spine3.examples.todolist.converters.ColorConverter;
+import org.spine3.examples.todolist.converters.PriorityConverter;
+import org.spine3.examples.todolist.converters.TaskIdConverter;
+import org.spine3.examples.todolist.converters.TaskLabelIdConverter;
+import org.spine3.examples.todolist.converters.TimeConverter;
 
 /**
  * @author Illia Shepilov
  */
 public class Settings {
 
-    @Parameter(names = "-taskId", description = "A task identifier")
+    @Parameter(names = "--task-id", description = "A task identifier", converter = TaskIdConverter.class)
     private TaskId taskId;
 
-    @Parameter(names = "-labelId", description = "A label identifier")
+    @Parameter(names = "--label-id", description = "A label identifier", converter = TaskLabelIdConverter.class)
     private TaskLabelId labelId;
 
-    @Parameter(names = {"-description"}, description = "A description for the task", required = true)
+    @Parameter(names = "--description", description = "A description for the task")
     private String description;
 
-    @Parameter(names = "-priority", description = "A priority for the task", required = true, converter = PriorityConverter.class)
+    @Parameter(names = "--priority", description = "A priority for the task", converter = PriorityConverter.class)
     private TaskPriority priority;
 
-    @Parameter(names = "-dueDate", description = "A task due date", required = true, converter = TimeConverter.class)
+    @Parameter(names = "--due-date", description = "A task due date", converter = TimeConverter.class)
     private Timestamp dueDate;
 
-    @Parameter(names = "-title", description = "A label title", required = true)
+    @Parameter(names = "--title", description = "A label title")
     private String title;
 
-    @Parameter(names = "-color", description = "A label color", converter = ColorConverter.class)
+    @Parameter(names = "--color", description = "A label color", converter = ColorConverter.class)
     private LabelColor color;
+
+    public TaskId getTaskId() {
+        return taskId;
+    }
+
+    public TaskLabelId getLabelId() {
+        return labelId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public TaskPriority getPriority() {
+        return priority;
+    }
+
+    public Timestamp getDueDate() {
+        return dueDate;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public LabelColor getColor() {
+        return color;
+    }
 }
