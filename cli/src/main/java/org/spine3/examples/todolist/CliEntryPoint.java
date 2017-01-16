@@ -21,14 +21,41 @@
 package org.spine3.examples.todolist;
 
 import com.beust.jcommander.JCommander;
+import com.google.common.base.Charsets;
+import org.spine3.examples.todolist.execution.Executable;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 
 /**
  * @author Illia Shepilov
  */
 public class CliEntryPoint {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         final Settings settings = new Settings();
-        new JCommander(settings, args);
+
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8));
+        final CommandHolder holder = new CommandHolder();
+
+        System.out.println("Enter the command, enter <help> for help");
+        String line = reader.readLine();
+
+        while (line != null) {
+            if ("exit".equals(line)) {
+                break;
+            }
+
+            final String[] command = line.split(" ");
+            final String[] params = Arrays.copyOfRange(command, 1, command.length);
+            new JCommander(settings, params);
+            final Executable execution = holder.get(command[0]);
+            final String result = execution.execute(settings);
+            System.out.println(result);
+            line = reader.readLine();
+        }
+
     }
 }
