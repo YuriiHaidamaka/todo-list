@@ -18,17 +18,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist;
+package org.spine3.examples.todolist.converters;
 
 import com.beust.jcommander.IStringConverter;
+import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.Timestamps;
+import org.spine3.util.Exceptions;
+
+import java.text.ParseException;
 
 /**
  * @author Illia Shepilov
  */
-public class ColorConverter implements IStringConverter<LabelColor> {
+public class TimeConverter implements IStringConverter<Timestamp> {
+
     @Override
-    public LabelColor convert(String value) {
-        final LabelColor result = LabelColor.valueOf(value);
-        return result;
+    public Timestamp convert(String value) {
+        try {
+            final Timestamp result = Timestamps.parse(value);
+            return result;
+        } catch (ParseException e) {
+            throw Exceptions.wrappedCause(e);
+        }
     }
 }

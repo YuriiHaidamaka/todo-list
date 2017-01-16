@@ -18,14 +18,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist;
+package org.spine3.examples.todolist.converters;
 
 import com.beust.jcommander.IStringConverter;
+import org.spine3.examples.todolist.TaskPriority;
 
 /**
  * @author Illia Shepilov
  */
 public class PriorityConverter implements IStringConverter<TaskPriority> {
+
     @Override
     public TaskPriority convert(String value) {
         final TaskPriority result = TaskPriority.valueOf(value);
