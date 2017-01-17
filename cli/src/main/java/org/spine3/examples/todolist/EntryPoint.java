@@ -197,7 +197,7 @@ public class EntryPoint implements ShellDependent {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         startServer();
-        ShellFactory.createConsoleShell("todo", "Enter 'help' to view all commands", new EntryPoint())
+        ShellFactory.createConsoleShell("todo", HELP_ADVICE, new EntryPoint())
                     .commandLoop();
     }
 
