@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, TeamDev Ltd. All rights reserved.
+ * Copyright 2017, TeamDev Ltd. All rights reserved.
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -21,27 +21,31 @@
 package org.spine3.examples.todolist.testdata;
 
 import com.google.protobuf.Timestamp;
-import org.spine3.examples.todolist.DeletedTaskRestored;
-import org.spine3.examples.todolist.LabelAssignedToTask;
+import org.spine3.change.StringChange;
+import org.spine3.change.TimestampChange;
 import org.spine3.examples.todolist.LabelColor;
-import org.spine3.examples.todolist.LabelCreated;
 import org.spine3.examples.todolist.LabelDetails;
-import org.spine3.examples.todolist.LabelDetailsUpdated;
-import org.spine3.examples.todolist.LabelRemovedFromTask;
-import org.spine3.examples.todolist.LabelledTaskRestored;
-import org.spine3.examples.todolist.TaskCompleted;
-import org.spine3.examples.todolist.TaskCreated;
-import org.spine3.examples.todolist.TaskDeleted;
-import org.spine3.examples.todolist.TaskDescriptionUpdated;
+import org.spine3.examples.todolist.LabelDetailsChange;
+import org.spine3.examples.todolist.PriorityChange;
 import org.spine3.examples.todolist.TaskDetails;
-import org.spine3.examples.todolist.TaskDraftCreated;
-import org.spine3.examples.todolist.TaskDraftFinalized;
-import org.spine3.examples.todolist.TaskDueDateUpdated;
 import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.TaskPriority;
-import org.spine3.examples.todolist.TaskPriorityUpdated;
-import org.spine3.examples.todolist.TaskReopened;
+import org.spine3.examples.todolist.c.events.DeletedTaskRestored;
+import org.spine3.examples.todolist.c.events.LabelAssignedToTask;
+import org.spine3.examples.todolist.c.events.LabelCreated;
+import org.spine3.examples.todolist.c.events.LabelDetailsUpdated;
+import org.spine3.examples.todolist.c.events.LabelRemovedFromTask;
+import org.spine3.examples.todolist.c.events.LabelledTaskRestored;
+import org.spine3.examples.todolist.c.events.TaskCompleted;
+import org.spine3.examples.todolist.c.events.TaskCreated;
+import org.spine3.examples.todolist.c.events.TaskDeleted;
+import org.spine3.examples.todolist.c.events.TaskDescriptionUpdated;
+import org.spine3.examples.todolist.c.events.TaskDraftCreated;
+import org.spine3.examples.todolist.c.events.TaskDraftFinalized;
+import org.spine3.examples.todolist.c.events.TaskDueDateUpdated;
+import org.spine3.examples.todolist.c.events.TaskPriorityUpdated;
+import org.spine3.examples.todolist.c.events.TaskReopened;
 import org.spine3.protobuf.Timestamps;
 
 import static org.spine3.base.Identifiers.newUuid;
@@ -152,15 +156,18 @@ public class TestEventFactory {
     }
 
     /**
-     * Provides {@link TaskDescriptionUpdated} event by task description and task id specified.
+     * Provides {@link TaskDescriptionUpdated} event by task description and task ID specified.
      *
      * @param description the description of the updated task
      * @return {@link TaskDescriptionUpdated} instance
      */
     public static TaskDescriptionUpdated taskDescriptionUpdatedInstance(TaskId id, String description) {
+        final StringChange descriptionChange = StringChange.newBuilder()
+                                                           .setNewValue(description)
+                                                           .build();
         final TaskDescriptionUpdated result = TaskDescriptionUpdated.newBuilder()
                                                                     .setId(id)
-                                                                    .setNewDescription(description)
+                                                                    .setDescriptionChange(descriptionChange)
                                                                     .build();
         return result;
     }
@@ -181,9 +188,12 @@ public class TestEventFactory {
      * @return {@link TaskPriorityUpdated} instance
      */
     public static TaskPriorityUpdated taskPriorityUpdatedInstance(TaskId id, TaskPriority priority) {
+        final PriorityChange taskPriorityChange = PriorityChange.newBuilder()
+                                                                .setNewValue(priority)
+                                                                .build();
         final TaskPriorityUpdated result = TaskPriorityUpdated.newBuilder()
                                                               .setId(id)
-                                                              .setNewPriority(priority)
+                                                              .setPriorityChange(taskPriorityChange)
                                                               .build();
         return result;
     }
@@ -198,15 +208,18 @@ public class TestEventFactory {
     }
 
     /**
-     * Provides {@link TaskDueDateUpdated} event by task due date and task id specified.
+     * Provides {@link TaskDueDateUpdated} event by task due date and task ID specified.
      *
      * @param dueDate the due date of the updated task
      * @return {@link TaskDueDateUpdated} instance
      */
     public static TaskDueDateUpdated taskDueDateUpdatedInstance(TaskId id, Timestamp dueDate) {
+        final TimestampChange dueDateChange = TimestampChange.newBuilder()
+                                                             .setNewValue(dueDate)
+                                                             .build();
         final TaskDueDateUpdated result = TaskDueDateUpdated.newBuilder()
                                                             .setId(id)
-                                                            .setNewDueDate(dueDate)
+                                                            .setDueDateChange(dueDateChange)
                                                             .build();
         return result;
     }
@@ -384,9 +397,12 @@ public class TestEventFactory {
         final LabelDetails.Builder labelDetailsBuilder = LabelDetails.newBuilder()
                                                                      .setColor(color)
                                                                      .setTitle(title);
+        final LabelDetailsChange labelDetailsChange = LabelDetailsChange.newBuilder()
+                                                                        .setNewDetails(labelDetailsBuilder)
+                                                                        .build();
         final LabelDetailsUpdated result = LabelDetailsUpdated.newBuilder()
                                                               .setLabelId(labelId)
-                                                              .setNewDetails(labelDetailsBuilder)
+                                                              .setLabelDetailsChange(labelDetailsChange)
                                                               .build();
         return result;
     }

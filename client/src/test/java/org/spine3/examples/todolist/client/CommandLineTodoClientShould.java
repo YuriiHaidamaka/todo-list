@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, TeamDev Ltd. All rights reserved.
+ * Copyright 2017, TeamDev Ltd. All rights reserved.
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -22,11 +22,11 @@ package org.spine3.examples.todolist.client;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.spine3.examples.todolist.CreateBasicLabel;
-import org.spine3.examples.todolist.CreateBasicTask;
-import org.spine3.examples.todolist.CreateDraft;
 import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.TaskLabelId;
+import org.spine3.examples.todolist.c.commands.CreateBasicLabel;
+import org.spine3.examples.todolist.c.commands.CreateBasicTask;
+import org.spine3.examples.todolist.c.commands.CreateDraft;
 import org.spine3.examples.todolist.client.builder.CommandBuilder;
 import org.spine3.examples.todolist.server.Server;
 import org.spine3.server.storage.memory.InMemoryStorageFactory;
@@ -44,12 +44,12 @@ import static org.spine3.examples.todolist.testdata.TestTaskLabelCommandFactory.
 /**
  * @author Illia Shepilov
  */
-/* package */ class CommandLineTodoClientShould {
+class CommandLineTodoClientShould {
 
     private static final String HOST = "localhost";
     private Server server;
-    /* package */ TodoClient client;
-    /* package */ static final String UPDATED_TASK_DESCRIPTION = "New task description.";
+    TodoClient client;
+    static final String UPDATED_TASK_DESCRIPTION = "New task description.";
 
     @BeforeEach
     public void setUp() throws InterruptedException {
@@ -81,7 +81,7 @@ import static org.spine3.examples.todolist.testdata.TestTaskLabelCommandFactory.
         serverStartLatch.await(100, TimeUnit.MILLISECONDS);
     }
 
-    /* package */ static CreateBasicLabel createBasicLabel() {
+    static CreateBasicLabel createBasicLabel() {
         final CreateBasicLabel result = CommandBuilder.label()
                                                       .createLabel()
                                                       .setTitle(LABEL_TITLE)
@@ -89,14 +89,14 @@ import static org.spine3.examples.todolist.testdata.TestTaskLabelCommandFactory.
         return result;
     }
 
-    /* package */ static CreateDraft createDraft() {
+    static CreateDraft createDraft() {
         final CreateDraft result = CommandBuilder.task()
                                                  .createDraft()
                                                  .build();
         return result;
     }
 
-    /* package */ static CreateBasicTask createBasicTask() {
+    static CreateBasicTask createBasicTask() {
         final CreateBasicTask result = CommandBuilder.task()
                                                      .createTask()
                                                      .setDescription(DESCRIPTION)
@@ -104,14 +104,14 @@ import static org.spine3.examples.todolist.testdata.TestTaskLabelCommandFactory.
         return result;
     }
 
-    /* package */ static TaskId getWrongTaskId() {
+    static TaskId getWrongTaskId() {
         final TaskId result = TaskId.newBuilder()
                                     .setValue(newUuid())
                                     .build();
         return result;
     }
 
-    /* package */ static TaskLabelId getWrongTaskLabelId() {
+    static TaskLabelId getWrongTaskLabelId() {
         final TaskLabelId result = TaskLabelId.newBuilder()
                                               .setValue(newUuid())
                                               .build();

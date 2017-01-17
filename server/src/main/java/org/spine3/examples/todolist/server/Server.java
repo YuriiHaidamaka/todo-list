@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, TeamDev Ltd. All rights reserved.
+ * Copyright 2017, TeamDev Ltd. All rights reserved.
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -21,19 +21,19 @@
 package org.spine3.examples.todolist.server;
 
 import org.spine3.examples.todolist.LabelDetails;
-import org.spine3.examples.todolist.LabelList;
+import org.spine3.examples.todolist.LabelIdList;
 import org.spine3.examples.todolist.Task;
 import org.spine3.examples.todolist.TaskDetails;
 import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.TaskLabel;
 import org.spine3.examples.todolist.TaskLabelId;
-import org.spine3.examples.todolist.aggregate.TaskAggregate;
-import org.spine3.examples.todolist.aggregate.TaskLabelAggregate;
-import org.spine3.examples.todolist.repository.DraftTasksViewRepository;
-import org.spine3.examples.todolist.repository.LabelledTasksViewRepository;
-import org.spine3.examples.todolist.repository.MyListViewProjectionRepository;
-import org.spine3.examples.todolist.repository.TaskAggregateRepository;
-import org.spine3.examples.todolist.repository.TaskLabelAggregateRepository;
+import org.spine3.examples.todolist.c.aggregates.TaskAggregate;
+import org.spine3.examples.todolist.c.aggregates.TaskLabelAggregate;
+import org.spine3.examples.todolist.repositories.DraftTasksViewRepository;
+import org.spine3.examples.todolist.repositories.LabelledTasksViewRepository;
+import org.spine3.examples.todolist.repositories.MyListViewRepository;
+import org.spine3.examples.todolist.repositories.TaskAggregateRepository;
+import org.spine3.examples.todolist.repositories.TaskLabelAggregateRepository;
 import org.spine3.server.BoundedContext;
 import org.spine3.server.CommandService;
 import org.spine3.server.QueryService;
@@ -60,10 +60,10 @@ public class Server {
     private final BoundedContext boundedContext;
     private Function<TaskLabelId, LabelDetails> taskLabelIdToLabelDetails;
     private Function<TaskId, TaskDetails> taskIdToTaskDetails;
-    private Function<TaskId, LabelList> taskIdToLabelList;
+    private Function<TaskId, LabelIdList> taskIdToLabelList;
     private TaskAggregateRepository taskAggregateRepository;
     private TaskLabelAggregateRepository taskLabelAggregateRepository;
-    private MyListViewProjectionRepository myListViewRepository;
+    private MyListViewRepository myListViewRepository;
     private LabelledTasksViewRepository labelledViewRepository;
     private DraftTasksViewRepository draftTasksViewRepository;
 
@@ -120,9 +120,9 @@ public class Server {
             final TaskAggregate aggregate = taskAggregateRepository.load(taskId);
             final List<TaskLabelId> labelIdsList = aggregate.getState()
                                                             .getLabelIdsList();
-            final LabelList result = LabelList.newBuilder()
-                                              .addAllLabelId(labelIdsList)
-                                              .build();
+            final LabelIdList result = LabelIdList.newBuilder()
+                                                  .addAllLabelId(labelIdsList)
+                                                  .build();
             return result;
         };
     }
@@ -136,7 +136,7 @@ public class Server {
                                                                       TaskDetails.class,
                                                                       taskIdToTaskDetails::apply)
                                                   .addFieldEnrichment(TaskId.class,
-                                                                      LabelList.class,
+                                                                      LabelIdList.class,
                                                                       taskIdToLabelList::apply)
                                                   .build();
         return result;
@@ -190,7 +190,7 @@ public class Server {
         taskLabelAggregateRepository = new TaskLabelAggregateRepository(boundedContext);
         taskLabelAggregateRepository.initStorage(storageFactory);
 
-        myListViewRepository = new MyListViewProjectionRepository(boundedContext);
+        myListViewRepository = new MyListViewRepository(boundedContext);
         myListViewRepository.initStorage(storageFactory);
 
         labelledViewRepository = new LabelledTasksViewRepository(boundedContext);

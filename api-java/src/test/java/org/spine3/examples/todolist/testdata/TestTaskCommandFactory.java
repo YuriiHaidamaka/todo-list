@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, TeamDev Ltd. All rights reserved.
+ * Copyright 2017, TeamDev Ltd. All rights reserved.
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -21,23 +21,24 @@
 package org.spine3.examples.todolist.testdata;
 
 import com.google.protobuf.Timestamp;
-import org.spine3.examples.todolist.AssignLabelToTask;
-import org.spine3.examples.todolist.CompleteTask;
-import org.spine3.examples.todolist.CreateBasicTask;
-import org.spine3.examples.todolist.CreateDraft;
-import org.spine3.examples.todolist.DeleteTask;
-import org.spine3.examples.todolist.FinalizeDraft;
-import org.spine3.examples.todolist.LabelColor;
-import org.spine3.examples.todolist.RemoveLabelFromTask;
-import org.spine3.examples.todolist.ReopenTask;
-import org.spine3.examples.todolist.RestoreDeletedTask;
+import org.spine3.change.StringChange;
+import org.spine3.change.TimestampChange;
+import org.spine3.examples.todolist.PriorityChange;
 import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.TaskPriority;
-import org.spine3.examples.todolist.UpdateLabelDetails;
-import org.spine3.examples.todolist.UpdateTaskDescription;
-import org.spine3.examples.todolist.UpdateTaskDueDate;
-import org.spine3.examples.todolist.UpdateTaskPriority;
+import org.spine3.examples.todolist.c.commands.AssignLabelToTask;
+import org.spine3.examples.todolist.c.commands.CompleteTask;
+import org.spine3.examples.todolist.c.commands.CreateBasicTask;
+import org.spine3.examples.todolist.c.commands.CreateDraft;
+import org.spine3.examples.todolist.c.commands.DeleteTask;
+import org.spine3.examples.todolist.c.commands.FinalizeDraft;
+import org.spine3.examples.todolist.c.commands.RemoveLabelFromTask;
+import org.spine3.examples.todolist.c.commands.ReopenTask;
+import org.spine3.examples.todolist.c.commands.RestoreDeletedTask;
+import org.spine3.examples.todolist.c.commands.UpdateTaskDescription;
+import org.spine3.examples.todolist.c.commands.UpdateTaskDueDate;
+import org.spine3.examples.todolist.c.commands.UpdateTaskPriority;
 import org.spine3.protobuf.Timestamps;
 
 import static org.spine3.base.Identifiers.newUuid;
@@ -96,20 +97,25 @@ public class TestTaskCommandFactory {
      * @return {@link UpdateTaskDescription} instance
      */
     public static UpdateTaskDescription updateTaskDescriptionInstance() {
-        return updateTaskDescriptionInstance(TASK_ID, DESCRIPTION);
+        return updateTaskDescriptionInstance(TASK_ID, DESCRIPTION, DESCRIPTION);
     }
 
     /**
-     * Provides {@link UpdateTaskDescription} instance by description and task id specified.
+     * Provides {@link UpdateTaskDescription} instance by description and task ID specified.
      *
-     * @param description the description of the updated task
+     * @param previousDescription the previous description of the task
+     * @param newDescription      the description of the updated task
      * @return {@link UpdateTaskDescription} instance
      */
-    public static UpdateTaskDescription updateTaskDescriptionInstance(TaskId id, String description) {
-        UpdateTaskDescription result = UpdateTaskDescription.newBuilder()
-                                                            .setId(id)
-                                                            .setUpdatedDescription(description)
-                                                            .build();
+    public static UpdateTaskDescription updateTaskDescriptionInstance(TaskId id, String previousDescription, String newDescription) {
+        final StringChange descriptionChange = StringChange.newBuilder()
+                                                           .setPreviousValue(previousDescription)
+                                                           .setNewValue(newDescription)
+                                                           .build();
+        final UpdateTaskDescription result = UpdateTaskDescription.newBuilder()
+                                                                  .setId(id)
+                                                                  .setDescriptionChange(descriptionChange)
+                                                                  .build();
         return result;
     }
 
@@ -119,19 +125,26 @@ public class TestTaskCommandFactory {
      * @return {@link UpdateTaskDueDate} instance
      */
     public static UpdateTaskDueDate updateTaskDueDateInstance() {
-        return updateTaskDueDateInstance(TASK_ID, DUE_DATE);
+        return updateTaskDueDateInstance(TASK_ID, Timestamp.getDefaultInstance(), DUE_DATE);
     }
 
     /**
      * Provides {@link UpdateTaskDueDate} instance with specified update due date and {@link TaskId} fields.
      *
-     * @param updatedDueDate the due date of the updated task
+     * @param previousDueDate the previous due date of the task
+     * @param updatedDueDate  the due date of the updated task
      * @return {@link UpdateTaskDueDate} instance
      */
-    public static UpdateTaskDueDate updateTaskDueDateInstance(TaskId id, Timestamp updatedDueDate) {
+    public static UpdateTaskDueDate updateTaskDueDateInstance(TaskId id,
+                                                              Timestamp previousDueDate,
+                                                              Timestamp updatedDueDate) {
+        final TimestampChange dueDateChange = TimestampChange.newBuilder()
+                                                             .setPreviousValue(previousDueDate)
+                                                             .setNewValue(updatedDueDate)
+                                                             .build();
         final UpdateTaskDueDate result = UpdateTaskDueDate.newBuilder()
                                                           .setId(id)
-                                                          .setUpdatedDueDate(updatedDueDate)
+                                                          .setDueDateChange(dueDateChange)
                                                           .build();
         return result;
     }
@@ -142,19 +155,26 @@ public class TestTaskCommandFactory {
      * @return {@link UpdateTaskPriority} instance
      */
     public static UpdateTaskPriority updateTaskPriorityInstance() {
-        return updateTaskPriorityInstance(TASK_ID, TaskPriority.HIGH);
+        return updateTaskPriorityInstance(TASK_ID, TaskPriority.TP_UNDEFINED, TaskPriority.HIGH);
     }
 
     /**
      * Provides a pre-configured {@link UpdateTaskPriority} command instance.
      *
-     * @param priority the priority of the updated task
+     * @param previousPriority the previous task priority
+     * @param newPriority      the priority of the updated task
      * @return {@link UpdateTaskPriority} instance
      */
-    public static UpdateTaskPriority updateTaskPriorityInstance(TaskId id, TaskPriority priority) {
+    public static UpdateTaskPriority updateTaskPriorityInstance(TaskId id,
+                                                                TaskPriority previousPriority,
+                                                                TaskPriority newPriority) {
+        final PriorityChange taskPriorityChange = PriorityChange.newBuilder()
+                                                                .setPreviousValue(previousPriority)
+                                                                .setNewValue(newPriority)
+                                                                .build();
         final UpdateTaskPriority result = UpdateTaskPriority.newBuilder()
                                                             .setId(id)
-                                                            .setUpdatedPriority(priority)
+                                                            .setPriorityChange(taskPriorityChange)
                                                             .build();
         return result;
     }
@@ -326,15 +346,6 @@ public class TestTaskCommandFactory {
                                                               .setId(taskId)
                                                               .setLabelId(labelId)
                                                               .build();
-        return result;
-    }
-
-    public static UpdateLabelDetails updateLabelDetailsInstance(TaskLabelId id, LabelColor color, String title) {
-        final UpdateLabelDetails result = UpdateLabelDetails.newBuilder()
-                                                            .setId(id)
-                                                            .setColor(color)
-                                                            .setNewTitle(title)
-                                                            .build();
         return result;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, TeamDev Ltd. All rights reserved.
+ * Copyright 2017, TeamDev Ltd. All rights reserved.
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -194,7 +194,7 @@ subprojects {
     sourceSets {
         main {
             proto.srcDirs = ["${sourcesRootDir}/main/proto"]
-            java.srcDirs = [generatedJavaDir, "${sourcesRootDir}/main/java"]
+            java.srcDirs = [generatedJavaDir, generatedSpineDir, "${sourcesRootDir}/main/java"]
             resources.srcDirs = ["${generatedRootDir}/main/resources"]
         }
         test {

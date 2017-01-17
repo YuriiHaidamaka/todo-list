@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, TeamDev Ltd. All rights reserved.
+ * Copyright 2017, TeamDev Ltd. All rights reserved.
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -22,26 +22,27 @@ package org.spine3.examples.todolist.client;
 
 import com.google.protobuf.Timestamp;
 import org.junit.jupiter.api.Test;
-import org.spine3.examples.todolist.AssignLabelToTask;
-import org.spine3.examples.todolist.CompleteTask;
-import org.spine3.examples.todolist.CreateBasicLabel;
-import org.spine3.examples.todolist.CreateBasicTask;
-import org.spine3.examples.todolist.CreateDraft;
-import org.spine3.examples.todolist.DeleteTask;
 import org.spine3.examples.todolist.LabelColor;
-import org.spine3.examples.todolist.RemoveLabelFromTask;
-import org.spine3.examples.todolist.ReopenTask;
-import org.spine3.examples.todolist.RestoreDeletedTask;
+import org.spine3.examples.todolist.LabelDetails;
 import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.TaskPriority;
-import org.spine3.examples.todolist.UpdateLabelDetails;
-import org.spine3.examples.todolist.UpdateTaskDescription;
-import org.spine3.examples.todolist.UpdateTaskDueDate;
-import org.spine3.examples.todolist.UpdateTaskPriority;
-import org.spine3.examples.todolist.view.LabelledTasksView;
-import org.spine3.examples.todolist.view.TaskListView;
-import org.spine3.examples.todolist.view.TaskView;
+import org.spine3.examples.todolist.c.commands.AssignLabelToTask;
+import org.spine3.examples.todolist.c.commands.CompleteTask;
+import org.spine3.examples.todolist.c.commands.CreateBasicLabel;
+import org.spine3.examples.todolist.c.commands.CreateBasicTask;
+import org.spine3.examples.todolist.c.commands.CreateDraft;
+import org.spine3.examples.todolist.c.commands.DeleteTask;
+import org.spine3.examples.todolist.c.commands.RemoveLabelFromTask;
+import org.spine3.examples.todolist.c.commands.ReopenTask;
+import org.spine3.examples.todolist.c.commands.RestoreDeletedTask;
+import org.spine3.examples.todolist.c.commands.UpdateLabelDetails;
+import org.spine3.examples.todolist.c.commands.UpdateTaskDescription;
+import org.spine3.examples.todolist.c.commands.UpdateTaskDueDate;
+import org.spine3.examples.todolist.c.commands.UpdateTaskPriority;
+import org.spine3.examples.todolist.q.projections.LabelledTasksView;
+import org.spine3.examples.todolist.q.projections.TaskListView;
+import org.spine3.examples.todolist.q.projections.TaskView;
 import org.spine3.protobuf.Timestamps;
 
 import java.util.List;
@@ -58,10 +59,10 @@ import static org.spine3.examples.todolist.testdata.TestTaskCommandFactory.delet
 import static org.spine3.examples.todolist.testdata.TestTaskCommandFactory.removeLabelFromTaskInstance;
 import static org.spine3.examples.todolist.testdata.TestTaskCommandFactory.reopenTaskInstance;
 import static org.spine3.examples.todolist.testdata.TestTaskCommandFactory.restoreDeletedTaskInstance;
-import static org.spine3.examples.todolist.testdata.TestTaskCommandFactory.updateLabelDetailsInstance;
 import static org.spine3.examples.todolist.testdata.TestTaskCommandFactory.updateTaskDescriptionInstance;
 import static org.spine3.examples.todolist.testdata.TestTaskCommandFactory.updateTaskDueDateInstance;
 import static org.spine3.examples.todolist.testdata.TestTaskCommandFactory.updateTaskPriorityInstance;
+import static org.spine3.examples.todolist.testdata.TestTaskLabelCommandFactory.updateLabelDetailsInstance;
 
 /**
  * @author Illia Shepilov
@@ -450,10 +451,19 @@ public class LabelledTasksViewClientShould extends CommandLineTodoClientShould {
         final AssignLabelToTask assignLabelToTask = assignLabelToTaskInstance(taskId, labelId);
         client.assignLabel(assignLabelToTask);
 
+        final LabelDetails previousLabelDetailsWhenIdOsCorrect = LabelDetails.newBuilder()
+                                                                             .setColor(LabelColor.GRAY)
+                                                                             .setTitle(createLabel.getLabelTitle())
+                                                                             .build();
+        final LabelDetails newLabelDetails = LabelDetails.newBuilder()
+                                                         .setColor(updatedColor)
+                                                         .setTitle(updatedTitle)
+                                                         .build();
+        final LabelDetails previousLabelDetails =
+                isCorrectId ? previousLabelDetailsWhenIdOsCorrect : LabelDetails.getDefaultInstance();
         final TaskLabelId updatedLabelId = isCorrectId ? labelId : getWrongTaskLabelId();
-        final UpdateLabelDetails updateLabelDetails = updateLabelDetailsInstance(updatedLabelId,
-                                                                                 updatedColor,
-                                                                                 updatedTitle);
+        final UpdateLabelDetails updateLabelDetails =
+                updateLabelDetailsInstance(updatedLabelId, previousLabelDetails, newLabelDetails);
         client.update(updateLabelDetails);
 
         final List<LabelledTasksView> labelledTasksViewList = client.getLabelledTasksView();
@@ -537,7 +547,7 @@ public class LabelledTasksViewClientShould extends CommandLineTodoClientShould {
         return view;
     }
 
-    private TaskView obtainViewWhenHandledCommandUpdateTaskDescription(String description, boolean isCorrectId) {
+    private TaskView obtainViewWhenHandledCommandUpdateTaskDescription(String newDescription, boolean isCorrectId) {
         final CreateBasicTask createTask = createBasicTask();
         final TaskId createdTaskId = createTask.getId();
         client.create(createTask);
@@ -552,7 +562,8 @@ public class LabelledTasksViewClientShould extends CommandLineTodoClientShould {
         client.assignLabel(assignLabelToTask);
 
         final TaskId updatedTaskId = isCorrectId ? createdTaskId : getWrongTaskId();
-        final UpdateTaskDescription updateTaskDescription = updateTaskDescriptionInstance(updatedTaskId, description);
+        final UpdateTaskDescription updateTaskDescription =
+                updateTaskDescriptionInstance(updatedTaskId, createTask.getDescription(), newDescription);
         client.update(updateTaskDescription);
 
         final List<LabelledTasksView> tasksViewList = client.getLabelledTasksView();
@@ -582,7 +593,8 @@ public class LabelledTasksViewClientShould extends CommandLineTodoClientShould {
         client.assignLabel(assignLabelToTask);
 
         final TaskId updatedTaskId = isCorrectId ? createdTaskId : getWrongTaskId();
-        final UpdateTaskPriority updateTaskPriority = updateTaskPriorityInstance(updatedTaskId, priority);
+        final UpdateTaskPriority updateTaskPriority =
+                updateTaskPriorityInstance(updatedTaskId, TaskPriority.TP_UNDEFINED, priority);
         client.update(updateTaskPriority);
 
         final List<LabelledTasksView> tasksViewList = client.getLabelledTasksView();
@@ -616,7 +628,9 @@ public class LabelledTasksViewClientShould extends CommandLineTodoClientShould {
         client.assignLabel(assignLabelToTask);
 
         final TaskId updatedTaskId = isCorrectId ? createdTaskId : getWrongTaskId();
-        final UpdateTaskDueDate updateTaskDueDate = updateTaskDueDateInstance(updatedTaskId, newDueDate);
+        final Timestamp previousDueDate = Timestamp.getDefaultInstance();
+
+        final UpdateTaskDueDate updateTaskDueDate = updateTaskDueDateInstance(updatedTaskId, previousDueDate, newDueDate);
         client.update(updateTaskDueDate);
 
         final List<LabelledTasksView> tasksViewList = client.getLabelledTasksView();
