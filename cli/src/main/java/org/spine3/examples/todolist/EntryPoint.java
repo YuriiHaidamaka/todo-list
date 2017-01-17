@@ -26,12 +26,16 @@ import asg.cliche.ShellDependent;
 import asg.cliche.ShellFactory;
 import com.google.common.base.Charsets;
 import org.spine3.examples.todolist.c.commands.AssignLabelToTask;
+import org.spine3.examples.todolist.c.commands.CompleteTask;
 import org.spine3.examples.todolist.c.commands.DeleteTask;
 import org.spine3.examples.todolist.c.commands.RemoveLabelFromTask;
+import org.spine3.examples.todolist.c.commands.ReopenTask;
+import org.spine3.examples.todolist.c.commands.RestoreDeletedTask;
 import org.spine3.examples.todolist.client.CommandLineTodoClient;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.modes.CreateLabelMode;
 import org.spine3.examples.todolist.modes.CreateTaskMode;
+import org.spine3.examples.todolist.modes.ObtainViewMode;
 import org.spine3.examples.todolist.modes.UpdateLabelMode;
 import org.spine3.examples.todolist.modes.UpdateTaskMode;
 import org.spine3.examples.todolist.server.Server;
@@ -51,7 +55,7 @@ import static org.spine3.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT;
  */
 public class EntryPoint implements ShellDependent {
 
-    public static final String HELP_ADVICE = "Enter 'help' to view all commands";
+    private static final String HELP_ADVICE = "Enter 'help' to view all commands";
     private Shell shell;
     private TodoClient client = new CommandLineTodoClient("localhost", DEFAULT_CLIENT_SERVICE_PORT);
     private BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8));
@@ -62,7 +66,12 @@ public class EntryPoint implements ShellDependent {
             "3:  Create label mode\n" +
             "4:  Update label mode\n" +
             "5:  Assign label to task\n" +
-            "6:  Remove label from task\n";
+            "6:  Remove label from task\n" +
+            "7:  Delete task\n" +
+            "8:  Reopen task\n" +
+            "9:  Restore task\n" +
+            "10: Complete task\n" +
+            "11: Obtain views";
 
     @Override
     public void cliSetShell(Shell theShell) {
@@ -142,6 +151,48 @@ public class EntryPoint implements ShellDependent {
                                                 .setId(taskId)
                                                 .build();
         client.delete(deleteTask);
+    }
+
+    @Command(abbrev = "8")
+    public void reopenTask() throws IOException {
+        System.out.println("Please enter the task id: ");
+        final TaskId taskId = TaskId.newBuilder()
+                                    .setValue(reader.readLine())
+                                    .build();
+        final ReopenTask reopenTask = ReopenTask.newBuilder()
+                                                .setId(taskId)
+                                                .build();
+        client.reopen(reopenTask);
+    }
+
+    @Command(abbrev = "9")
+    public void restoreTask() throws IOException {
+        System.out.println("Please enter the task id: ");
+        final TaskId taskId = TaskId.newBuilder()
+                                    .setValue(reader.readLine())
+                                    .build();
+        final RestoreDeletedTask restoreDeletedTask = RestoreDeletedTask.newBuilder()
+                                                                        .setId(taskId)
+                                                                        .build();
+        client.restore(restoreDeletedTask);
+    }
+
+    @Command(abbrev = "10")
+    public void completeTask() throws IOException {
+        System.out.println("Please enter the task id: ");
+        final TaskId taskId = TaskId.newBuilder()
+                                    .setValue(reader.readLine())
+                                    .build();
+        final CompleteTask completeTask = CompleteTask.newBuilder()
+                                                      .setId(taskId)
+                                                      .build();
+        client.complete(completeTask);
+    }
+
+    @Command(abbrev = "11")
+    public void obtainViews() throws IOException {
+        ShellFactory.createSubshell("obtain-views", shell, "Obtain view mode\n" + HELP_ADVICE, new ObtainViewMode(client, reader))
+                    .commandLoop();
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
