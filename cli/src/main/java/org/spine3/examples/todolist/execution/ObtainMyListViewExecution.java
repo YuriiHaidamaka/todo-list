@@ -20,7 +20,7 @@
 
 package org.spine3.examples.todolist.execution;
 
-import org.spine3.examples.todolist.Settings;
+import org.spine3.examples.todolist.Parameters;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.view.MyListView;
 
@@ -35,7 +35,7 @@ public class ObtainMyListViewExecution implements Executable {
     }
 
     @Override
-    public String execute(Settings params) {
+    public String execute(Parameters params) {
         final MyListView myListView = client.getMyListView();
         final String result = myListView.toString();
         return result;

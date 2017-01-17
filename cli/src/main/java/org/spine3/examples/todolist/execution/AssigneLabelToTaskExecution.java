@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, TeamDev Ltd. All rights reserved.
+ * Copyright 2017, TeamDev Ltd. All rights reserved.
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -20,28 +20,29 @@
 
 package org.spine3.examples.todolist.execution;
 
+import org.spine3.examples.todolist.AssignLabelToTask;
 import org.spine3.examples.todolist.Parameters;
-import org.spine3.examples.todolist.UpdateTaskDueDate;
 import org.spine3.examples.todolist.client.TodoClient;
 
 /**
  * @author Illia Shepilov
  */
-public class UpdateTaskDueDateExecution implements Executable {
-    private final TodoClient client;
-    private static final String UPDATED_DESCRIPTION_MESSAGE = "Task due date updated.";
+public class AssigneLabelToTaskExecution implements Executable {
 
-    public UpdateTaskDueDateExecution(TodoClient client) {
+    private static final String LABEL_ASSIGNED_TO_TASK_MESSAGE = "Label assigned to task";
+    private final TodoClient client;
+
+    public AssigneLabelToTaskExecution(TodoClient client) {
         this.client = client;
     }
 
     @Override
     public String execute(Parameters params) {
-        final UpdateTaskDueDate updateTaskDueDate = UpdateTaskDueDate.newBuilder()
+        final AssignLabelToTask assignLabelToTask = AssignLabelToTask.newBuilder()
+                                                                     .setLabelId(params.getLabelId())
                                                                      .setId(params.getTaskId())
-                                                                     .setUpdatedDueDate(params.getDueDate())
                                                                      .build();
-        client.update(updateTaskDueDate);
-        return UPDATED_DESCRIPTION_MESSAGE;
+        client.assignLabel(assignLabelToTask);
+        return LABEL_ASSIGNED_TO_TASK_MESSAGE;
     }
 }

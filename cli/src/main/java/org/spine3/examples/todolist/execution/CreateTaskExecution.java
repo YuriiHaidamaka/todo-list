@@ -21,7 +21,8 @@
 package org.spine3.examples.todolist.execution;
 
 import org.spine3.examples.todolist.CreateBasicTask;
-import org.spine3.examples.todolist.Settings;
+import org.spine3.examples.todolist.Parameters;
+import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.client.TodoClient;
 
 /**
@@ -31,16 +32,24 @@ public class CreateTaskExecution implements Executable {
 
     private final TodoClient client;
     private static final String TASK_CREATED_MESSAGE = "Task created.";
+    private static final String MANDATORY_PARAMS_MESSAGE = "Task id and description are mandatory";
 
     public CreateTaskExecution(TodoClient client) {
         this.client = client;
     }
 
     @Override
-    public String execute(Settings params) {
+    public String execute(Parameters params) {
+        final TaskId taskId = params.getTaskId();
+        final String description = params.getDescription();
+
+        if (taskId == null || description == null) {
+            return MANDATORY_PARAMS_MESSAGE;
+        }
+
         final CreateBasicTask createBasicTask = CreateBasicTask.newBuilder()
-                                                               .setId(params.getTaskId())
-                                                               .setDescription(params.getDescription())
+                                                               .setId(taskId)
+                                                               .setDescription(description)
                                                                .build();
         client.create(createBasicTask);
         return TASK_CREATED_MESSAGE;

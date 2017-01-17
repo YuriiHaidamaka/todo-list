@@ -20,7 +20,7 @@
 
 package org.spine3.examples.todolist.execution;
 
-import org.spine3.examples.todolist.Settings;
+import org.spine3.examples.todolist.Parameters;
 import org.spine3.examples.todolist.UpdateTaskDescription;
 import org.spine3.examples.todolist.client.TodoClient;
 
@@ -36,7 +36,7 @@ public class UpdateTaskDescriptionExecution implements Executable {
     }
 
     @Override
-    public String execute(Settings params) {
+    public String execute(Parameters params) {
         final UpdateTaskDescription updateTaskDescription = UpdateTaskDescription.newBuilder()
                                                                                  .setId(params.getTaskId())
                                                                                  .setUpdatedDescription(params.getDescription())

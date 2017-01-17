@@ -20,7 +20,7 @@
 
 package org.spine3.examples.todolist.execution;
 
-import org.spine3.examples.todolist.Settings;
+import org.spine3.examples.todolist.Parameters;
 import org.spine3.examples.todolist.UpdateTaskPriority;
 import org.spine3.examples.todolist.client.TodoClient;
 
@@ -36,7 +36,7 @@ public class UpdateTaskPriorityExecution implements Executable {
     }
 
     @Override
-    public String execute(Settings params) {
+    public String execute(Parameters params) {
         final UpdateTaskPriority updateTaskPriority = UpdateTaskPriority.newBuilder()
                                                                        .setId(params.getTaskId())
                                                                        .setUpdatedPriority(params.getPriority())

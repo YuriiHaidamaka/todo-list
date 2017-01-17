@@ -20,7 +20,7 @@
 
 package org.spine3.examples.todolist.execution;
 
-import org.spine3.examples.todolist.Settings;
+import org.spine3.examples.todolist.Parameters;
 
 /**
  * @author Illia Shepilov
@@ -28,9 +28,9 @@ import org.spine3.examples.todolist.Settings;
 public class HelpExecution implements Executable {
 
     private static final String HELP =
-            "create-task [--description]                          creates the task with the specified description.\n" +
-            "create-label [--title]                               creates the label with the specified title.\n" +
-            "create-draft [--title]                               creates the task draft.\n" +
+            "create-task [--description] [--task-id]              creates the task with the specified description.\n" +
+            "create-label [--title] [--label-id]                  creates the label with the specified title.\n" +
+            "create-draft [--description] [--task-id]             creates the task draft.\n" +
             "update-due-date [--task-id] [--due-date]             updates the task due date.\n" +
             "update-priority [--task-id] [--priority]             updates the task priority.\n" +
             "update-description [--task-id][--description]        updates the task description.\n" +
@@ -47,7 +47,7 @@ public class HelpExecution implements Executable {
             "labelled-tasks-view                                  returns the labelled tasks view.\n";
 
     @Override
-    public String execute(Settings params) {
+    public String execute(Parameters params) {
         return HELP;
     }
 }

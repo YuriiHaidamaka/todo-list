@@ -20,14 +20,12 @@
 
 package org.spine3.examples.todolist.execution;
 
-import org.spine3.examples.todolist.Settings;
-
-import java.util.Map;
+import org.spine3.examples.todolist.Parameters;
 
 /**
  * @author Illia Shepilov
  */
 public interface Executable {
 
-    String execute(Settings params);
+    String execute(Parameters params);
 }

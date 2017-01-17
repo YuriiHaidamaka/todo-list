@@ -22,13 +22,21 @@ package org.spine3.examples.todolist;
 
 import org.spine3.examples.todolist.client.CommandLineTodoClient;
 import org.spine3.examples.todolist.client.TodoClient;
+import org.spine3.examples.todolist.execution.AssigneLabelToTaskExecution;
+import org.spine3.examples.todolist.execution.CompleteTaskExecution;
 import org.spine3.examples.todolist.execution.CreateDraftExecution;
 import org.spine3.examples.todolist.execution.CreateLabelExecution;
 import org.spine3.examples.todolist.execution.CreateTaskExecution;
+import org.spine3.examples.todolist.execution.DeleteTaskExecution;
 import org.spine3.examples.todolist.execution.Executable;
+import org.spine3.examples.todolist.execution.FinalizeDraftExecution;
 import org.spine3.examples.todolist.execution.HelpExecution;
 import org.spine3.examples.todolist.execution.ObtainDraftTasksViewExecution;
+import org.spine3.examples.todolist.execution.ObtainLabelledTasksViewExecution;
 import org.spine3.examples.todolist.execution.ObtainMyListViewExecution;
+import org.spine3.examples.todolist.execution.RemoveLabelFromTaskExecution;
+import org.spine3.examples.todolist.execution.ReopenTaskExecution;
+import org.spine3.examples.todolist.execution.RestoreTaskExecution;
 import org.spine3.examples.todolist.execution.UpdateLabelDetailsExecution;
 import org.spine3.examples.todolist.execution.UpdateTaskDescriptionExecution;
 import org.spine3.examples.todolist.execution.UpdateTaskDueDateExecution;
@@ -54,6 +62,14 @@ public class CommandHolder {
     private static final String UPDATE_LABEL_DETAILS_COMMAND = "update-label-details";
     private static final String OBTAIN_MY_LIST_VIEW_COMMAND = "my-list-view";
     private static final String OBTAIN_DRAFT_TASKS_VIEW_COMMAND = "draft-tasks-view";
+    private static final String OBTAIN_LABELLED_TASKS_VIEW_COMMAND = "labelled-tasks-view";
+    private static final String FINALIZE_DRAFT_COMMAND = "finalize-draft";
+    private static final String COMPLETE_TASK_COMMAND = "complete-task";
+    private static final String REOPEN_TASK_COMMAND = "reopen-task";
+    private static final String DELETE_TASK_COMMAND = "delete-task";
+    private static final String RESTORE_TASK_COMMAND = "restore-task";
+    private static final String ASSIGN_LABEL_TO_TASK_COMMAND = "assign-label";
+    private static final String REMOVE_LABEL_FROM_TASK_COMMAND = "remove-label";
 
     private final Map<String, Executable> map;
     private final TodoClient client;
@@ -75,6 +91,14 @@ public class CommandHolder {
         map.put(UPDATE_LABEL_DETAILS_COMMAND, new UpdateLabelDetailsExecution(client));
         map.put(OBTAIN_MY_LIST_VIEW_COMMAND, new ObtainMyListViewExecution(client));
         map.put(OBTAIN_DRAFT_TASKS_VIEW_COMMAND, new ObtainDraftTasksViewExecution(client));
+        map.put(OBTAIN_LABELLED_TASKS_VIEW_COMMAND, new ObtainLabelledTasksViewExecution(client));
+        map.put(FINALIZE_DRAFT_COMMAND, new FinalizeDraftExecution(client));
+        map.put(COMPLETE_TASK_COMMAND, new CompleteTaskExecution(client));
+        map.put(REOPEN_TASK_COMMAND, new ReopenTaskExecution(client));
+        map.put(DELETE_TASK_COMMAND, new DeleteTaskExecution(client));
+        map.put(RESTORE_TASK_COMMAND, new RestoreTaskExecution(client));
+        map.put(ASSIGN_LABEL_TO_TASK_COMMAND, new AssigneLabelToTaskExecution(client));
+        map.put(REMOVE_LABEL_FROM_TASK_COMMAND, new RemoveLabelFromTaskExecution(client));
     }
 
     public Executable get(String key) {

@@ -21,7 +21,7 @@
 package org.spine3.examples.todolist.execution;
 
 import org.spine3.examples.todolist.CreateBasicLabel;
-import org.spine3.examples.todolist.Settings;
+import org.spine3.examples.todolist.Parameters;
 import org.spine3.examples.todolist.client.TodoClient;
 
 /**
@@ -37,7 +37,7 @@ public class CreateLabelExecution implements Executable {
     }
 
     @Override
-    public String execute(Settings params) {
+    public String execute(Parameters params) {
         final CreateBasicLabel createBasicLabel = CreateBasicLabel.newBuilder()
                                                                   .setLabelId(params.getLabelId())
                                                                   .setLabelTitle(params.getTitle())

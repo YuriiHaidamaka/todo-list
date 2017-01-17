@@ -21,7 +21,7 @@
 package org.spine3.examples.todolist.execution;
 
 import org.spine3.examples.todolist.CreateDraft;
-import org.spine3.examples.todolist.Settings;
+import org.spine3.examples.todolist.Parameters;
 import org.spine3.examples.todolist.client.TodoClient;
 
 /**
@@ -37,7 +37,7 @@ public class CreateDraftExecution implements Executable {
     }
 
     @Override
-    public String execute(Settings params) {
+    public String execute(Parameters params) {
         final CreateDraft createDraft = CreateDraft.newBuilder()
                                                    .setId(params.getTaskId())
                                                    .build();

@@ -1,6 +1,6 @@
 package org.spine3.examples.todolist.execution;
 
-import org.spine3.examples.todolist.Settings;
+import org.spine3.examples.todolist.Parameters;
 import org.spine3.examples.todolist.UpdateLabelDetails;
 import org.spine3.examples.todolist.client.TodoClient;
 
@@ -17,7 +17,7 @@ public class UpdateLabelDetailsExecution implements Executable {
     }
 
     @Override
-    public String execute(Settings params) {
+    public String execute(Parameters params) {
         final UpdateLabelDetails updateLabelDetails = UpdateLabelDetails.newBuilder()
                                                                         .setNewTitle(params.getTitle())
                                                                         .setColor(params.getColor())
