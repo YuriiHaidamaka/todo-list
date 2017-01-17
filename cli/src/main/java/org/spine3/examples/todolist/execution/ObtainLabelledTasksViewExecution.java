@@ -22,7 +22,7 @@ package org.spine3.examples.todolist.execution;
 
 import org.spine3.examples.todolist.Parameters;
 import org.spine3.examples.todolist.client.TodoClient;
-import org.spine3.examples.todolist.view.LabelledTasksView;
+import org.spine3.examples.todolist.q.projections.LabelledTasksView;
 
 import java.util.List;
 

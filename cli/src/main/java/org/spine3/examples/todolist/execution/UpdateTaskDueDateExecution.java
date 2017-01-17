@@ -20,8 +20,9 @@
 
 package org.spine3.examples.todolist.execution;
 
+import org.spine3.change.TimestampChange;
 import org.spine3.examples.todolist.Parameters;
-import org.spine3.examples.todolist.UpdateTaskDueDate;
+import org.spine3.examples.todolist.c.commands.UpdateTaskDueDate;
 import org.spine3.examples.todolist.client.TodoClient;
 
 /**
@@ -37,9 +38,12 @@ public class UpdateTaskDueDateExecution implements Executable {
 
     @Override
     public String execute(Parameters params) {
+        final TimestampChange change = TimestampChange.newBuilder()
+                                                      .setNewValue(params.getDueDate())
+                                                      .build();
         final UpdateTaskDueDate updateTaskDueDate = UpdateTaskDueDate.newBuilder()
                                                                      .setId(params.getTaskId())
-                                                                     .setUpdatedDueDate(params.getDueDate())
+                                                                     .setDueDateChange(change)
                                                                      .build();
         client.update(updateTaskDueDate);
         return UPDATED_DESCRIPTION_MESSAGE;

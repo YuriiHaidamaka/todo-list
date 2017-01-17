@@ -1,7 +1,9 @@
 package org.spine3.examples.todolist.execution;
 
+import org.spine3.examples.todolist.LabelDetails;
+import org.spine3.examples.todolist.LabelDetailsChange;
 import org.spine3.examples.todolist.Parameters;
-import org.spine3.examples.todolist.UpdateLabelDetails;
+import org.spine3.examples.todolist.c.commands.UpdateLabelDetails;
 import org.spine3.examples.todolist.client.TodoClient;
 
 /**
@@ -18,9 +20,15 @@ public class UpdateLabelDetailsExecution implements Executable {
 
     @Override
     public String execute(Parameters params) {
+        final LabelDetails labelDetails = LabelDetails.newBuilder()
+                                                      .setTitle(params.getTitle())
+                                                      .setColor(params.getColor())
+                                                      .build();
+        final LabelDetailsChange labelDetailsChange = LabelDetailsChange.newBuilder()
+                                                                        .setNewDetails(labelDetails)
+                                                                        .build();
         final UpdateLabelDetails updateLabelDetails = UpdateLabelDetails.newBuilder()
-                                                                        .setNewTitle(params.getTitle())
-                                                                        .setColor(params.getColor())
+                                                                        .setLabelDetailsChange(labelDetailsChange)
                                                                         .setId(params.getLabelId())
                                                                         .build();
         client.update(updateLabelDetails);

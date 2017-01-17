@@ -2,7 +2,7 @@ package org.spine3.examples.todolist.execution;
 
 import org.spine3.examples.todolist.Parameters;
 import org.spine3.examples.todolist.client.TodoClient;
-import org.spine3.examples.todolist.view.DraftTasksView;
+import org.spine3.examples.todolist.q.projections.DraftTasksView;
 
 /**
  * @author Illia Shepilov

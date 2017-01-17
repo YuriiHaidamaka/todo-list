@@ -20,7 +20,7 @@
 
 package org.spine3.examples.todolist.execution;
 
-import org.spine3.examples.todolist.FinalizeDraft;
+import org.spine3.examples.todolist.c.commands.FinalizeDraft;
 import org.spine3.examples.todolist.Parameters;
 import org.spine3.examples.todolist.client.TodoClient;
 

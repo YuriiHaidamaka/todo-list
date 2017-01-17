@@ -20,7 +20,7 @@
 
 package org.spine3.examples.todolist.execution;
 
-import org.spine3.examples.todolist.RemoveLabelFromTask;
+import org.spine3.examples.todolist.c.commands.RemoveLabelFromTask;
 import org.spine3.examples.todolist.Parameters;
 import org.spine3.examples.todolist.client.TodoClient;
 

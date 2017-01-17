@@ -20,7 +20,7 @@
 
 package org.spine3.examples.todolist.execution;
 
-import org.spine3.examples.todolist.CreateBasicTask;
+import org.spine3.examples.todolist.c.commands.CreateBasicTask;
 import org.spine3.examples.todolist.Parameters;
 import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.client.TodoClient;

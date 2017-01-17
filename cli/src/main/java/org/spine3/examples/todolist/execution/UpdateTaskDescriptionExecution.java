@@ -20,8 +20,9 @@
 
 package org.spine3.examples.todolist.execution;
 
+import org.spine3.change.StringChange;
 import org.spine3.examples.todolist.Parameters;
-import org.spine3.examples.todolist.UpdateTaskDescription;
+import org.spine3.examples.todolist.c.commands.UpdateTaskDescription;
 import org.spine3.examples.todolist.client.TodoClient;
 
 /**
@@ -37,9 +38,12 @@ public class UpdateTaskDescriptionExecution implements Executable {
 
     @Override
     public String execute(Parameters params) {
+        final StringChange change = StringChange.newBuilder()
+                                                .setNewValue(params.getDescription())
+                                                .build();
         final UpdateTaskDescription updateTaskDescription = UpdateTaskDescription.newBuilder()
                                                                                  .setId(params.getTaskId())
-                                                                                 .setUpdatedDescription(params.getDescription())
+                                                                                 .setDescriptionChange(change)
                                                                                  .build();
         client.update(updateTaskDescription);
         return UPDATED_DESCRIPTION_MESSAGE;
