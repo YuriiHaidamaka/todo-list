@@ -92,7 +92,6 @@ public class CreateTaskMode {
 
     @Command(abbrev = "4")
     public void createTask() {
-        setDefaultParameterValues();
         final TaskId taskId = TaskId.newBuilder()
                                     .setValue(newUuid())
                                     .build();
@@ -126,6 +125,7 @@ public class CreateTaskMode {
         final String result = String.format("Created task with parameters:\nid: %s\ndescription: %s\npriority: %s\ndue date: %s",
                                             taskId.getValue(), description, priority, dueDate);
         System.out.println(result);
+        setDefaultParameterValues();
     }
 
     private void setDefaultParameterValues() {
