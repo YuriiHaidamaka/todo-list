@@ -20,6 +20,7 @@
 
 dependencies {
     compile group: 'com.beust', name: 'jcommander', version: '1.7'
+    compile group: 'com.googlecode.clichemaven', name: 'cliche', version: '110413'
 
     compile project(path: ':api-java')
     compile project(path: ':client')
