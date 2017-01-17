@@ -34,10 +34,15 @@ import org.spine3.examples.todolist.modes.CreateLabelMode;
 import org.spine3.examples.todolist.modes.CreateTaskMode;
 import org.spine3.examples.todolist.modes.UpdateLabelMode;
 import org.spine3.examples.todolist.modes.UpdateTaskMode;
+import org.spine3.examples.todolist.server.Server;
+import org.spine3.server.storage.memory.InMemoryStorageFactory;
+import org.spine3.util.Exceptions;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.spine3.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT;
 
@@ -139,8 +144,28 @@ public class EntryPoint implements ShellDependent {
         client.delete(deleteTask);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        startServer();
         ShellFactory.createConsoleShell("todo", "Enter 'help' to view all commands", new EntryPoint())
                     .commandLoop();
+    }
+
+    private static void startServer() throws InterruptedException {
+        final InMemoryStorageFactory storageFactory = InMemoryStorageFactory.getInstance();
+        final Server server = new Server(storageFactory);
+
+        final CountDownLatch serverStartLatch = new CountDownLatch(1);
+        final Thread serverThread = new Thread(() -> {
+            try {
+                server.start();
+                server.awaitTermination();
+                serverStartLatch.countDown();
+            } catch (IOException e) {
+                throw Exceptions.wrappedCause(e);
+            }
+        });
+
+        serverThread.start();
+        serverStartLatch.await(100, TimeUnit.MILLISECONDS);
     }
 }
