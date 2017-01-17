@@ -31,27 +31,27 @@ import org.spine3.examples.todolist.converters.TimeConverter;
 /**
  * @author Illia Shepilov
  */
-public class Settings {
+public class Parameters {
 
-    @Parameter(names = "--task-id", description = "A task identifier", converter = TaskIdConverter.class)
+    @Parameter(names = {"--task-id", "-ti"}, description = "A task identifier", converter = TaskIdConverter.class)
     private TaskId taskId;
 
-    @Parameter(names = "--label-id", description = "A label identifier", converter = TaskLabelIdConverter.class)
+    @Parameter(names = {"--label-id", "-li"}, description = "A label identifier", converter = TaskLabelIdConverter.class)
     private TaskLabelId labelId;
 
-    @Parameter(names = "--description", description = "A description for the task")
+    @Parameter(names = {"--description", "-d"}, description = "A description for the task")
     private String description;
 
-    @Parameter(names = "--priority", description = "A priority for the task", converter = PriorityConverter.class)
+    @Parameter(names = {"--priority", "-p"}, description = "A priority for the task", converter = PriorityConverter.class)
     private TaskPriority priority;
 
-    @Parameter(names = "--due-date", description = "A task due date", converter = TimeConverter.class)
+    @Parameter(names = {"--due-date", "-dd"}, description = "A task due date", converter = TimeConverter.class)
     private Timestamp dueDate;
 
-    @Parameter(names = "--title", description = "A label title")
+    @Parameter(names = {"--title", "-t"}, description = "A label title")
     private String title;
 
-    @Parameter(names = "--color", description = "A label color", converter = ColorConverter.class)
+    @Parameter(names = {"--color", "-c"}, description = "A label color", converter = ColorConverter.class)
     private LabelColor color;
 
     public TaskId getTaskId() {

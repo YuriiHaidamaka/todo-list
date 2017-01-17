@@ -35,25 +35,25 @@ import java.util.Arrays;
 public class CliEntryPoint {
 
     public static void main(String[] args) throws IOException {
-        final Settings settings = new Settings();
+        final Parameters parameters = new Parameters();
 
         final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8));
         final CommandHolder holder = new CommandHolder();
 
-        System.out.println("Enter the command, enter <help> for help");
+        System.out.print("Enter the command, enter <help> for help" + "\n>");
         String line = reader.readLine();
 
         while (line != null) {
             if ("exit".equals(line)) {
                 break;
             }
-
+            
             final String[] command = line.split(" ");
             final String[] params = Arrays.copyOfRange(command, 1, command.length);
-            new JCommander(settings, params);
+            new JCommander(parameters, params);
             final Executable execution = holder.get(command[0]);
-            final String result = execution.execute(settings);
-            System.out.println(result);
+            final String result = execution.execute(parameters);
+            System.out.print(result + "\n>");
             line = reader.readLine();
         }
 
