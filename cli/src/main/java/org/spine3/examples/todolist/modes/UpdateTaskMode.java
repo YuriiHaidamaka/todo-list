@@ -56,7 +56,7 @@ public class UpdateTaskMode {
             "1:    Update the task description.\n" +
             "2:    Update the task priority.\n" +
             "3:    Update the task due date.\n" +
-            "exit: Exit from the mode";
+            "exit: Exit from the mode.";
     private BufferedReader reader;
 
     UpdateTaskMode(TodoClient client, BufferedReader reader) {
