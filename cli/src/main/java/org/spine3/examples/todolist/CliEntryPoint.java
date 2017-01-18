@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, TeamDev Ltd. All rights reserved.
+ * Copyright 2017, TeamDev Ltd. All rights reserved.
  *
  * Redistribution and use in source and/or binary forms, with or without
  * modification, must retain the above copyright notice and the following
@@ -20,42 +20,58 @@
 
 package org.spine3.examples.todolist;
 
-import com.beust.jcommander.JCommander;
+import asg.cliche.ShellFactory;
 import com.google.common.base.Charsets;
-import org.spine3.examples.todolist.execution.Executable;
+import org.spine3.examples.todolist.client.CommandLineTodoClient;
+import org.spine3.examples.todolist.client.TodoClient;
+import org.spine3.examples.todolist.modes.MainMode;
+import org.spine3.examples.todolist.server.Server;
+import org.spine3.server.storage.memory.InMemoryStorageFactory;
+import org.spine3.util.Exceptions;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static org.spine3.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT;
+import static org.spine3.examples.todolist.modes.MainMode.HELP_ADVICE;
 
 /**
  * @author Illia Shepilov
  */
 public class CliEntryPoint {
 
-    public static void main(String[] args) throws IOException {
-        final Parameters parameters = new Parameters();
+    private static final String TODO_PROMPT = "todo";
 
+    public static void main(String[] args) throws Exception {
+        final InMemoryStorageFactory storageFactory = InMemoryStorageFactory.getInstance();
+        final Server server = new Server(storageFactory);
+        startServer(server);
+
+        final TodoClient client = new CommandLineTodoClient("localhost", DEFAULT_CLIENT_SERVICE_PORT);
         final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8));
-        final CommandHolder holder = new CommandHolder();
+        final MainMode entryPoint = new MainMode(client, reader);
+        ShellFactory.createConsoleShell(TODO_PROMPT, HELP_ADVICE, entryPoint)
+                    .commandLoop();
+        reader.close();
+        client.shutdown();
+        server.shutdown();
+    }
 
-        System.out.print("Enter the command, enter <help> for help" + "\n>");
-        String line = reader.readLine();
-
-        while (line != null) {
-            if ("exit".equals(line)) {
-                break;
+    private static void startServer(Server server) throws InterruptedException {
+        final CountDownLatch serverStartLatch = new CountDownLatch(1);
+        final Thread serverThread = new Thread(() -> {
+            try {
+                server.start();
+                serverStartLatch.countDown();
+            } catch (IOException e) {
+                throw Exceptions.wrappedCause(e);
             }
-            
-            final String[] command = line.split(" ");
-            final String[] params = Arrays.copyOfRange(command, 1, command.length);
-            new JCommander(parameters, params);
-            final Executable execution = holder.get(command[0]);
-            final String result = execution.execute(parameters);
-            System.out.print(result + "\n>");
-            line = reader.readLine();
-        }
+        });
 
+        serverThread.start();
+        serverStartLatch.await(1500, TimeUnit.MILLISECONDS);
     }
 }
