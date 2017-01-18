@@ -20,26 +20,37 @@
 
 package org.spine3.examples.todolist.validator;
 
-import static org.spine3.examples.todolist.validator.Validator.checkNotEmpty;
-import static org.spine3.examples.todolist.validator.Validator.checkNotNull;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
 
 /**
  * @author Illia Shepilov
  */
-public class IdValidator implements Validatable {
+public class IdValidator implements Validator {
+
+    private static final String ID_IS_NULL = "Id cannot be null.";
+    private static final String ID_IS_EMPTY = "Id cannot be empty.";
+    private String message;
 
     @Override
-    public String validate(String input) {
-        final boolean isNotNull = checkNotNull(input);
+    public boolean validate(String input) {
+        final boolean isNull = isNull(input);
 
-        if (!isNotNull) {
-            return "Id cannot be null.";
+        if (isNull) {
+            message = ID_IS_NULL;
+            return false;
         }
-        final boolean isNotEmpty = checkNotEmpty(input);
+        final boolean isEmpty = isEmpty(input);
 
-        if (!isNotEmpty) {
-            return "Id cannot be empty.";
+        if (isEmpty) {
+            message = ID_IS_EMPTY;
+            return false;
         }
-        return CORRECT_INPUT;
+        return true;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 }

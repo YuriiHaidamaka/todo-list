@@ -25,28 +25,37 @@ import org.spine3.examples.todolist.LabelColor;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.spine3.examples.todolist.validator.Validator.checkNotEmpty;
-import static org.spine3.examples.todolist.validator.Validator.checkNotNull;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
 
 /**
  * @author Illia Shepilov
  */
-public class LabelColorValidator implements Validatable {
+public class LabelColorValidator implements Validator {
+
+    private static final String COLOR_IS_NULL = "Label color cannot be null.";
+    private static final String COLOR_IS_EMPTY = "Label color cannot be empty.";
+    private static final String INCORRECT_LABEL_COLOR = "Please enter the correct label color.";
+    private String message;
 
     @Override
-    public String validate(String input) {
-        final boolean isNotNull = checkNotNull(input);
+    public boolean validate(String input) {
+        final boolean isNull = isNull(input);
 
-        if (!isNotNull) {
-            return "Label color cannot be null.";
+        if (isNull) {
+            message = COLOR_IS_NULL;
+            return false;
         }
 
-        final boolean isNotEmpty = checkNotEmpty(input);
-        if (!isNotEmpty) {
-            return "Label color cannot be empty.";
+        final boolean isEmpty = isEmpty(input);
+
+        if (isEmpty) {
+            message = COLOR_IS_EMPTY;
+            return false;
         }
 
         final List<LabelColor> colors = newArrayList(LabelColor.BLUE, LabelColor.GRAY, LabelColor.GREEN, LabelColor.RED);
+
         boolean isValid = false;
         for (LabelColor currentColor : colors) {
             final String inputColor = input.toUpperCase();
@@ -55,9 +64,17 @@ public class LabelColorValidator implements Validatable {
                 isValid = true;
             }
         }
+
         if (!isValid) {
-            return "Please enter the correct label color.";
+            message = INCORRECT_LABEL_COLOR;
+            return false;
         }
-        return CORRECT_INPUT;
+
+        return true;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 }

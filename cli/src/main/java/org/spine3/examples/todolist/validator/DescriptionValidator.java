@@ -20,28 +20,42 @@
 
 package org.spine3.examples.todolist.validator;
 
-import static org.spine3.examples.todolist.validator.Validator.checkNotEmpty;
-import static org.spine3.examples.todolist.validator.Validator.checkNotNull;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
 
 /**
  * @author Illia Shepilov
  */
-public class DescriptionValidator implements Validatable {
+public class DescriptionValidator implements Validator {
+
+    private static final String DESCRIPTION_IS_NULL = "Description cannot be null.";
+    private static final String DESCRIPTION_IS_EMPTY = "Description cannot be empty.";
+    private static final String INCORRECT_DESCRIPTION = "Description should contains at least 3 symbols.";
+    private String message;
 
     @Override
-    public String validate(String input) {
-        final boolean isNotNull = checkNotNull(input);
-        if (!isNotNull) {
-            return "Description cannot be null.";
+    public boolean validate(String input) {
+        final boolean isNull = isNull(input);
+        if (isNull) {
+            message = DESCRIPTION_IS_NULL;
+            return false;
         }
-        final boolean isNotEmpty = checkNotEmpty(input);
 
-        if (!isNotEmpty) {
-            return "Description cannot be empty.";
+        final boolean isEmpty = isEmpty(input);
+        if (isEmpty) {
+            message = DESCRIPTION_IS_EMPTY;
+            return false;
         }
+
         if (input.length() < 3) {
-            return "Description should contains at least 3 symbols.";
+            message = INCORRECT_DESCRIPTION;
+            return false;
         }
-        return CORRECT_INPUT;
+        return true;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 }

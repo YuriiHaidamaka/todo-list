@@ -23,13 +23,9 @@ package org.spine3.examples.todolist.validator;
 /**
  * @author Illia Shepilov
  */
-public class Validator {
+public interface Validator {
 
-    static boolean checkNotNull(String input) {
-        return input != null;
-    }
+    boolean validate(String input);
 
-    static boolean checkNotEmpty(String input) {
-        return input.isEmpty();
-    }
+    String getMessage();
 }

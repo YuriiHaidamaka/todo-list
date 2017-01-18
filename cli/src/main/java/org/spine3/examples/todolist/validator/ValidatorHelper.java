@@ -23,11 +23,13 @@ package org.spine3.examples.todolist.validator;
 /**
  * @author Illia Shepilov
  */
-public interface Validatable {
+class ValidatorHelper {
 
-    String CORRECT_INPUT = "Correct input";
+    static boolean isNull(String input) {
+        return input == null;
+    }
 
-    default String validate(String input) {
-        return CORRECT_INPUT;
+    static boolean isEmpty(String input) {
+        return input.isEmpty();
     }
 }

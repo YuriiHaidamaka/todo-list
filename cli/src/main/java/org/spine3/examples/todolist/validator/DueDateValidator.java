@@ -24,30 +24,50 @@ import com.google.protobuf.util.Timestamps;
 
 import java.text.ParseException;
 
-import static org.spine3.examples.todolist.validator.Validator.checkNotEmpty;
-import static org.spine3.examples.todolist.validator.Validator.checkNotNull;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
 
 /**
  * @author Illia Shepilov
  */
-public class DueDateValidator implements Validatable {
+public class DueDateValidator implements Validator {
+
+    private static final String DUE_DATE_IS_NULL = "The due date cannot be null.";
+    private static final String DUE_DATE_IS_EMPTY = "The due date cannot be empty.";
+    private static final String INCORRECT_DUE_DATE = "Please enter the correct due date format yyyy-MM-dd.";
+    private String message;
 
     @Override
-    public String validate(String input) {
-        final boolean isNotNull = checkNotNull(input);
-        if (!isNotNull) {
-            return "The due date cannot be null.";
-        }
-        final boolean isNotEmpty = checkNotEmpty(input);
-        if (!isNotEmpty) {
-            return "The due date cannot be empty.";
+    public boolean validate(String input) {
+        final boolean isNull = isNull(input);
+
+        if (isNull) {
+            message = DUE_DATE_IS_NULL;
+            return false;
         }
 
+        final boolean isEmpty = isEmpty(input);
+        if (isEmpty) {
+            message = DUE_DATE_IS_EMPTY;
+            return false;
+        }
+
+        final boolean result = isCorrectFormat(input);
+        return result;
+    }
+
+    private boolean isCorrectFormat(String input) {
         try {
             Timestamps.parse(input);
         } catch (ParseException e) {
-            return "Please enter the correct due date format yyyy-MM-dd.";
+            message = INCORRECT_DUE_DATE;
+            return false;
         }
-        return CORRECT_INPUT;
+        return true;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 }

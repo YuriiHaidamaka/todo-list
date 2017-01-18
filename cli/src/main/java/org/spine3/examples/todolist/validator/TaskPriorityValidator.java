@@ -22,27 +22,36 @@ package org.spine3.examples.todolist.validator;
 
 import com.google.common.collect.Lists;
 import org.spine3.examples.todolist.TaskPriority;
-import org.spine3.examples.todolist.validator.Validatable;
 
 import java.util.List;
 
-import static org.spine3.examples.todolist.validator.Validator.checkNotEmpty;
-import static org.spine3.examples.todolist.validator.Validator.checkNotNull;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
 
 /**
  * @author Illia Shepilov
  */
-public class TaskPriorityValidator implements Validatable {
+public class TaskPriorityValidator implements Validator {
+
+    private static final String INCORRECT_PRIORITY = "Please enter the valid priority.";
+    private static final String PRIORITY_IS_NULL = "The task priority cannot be null.";
+    private static final String PRIORITY_IS_EMPTY = "The task priority cannot be empty.";
+    private String message;
 
     @Override
-    public String validate(String input) {
-        boolean isNotNull = checkNotNull(input);
-        if (!isNotNull) {
-            return "The task priority cannot be null.";
+    public boolean validate(String input) {
+        boolean isNull = isNull(input);
+
+        if (isNull) {
+            message = PRIORITY_IS_NULL;
+            return false;
         }
-        boolean isNotEmpty = checkNotEmpty(input);
-        if (isNotEmpty) {
-            return "The task priority cannot be empty.";
+
+        boolean isEmpty = isEmpty(input);
+
+        if (isEmpty) {
+            message = PRIORITY_IS_EMPTY;
+            return false;
         }
 
         final List<TaskPriority> validPriorities = Lists.newArrayList(TaskPriority.LOW,
@@ -56,8 +65,14 @@ public class TaskPriorityValidator implements Validatable {
             }
         }
         if (!isValid) {
-            return "Please enter the valid priority.";
+            message = INCORRECT_PRIORITY;
+            return false;
         }
-        return CORRECT_INPUT;
+        return true;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 }
