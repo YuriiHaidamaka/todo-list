@@ -227,7 +227,7 @@ public class Server {
     /**
      * Waits for the service to become terminated.
      */
-    public void awaitTermination() {
+    private void awaitTermination() {
         grpcContainer.awaitTermination();
     }
 
