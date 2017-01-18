@@ -31,6 +31,7 @@ import org.spine3.examples.todolist.client.TodoClient;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import static org.spine3.examples.todolist.modes.MainMode.ENTER_LABEL_ID_MESSAGE;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
@@ -38,10 +39,9 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
  */
 public class UpdateLabelMode {
 
-    private static final String HELP_COMMAND = "0:    Help.\n" +
+    private static final String HELP_MESSAGE = "0:    Help.\n" +
             "1:    Update the label details.\n" +
             "exit: Exit from the mode.";
-    private static final String ENTER_ID_MESSAGE = "Please enter the label id: ";
     private static final String ENTER_NEW_TITLE_MESSAGE = "Please enter the new label title: ";
     private static final String ENTER_PREVIOUS_TITLE_MESSAGE = "Please enter the previous label title: ";
     private static final String ENTER_NEW_COLOR_MESSAGE = "Please enter the new label color: ";
@@ -57,12 +57,12 @@ public class UpdateLabelMode {
 
     @Command(abbrev = "0")
     public void help() {
-        System.out.println(HELP_COMMAND);
+        System.out.println(HELP_MESSAGE);
     }
 
     @Command(abbrev = "1")
     public void updateLabelDetails() throws IOException {
-        sendMessageToUser(ENTER_ID_MESSAGE);
+        sendMessageToUser(ENTER_LABEL_ID_MESSAGE);
         final TaskLabelId labelId = TaskLabelId.newBuilder()
                                                .setValue(reader.readLine())
                                                .build();

@@ -44,14 +44,15 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
  */
 public class MainMode implements ShellDependent {
 
+    static final String ENTER_TASK_ID_MESSAGE = "Please enter the task id: ";
+    static final String ENTER_LABEL_ID_MESSAGE = "Please enter the label id: ";
     public static final String HELP_ADVICE = "Enter 'help' to view all commands.";
     private static final String CREATE_TASK_PROMPT = "create-task";
     private static final String UPDATE_TASK_PROMPT = "update-task";
     private static final String CREATE_LABEL_PROMPT = "create-label";
     private static final String UPDATE_LABEL_PROMPT = "update-label";
     private static final String OBTAIN_VIEWS_PROMPT = "obtain-views";
-    private static final String ENTER_TASK_ID_MESSAGE = "Please enter the task id: ";
-    private static final String ENTER_LABEL_ID_MESSAGE = "Please enter the label id: ";
+    private static final String DRAFT_TASK_PROMPT = "draft-task";
     private static final String CREATE_TASK_MODE = "******************Create task mode******************\n";
     private static final String CREATE_TASK_TITLE = CREATE_TASK_MODE + HELP_ADVICE;
     private static final String UPDATE_TASK_MODE = "******************Update task mode******************\n";
@@ -62,7 +63,9 @@ public class MainMode implements ShellDependent {
     private static final String UPDATE_LABEL_TITLE = UPDATE_LABEL_MODE + HELP_ADVICE;
     private static final String OBTAIN_VIEW_MODE = "******************Obtain view mode******************\n";
     private static final String OBTAIN_VIEW_TITLE = OBTAIN_VIEW_MODE + HELP_ADVICE;
-    private static final String HELP_COMMAND = "0:    Help.\n" +
+    private static final String DRAFT_TASK_MODE = "******************Draft task mode*******************\n";
+    private static final String DRAFT_TASK_TITLE = DRAFT_TASK_MODE + HELP_ADVICE;
+    private static final String HELP_MESSAGE = "0:    Help.\n" +
             "1:    Create the task mode.\n" +
             "2:    Update the task mode.\n" +
             "3:    Create the label mode.\n" +
@@ -74,6 +77,7 @@ public class MainMode implements ShellDependent {
             "9:    Restore task mode.\n" +
             "10:   Complete task mode.\n" +
             "11:   Obtain views mode.\n" +
+            "12:   Draft task mode.\n" +
             "exit: Exit from the mode.";
     private final TodoClient client;
     private final BufferedReader reader;
@@ -91,7 +95,7 @@ public class MainMode implements ShellDependent {
 
     @Command(abbrev = "0")
     public String help() throws IOException {
-        return HELP_COMMAND;
+        return HELP_MESSAGE;
     }
 
     @Command(abbrev = "1")
@@ -203,6 +207,12 @@ public class MainMode implements ShellDependent {
     @Command(abbrev = "11")
     public void obtainViews() throws IOException {
         ShellFactory.createSubshell(OBTAIN_VIEWS_PROMPT, shell, OBTAIN_VIEW_TITLE, new ObtainViewMode(client))
+                    .commandLoop();
+    }
+
+    @Command(abbrev = "12")
+    public void draftTaskMode() throws IOException {
+        ShellFactory.createSubshell(DRAFT_TASK_PROMPT, shell, DRAFT_TASK_TITLE, new ObtainViewMode(client))
                     .commandLoop();
     }
 }

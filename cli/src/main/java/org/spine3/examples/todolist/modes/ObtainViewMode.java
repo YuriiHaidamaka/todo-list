@@ -35,7 +35,7 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
  */
 public class ObtainViewMode {
 
-    private static final String HELP_COMMAND = "0:    Help.\n" +
+    private static final String HELP_MESSAGE = "0:    Help.\n" +
             "1:    Obtain labelled tasks.\n" +
             "2:    Obtain my tasks.\n" +
             "3:    Obtain draft tasks.\n" +
@@ -48,7 +48,7 @@ public class ObtainViewMode {
 
     @Command(abbrev = "0")
     public void help() {
-        System.out.println(HELP_COMMAND);
+        System.out.println(HELP_MESSAGE);
     }
 
     @Command(abbrev = "1")

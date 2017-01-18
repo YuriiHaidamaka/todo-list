@@ -44,7 +44,7 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
  */
 public class CreateTaskMode {
 
-    private static final String HELP_COMMAND = "0:    Help.\n" +
+    private static final String HELP_MESSAGE = "0:    Help.\n" +
             "1:    Set the task description.\n" +
             "2:    Set the task due date.\n" +
             "3:    Set the task priority.\n" +
@@ -67,7 +67,7 @@ public class CreateTaskMode {
 
     @Command(abbrev = "0")
     public void help() {
-        sendMessageToUser(HELP_COMMAND);
+        sendMessageToUser(HELP_MESSAGE);
     }
 
     @Command(abbrev = "1")
