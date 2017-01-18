@@ -36,6 +36,9 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 @SuppressWarnings("unused")
 public class ObtainViewMode {
 
+    private static final String EMPTY_LABELLED_TASKS = "No labelled tasks";
+    private static final String EMPTY_MY_LIST_TASKS = "No my list view";
+    private static final String EMPTY_DRAFT_TASKS = "No draft tasks view";
     private static final String HELP_MESSAGE = "0:    Help.\n" +
             "1:    Obtain labelled tasks.\n" +
             "2:    Obtain my tasks.\n" +
@@ -55,21 +58,27 @@ public class ObtainViewMode {
     @Command(abbrev = "1")
     public void obtainLabelledTasksView() {
         final List<LabelledTasksView> labelledTasks = client.getLabelledTasksView();
-        final String result = labelledTasks.toString();
+        final String result = labelledTasks.isEmpty() ? EMPTY_LABELLED_TASKS : labelledTasks.toString();
         sendMessageToUser(result);
     }
 
     @Command(abbrev = "2")
     public void obtainMyListView() {
         final MyListView myListView = client.getMyListView();
-        final String result = myListView.toString();
+        final int itemsCount = myListView.getMyList()
+                                         .getItemsCount();
+        final boolean isEmpty = itemsCount == 0;
+        final String result = isEmpty ? EMPTY_MY_LIST_TASKS : myListView.toString();
         sendMessageToUser(result);
     }
 
     @Command(abbrev = "3")
     public void obtainDraftTasksView() {
         final DraftTasksView draftTasksView = client.getDraftTasksView();
-        final String result = draftTasksView.toString();
+        final int itemsCount = draftTasksView.getDraftTasks()
+                                             .getItemsCount();
+        final boolean isEmpty = itemsCount == 0;
+        final String result = isEmpty ? EMPTY_DRAFT_TASKS : draftTasksView.toString();
         sendMessageToUser(result);
     }
 }

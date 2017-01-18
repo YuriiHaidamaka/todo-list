@@ -25,6 +25,8 @@ import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.c.commands.CreateDraft;
 import org.spine3.examples.todolist.c.commands.FinalizeDraft;
 import org.spine3.examples.todolist.client.TodoClient;
+import org.spine3.examples.todolist.validator.IdValidator;
+import org.spine3.examples.todolist.validator.Validator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,6 +41,7 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 @SuppressWarnings("unused")
 public class DraftTaskMode {
 
+    private Validator idValidator;
     private final BufferedReader reader;
     private final TodoClient client;
     private static final String HELP_MESSAGE = "0:    Help.\n" +
@@ -49,6 +52,7 @@ public class DraftTaskMode {
     public DraftTaskMode(BufferedReader reader, TodoClient client) {
         this.reader = reader;
         this.client = client;
+        initValidators();
     }
 
     @Command(abbrev = "0")
@@ -72,12 +76,29 @@ public class DraftTaskMode {
     @Command(abbrev = "2")
     public void finalizeDraft() throws IOException {
         sendMessageToUser(ENTER_TASK_ID_MESSAGE);
+        final String idValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(reader.readLine())
+                                    .setValue(idValue)
                                     .build();
         final FinalizeDraft finalizeDraft = FinalizeDraft.newBuilder()
                                                          .setId(taskId)
                                                          .build();
         client.finalize(finalizeDraft);
+    }
+
+    private String obtainTaskIdValue() throws IOException {
+        sendMessageToUser(ENTER_TASK_ID_MESSAGE);
+        String taskIdInput = reader.readLine();
+        final boolean isValid = idValidator.validate(taskIdInput);
+
+        if (!isValid) {
+            sendMessageToUser(idValidator.getMessage());
+            taskIdInput = obtainTaskIdValue();
+        }
+        return taskIdInput;
+    }
+
+    private void initValidators() {
+        idValidator = new IdValidator();
     }
 }

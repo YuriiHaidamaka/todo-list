@@ -28,6 +28,9 @@ import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.c.commands.CreateBasicLabel;
 import org.spine3.examples.todolist.c.commands.UpdateLabelDetails;
 import org.spine3.examples.todolist.client.TodoClient;
+import org.spine3.examples.todolist.validator.CommonValidator;
+import org.spine3.examples.todolist.validator.LabelColorValidator;
+import org.spine3.examples.todolist.validator.Validator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,7 +45,9 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 public class CreateLabelMode {
 
     private String title;
-    private LabelColor color;
+    private LabelColor color = LabelColor.LC_UNDEFINED;
+    private Validator commonValidator;
+    private Validator colorValidator;
     private final TodoClient client;
     private final BufferedReader reader;
     private static final String SET_COLOR_MESSAGE = "Please enter the label color: ";
@@ -56,6 +61,7 @@ public class CreateLabelMode {
     CreateLabelMode(TodoClient client, BufferedReader reader) {
         this.client = client;
         this.reader = reader;
+        initValidators();
     }
 
     @Command(abbrev = "0")
@@ -64,40 +70,87 @@ public class CreateLabelMode {
     }
 
     @Command(abbrev = "1")
-    public void enterTitle() throws IOException {
-        sendMessageToUser(SET_TITLE_MESSAGE);
-        final String title = reader.readLine();
+    public void setTitle() throws IOException {
+        final String title = obtainLabelTitle();
         this.title = title;
     }
 
     @Command(abbrev = "2")
-    public void enterColor() throws IOException {
-        sendMessageToUser(SET_COLOR_MESSAGE);
-        final LabelColor color = LabelColor.valueOf(reader.readLine());
+    public void setColor() throws IOException {
+        final String colorValue = obtainLabelColor();
+        final LabelColor color = LabelColor.valueOf(colorValue);
         this.color = color;
     }
 
     @Command(abbrev = "3")
-    public void createLabel() {
+    public void createLabel() throws IOException {
         final TaskLabelId labelId = TaskLabelId.newBuilder()
                                                .setValue(newUuid())
                                                .build();
+
+        final Validator commonValidator = new CommonValidator();
+        final boolean isValidTitle = commonValidator.validate(title);
+        if (!isValidTitle) {
+            setTitle();
+        }
+
         final CreateBasicLabel createBasicLabel = CreateBasicLabel.newBuilder()
                                                                   .setLabelTitle(title)
                                                                   .setLabelId(labelId)
                                                                   .build();
         client.create(createBasicLabel);
-        final LabelDetails newLabelDetails = LabelDetails.newBuilder()
-                                                         .setColor(color)
-                                                         .setTitle(title)
-                                                         .build();
-        final LabelDetailsChange labelDetailsChange = LabelDetailsChange.newBuilder()
-                                                                        .setNewDetails(newLabelDetails)
-                                                                        .build();
-        final UpdateLabelDetails updateLabelDetails = UpdateLabelDetails.newBuilder()
-                                                                        .setLabelDetailsChange(labelDetailsChange)
-                                                                        .setId(labelId)
-                                                                        .build();
-        client.update(updateLabelDetails);
+
+        if (color != LabelColor.LC_UNDEFINED) {
+            final LabelDetails newLabelDetails = LabelDetails.newBuilder()
+                                                             .setColor(color)
+                                                             .setTitle(title)
+                                                             .build();
+            final LabelDetailsChange labelDetailsChange = LabelDetailsChange.newBuilder()
+                                                                            .setNewDetails(newLabelDetails)
+                                                                            .build();
+            final UpdateLabelDetails updateLabelDetails = UpdateLabelDetails.newBuilder()
+                                                                            .setLabelDetailsChange(labelDetailsChange)
+                                                                            .setId(labelId)
+                                                                            .build();
+            client.update(updateLabelDetails);
+        }
+        final String result = String.format("Created label with id: %s, title: %s, color: %s", labelId, title, color);
+        sendMessageToUser(result);
+        clearValues();
+    }
+
+    private String obtainLabelTitle() throws IOException {
+        sendMessageToUser(SET_TITLE_MESSAGE);
+        String title = reader.readLine();
+        final boolean isValid = commonValidator.validate(title);
+
+        if (!isValid) {
+            sendMessageToUser(commonValidator.getMessage());
+            title = obtainLabelTitle();
+        }
+        return title;
+    }
+
+    private String obtainLabelColor() throws IOException {
+        sendMessageToUser(SET_COLOR_MESSAGE);
+        String input = reader.readLine();
+
+        final boolean isValid = colorValidator.validate(input);
+
+        if (!isValid) {
+            sendMessageToUser(colorValidator.getMessage());
+            input = obtainLabelColor();
+        }
+        return input;
+    }
+
+    private void clearValues() {
+        color = LabelColor.LC_UNDEFINED;
+        title = "";
+    }
+
+    private void initValidators() {
+        commonValidator = new CommonValidator();
+        colorValidator = new LabelColorValidator();
     }
 }

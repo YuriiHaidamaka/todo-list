@@ -33,6 +33,8 @@ import org.spine3.examples.todolist.c.commands.RemoveLabelFromTask;
 import org.spine3.examples.todolist.c.commands.ReopenTask;
 import org.spine3.examples.todolist.c.commands.RestoreDeletedTask;
 import org.spine3.examples.todolist.client.TodoClient;
+import org.spine3.examples.todolist.validator.IdValidator;
+import org.spine3.examples.todolist.validator.Validator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -82,11 +84,13 @@ public class MainMode implements ShellDependent {
             "exit: Exit from the mode.";
     private final TodoClient client;
     private final BufferedReader reader;
+    private Validator idValidator;
     private Shell shell;
 
     public MainMode(TodoClient client, BufferedReader reader) {
         this.client = client;
         this.reader = reader;
+        initValidators();
     }
 
     @Override
@@ -125,13 +129,13 @@ public class MainMode implements ShellDependent {
 
     @Command(abbrev = "5")
     public void assignLabel() throws IOException {
-        sendMessageToUser(ENTER_TASK_ID_MESSAGE);
+        final String taskIdValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(reader.readLine())
+                                    .setValue(taskIdValue)
                                     .build();
-        sendMessageToUser(ENTER_LABEL_ID_MESSAGE);
+        final String labelIdValue = obtainLabelIdValue();
         final TaskLabelId labelId = TaskLabelId.newBuilder()
-                                               .setValue(reader.readLine())
+                                               .setValue(labelIdValue)
                                                .build();
         final AssignLabelToTask assignLabelToTask = AssignLabelToTask.newBuilder()
                                                                      .setId(taskId)
@@ -142,13 +146,13 @@ public class MainMode implements ShellDependent {
 
     @Command(abbrev = "6")
     public void removeLabel() throws IOException {
-        sendMessageToUser(ENTER_TASK_ID_MESSAGE);
+        final String taskIdValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(reader.readLine())
+                                    .setValue(taskIdValue)
                                     .build();
-        sendMessageToUser(ENTER_LABEL_ID_MESSAGE);
+        final String labelIdValue = obtainLabelIdValue();
         final TaskLabelId labelId = TaskLabelId.newBuilder()
-                                               .setValue(reader.readLine())
+                                               .setValue(labelIdValue)
                                                .build();
         final RemoveLabelFromTask removeLabelFromTask = RemoveLabelFromTask.newBuilder()
                                                                            .setId(taskId)
@@ -159,9 +163,9 @@ public class MainMode implements ShellDependent {
 
     @Command(abbrev = "7")
     public void deleteTask() throws IOException {
-        sendMessageToUser(ENTER_TASK_ID_MESSAGE);
+        final String taskIdValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(reader.readLine())
+                                    .setValue(taskIdValue)
                                     .build();
         final DeleteTask deleteTask = DeleteTask.newBuilder()
                                                 .setId(taskId)
@@ -171,9 +175,9 @@ public class MainMode implements ShellDependent {
 
     @Command(abbrev = "8")
     public void reopenTask() throws IOException {
-        sendMessageToUser(ENTER_TASK_ID_MESSAGE);
+        final String taskIdValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(reader.readLine())
+                                    .setValue(taskIdValue)
                                     .build();
         final ReopenTask reopenTask = ReopenTask.newBuilder()
                                                 .setId(taskId)
@@ -183,9 +187,9 @@ public class MainMode implements ShellDependent {
 
     @Command(abbrev = "9")
     public void restoreTask() throws IOException {
-        sendMessageToUser(ENTER_TASK_ID_MESSAGE);
+        final String taskIdValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(reader.readLine())
+                                    .setValue(taskIdValue)
                                     .build();
         final RestoreDeletedTask restoreDeletedTask = RestoreDeletedTask.newBuilder()
                                                                         .setId(taskId)
@@ -195,9 +199,9 @@ public class MainMode implements ShellDependent {
 
     @Command(abbrev = "10")
     public void completeTask() throws IOException {
-        sendMessageToUser(ENTER_TASK_ID_MESSAGE);
+        final String taskIdValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(reader.readLine())
+                                    .setValue(taskIdValue)
                                     .build();
         final CompleteTask completeTask = CompleteTask.newBuilder()
                                                       .setId(taskId)
@@ -215,5 +219,33 @@ public class MainMode implements ShellDependent {
     public void draftTaskMode() throws IOException {
         ShellFactory.createSubshell(DRAFT_TASK_PROMPT, shell, DRAFT_TASK_TITLE, new ObtainViewMode(client))
                     .commandLoop();
+    }
+
+    private String obtainLabelIdValue() throws IOException {
+        sendMessageToUser(ENTER_LABEL_ID_MESSAGE);
+        String labelIdInput = reader.readLine();
+        final boolean isValid = idValidator.validate(labelIdInput);
+
+        if (!isValid) {
+            sendMessageToUser(idValidator.getMessage());
+            labelIdInput = obtainLabelIdValue();
+        }
+        return labelIdInput;
+    }
+
+    private String obtainTaskIdValue() throws IOException {
+        sendMessageToUser(ENTER_TASK_ID_MESSAGE);
+        String taskIdInput = reader.readLine();
+        final boolean isValid = idValidator.validate(taskIdInput);
+
+        if (!isValid) {
+            sendMessageToUser(idValidator.getMessage());
+            taskIdInput = obtainTaskIdValue();
+        }
+        return taskIdInput;
+    }
+
+    private void initValidators() {
+        idValidator = new IdValidator();
     }
 }

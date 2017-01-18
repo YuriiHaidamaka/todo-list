@@ -32,6 +32,7 @@ import org.spine3.examples.todolist.c.commands.UpdateTaskDescription;
 import org.spine3.examples.todolist.c.commands.UpdateTaskDueDate;
 import org.spine3.examples.todolist.c.commands.UpdateTaskPriority;
 import org.spine3.examples.todolist.client.TodoClient;
+import org.spine3.examples.todolist.validator.Validator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,6 +48,10 @@ public class UpdateTaskMode {
 
     private final TodoClient client;
     private final BufferedReader reader;
+    private Validator idValidator;
+    private Validator descriptionValidator;
+    private Validator priorityValidator;
+    private Validator dueDateValidator;
     private static final String ENTER_NEW_DESCRIPTION_MESSAGE = "Please enter the new task description: ";
     private static final String ENTER_PREVIOUS_DESCRIPTION_MESSAGE = "Please enter the previous task description: ";
     private static final String ENTER_ID_MESSAGE = "Please enter the task id: ";
@@ -72,15 +77,13 @@ public class UpdateTaskMode {
 
     @Command(abbrev = "1")
     public void updateTaskDescription() throws IOException {
-        sendMessageToUser(ENTER_ID_MESSAGE);
+        final String taskIdValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(reader.readLine())
+                                    .setValue(taskIdValue)
                                     .build();
-        sendMessageToUser(ENTER_NEW_DESCRIPTION_MESSAGE);
-        final String newDescription = reader.readLine();
-        sendMessageToUser(ENTER_PREVIOUS_DESCRIPTION_MESSAGE);
-        final String previousDescription = reader.readLine();
 
+        final String newDescription = obtainDescriptionValue(ENTER_NEW_DESCRIPTION_MESSAGE);
+        final String previousDescription = obtainDescriptionValue(ENTER_PREVIOUS_DESCRIPTION_MESSAGE);
         final StringChange change = StringChange.newBuilder()
                                                 .setNewValue(newDescription)
                                                 .setPreviousValue(previousDescription)
@@ -94,15 +97,14 @@ public class UpdateTaskMode {
 
     @Command(abbrev = "2")
     public void updateTaskPriority() throws IOException {
-        sendMessageToUser(ENTER_ID_MESSAGE);
+        final String taskIdValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(reader.readLine())
+                                    .setValue(taskIdValue)
                                     .build();
-        sendMessageToUser(ENTER_NEW_PRIORITY_MESSAGE);
-        final TaskPriority newTaskPriority = TaskPriority.valueOf(reader.readLine());
-        sendMessageToUser(ENTER_PREVIOUS_PRIORITY_MESSAGE);
-        final TaskPriority previousTaskPriority = TaskPriority.valueOf(reader.readLine());
-
+        final String priorityValue = obtainPriorityValue(ENTER_NEW_PRIORITY_MESSAGE);
+        final TaskPriority newTaskPriority = TaskPriority.valueOf(priorityValue);
+        final String previousPriorityValue = obtainPriorityValue(ENTER_PREVIOUS_PRIORITY_MESSAGE);
+        final TaskPriority previousTaskPriority = TaskPriority.valueOf(previousPriorityValue);
         final PriorityChange change = PriorityChange.newBuilder()
                                                     .setPreviousValue(previousTaskPriority)
                                                     .setNewValue(newTaskPriority)
@@ -116,15 +118,14 @@ public class UpdateTaskMode {
 
     @Command(abbrev = "3")
     public void updateTaskDueDate() throws IOException, ParseException {
-        sendMessageToUser(ENTER_ID_MESSAGE);
+        final String taskIdValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(reader.readLine())
+                                    .setValue(taskIdValue)
                                     .build();
-        sendMessageToUser(ENTER_NEW_DATE_MESSAGE);
-        final Timestamp newDueDate = Timestamps.parse(reader.readLine());
-        sendMessageToUser(ENTER_PREVIOUS_DATE_MESSAGE);
-        final Timestamp previousDueDate = Timestamps.parse(reader.readLine());
-
+        final String newDueDateValue = obtainDueDateValue(ENTER_NEW_DATE_MESSAGE);
+        final Timestamp newDueDate = Timestamps.parse(newDueDateValue);
+        final String previousDueDateValue = obtainDueDateValue(ENTER_PREVIOUS_DATE_MESSAGE);
+        final Timestamp previousDueDate = Timestamps.parse(previousDueDateValue);
         final TimestampChange change = TimestampChange.newBuilder()
                                                       .setPreviousValue(previousDueDate)
                                                       .setNewValue(newDueDate)
@@ -134,5 +135,52 @@ public class UpdateTaskMode {
                                                                      .setId(taskId)
                                                                      .build();
         client.update(updateTaskDueDate);
+    }
+
+    private String obtainTaskIdValue() throws IOException {
+        sendMessageToUser(ENTER_ID_MESSAGE);
+        String taskIdValue = reader.readLine();
+        final boolean isValid = idValidator.validate(taskIdValue);
+        if (!isValid) {
+            sendMessageToUser(idValidator.getMessage());
+            taskIdValue = obtainTaskIdValue();
+        }
+        return taskIdValue;
+    }
+
+    private String obtainDescriptionValue(String message) throws IOException {
+        sendMessageToUser(message);
+        String description = reader.readLine();
+        final boolean isValid = descriptionValidator.validate(description);
+
+        if (!isValid) {
+            sendMessageToUser(descriptionValidator.getMessage());
+            description = obtainDescriptionValue(message);
+        }
+        return description;
+    }
+
+    private String obtainPriorityValue(String message) throws IOException {
+        sendMessageToUser(message);
+        String priority = reader.readLine();
+        final boolean isValid = priorityValidator.validate(priority);
+
+        if (!isValid) {
+            sendMessageToUser(priorityValidator.getMessage());
+            priority = obtainPriorityValue(message);
+        }
+        return priority;
+    }
+
+    private String obtainDueDateValue(String message) throws IOException, ParseException {
+        sendMessageToUser(message);
+        String dueDate = reader.readLine();
+        final boolean isValid = dueDateValidator.validate(dueDate);
+
+        if (!isValid) {
+            sendMessageToUser(dueDateValidator.getMessage());
+            dueDate = obtainDueDateValue(message);
+        }
+        return dueDate;
     }
 }

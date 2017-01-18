@@ -27,6 +27,10 @@ import org.spine3.examples.todolist.LabelDetailsChange;
 import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.c.commands.UpdateLabelDetails;
 import org.spine3.examples.todolist.client.TodoClient;
+import org.spine3.examples.todolist.validator.CommonValidator;
+import org.spine3.examples.todolist.validator.IdValidator;
+import org.spine3.examples.todolist.validator.LabelColorValidator;
+import org.spine3.examples.todolist.validator.Validator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,12 +52,16 @@ public class UpdateLabelMode {
     private static final String ENTER_NEW_COLOR_MESSAGE = "Please enter the new label color: ";
     private static final String ENTER_PREVIOUS_COLOR_MESSAGE = "Please enter the previous label color: ";
 
+    private Validator idValidator;
+    private Validator colorValidator;
+    private Validator commonValidator;
     private final TodoClient client;
     private final BufferedReader reader;
 
     UpdateLabelMode(TodoClient client, BufferedReader reader) {
         this.client = client;
         this.reader = reader;
+        initValidators();
     }
 
     @Command(abbrev = "0")
@@ -63,18 +71,17 @@ public class UpdateLabelMode {
 
     @Command(abbrev = "1")
     public void updateLabelDetails() throws IOException {
-        sendMessageToUser(ENTER_LABEL_ID_MESSAGE);
+        final String labelIdValue = obtainLabelIdValue();
         final TaskLabelId labelId = TaskLabelId.newBuilder()
-                                               .setValue(reader.readLine())
+                                               .setValue(labelIdValue)
                                                .build();
-        sendMessageToUser(ENTER_NEW_TITLE_MESSAGE);
-        final String newTitle = reader.readLine();
-        sendMessageToUser(ENTER_PREVIOUS_TITLE_MESSAGE);
-        final String previousTitle = reader.readLine();
-        sendMessageToUser(ENTER_NEW_COLOR_MESSAGE);
-        final LabelColor newColor = LabelColor.valueOf(reader.readLine());
-        sendMessageToUser(ENTER_PREVIOUS_COLOR_MESSAGE);
-        final LabelColor previousColor = LabelColor.valueOf(reader.readLine());
+        final String newTitle = obtainLabelTitle(ENTER_NEW_TITLE_MESSAGE);
+        final String previousTitle = obtainLabelTitle(ENTER_PREVIOUS_TITLE_MESSAGE);
+        final String labelColorValue = obtainLabelColorValue(ENTER_NEW_COLOR_MESSAGE);
+        final LabelColor newColor = LabelColor.valueOf(labelColorValue);
+        final String previousColorValue = obtainLabelColorValue(ENTER_PREVIOUS_COLOR_MESSAGE);
+        final LabelColor previousColor = LabelColor.valueOf(previousColorValue);
+
         final LabelDetails newLabelDetails = LabelDetails.newBuilder()
                                                          .setTitle(newTitle)
                                                          .setColor(newColor)
@@ -93,5 +100,47 @@ public class UpdateLabelMode {
                                                                         .setId(labelId)
                                                                         .build();
         client.update(updateLabelDetails);
+    }
+
+    private String obtainLabelColorValue(String message) throws IOException {
+        sendMessageToUser(message);
+        String color = reader.readLine();
+        final boolean isValid = colorValidator.validate(color);
+
+        if (!isValid) {
+            sendMessageToUser(colorValidator.getMessage());
+            color = obtainLabelColorValue(message);
+        }
+        return color;
+    }
+
+    private String obtainLabelTitle(String message) throws IOException {
+        sendMessageToUser(message);
+        String title = reader.readLine();
+        boolean isValid = commonValidator.validate(title);
+
+        if (!isValid) {
+            sendMessageToUser(commonValidator.getMessage());
+            title = obtainLabelTitle(message);
+        }
+        return title;
+    }
+
+    private String obtainLabelIdValue() throws IOException {
+        sendMessageToUser(ENTER_LABEL_ID_MESSAGE);
+        String labelIdValue = reader.readLine();
+        boolean isValid = idValidator.validate(labelIdValue);
+
+        if (!isValid) {
+            sendMessageToUser(idValidator.getMessage());
+            labelIdValue = obtainLabelIdValue();
+        }
+        return labelIdValue;
+    }
+
+    private void initValidators() {
+        idValidator = new IdValidator();
+        colorValidator = new LabelColorValidator();
+        commonValidator = new CommonValidator();
     }
 }
