@@ -42,6 +42,7 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 /**
  * @author Illia Shepilov
  */
+@SuppressWarnings("unused")
 public class MainMode implements ShellDependent {
 
     static final String ENTER_TASK_ID_MESSAGE = "Please enter the task id: ";

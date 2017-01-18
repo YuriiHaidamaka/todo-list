@@ -42,8 +42,11 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 /**
  * @author Illia Shepilov
  */
+@SuppressWarnings("unused")
 public class UpdateTaskMode {
 
+    private final TodoClient client;
+    private final BufferedReader reader;
     private static final String ENTER_NEW_DESCRIPTION_MESSAGE = "Please enter the new task description: ";
     private static final String ENTER_PREVIOUS_DESCRIPTION_MESSAGE = "Please enter the previous task description: ";
     private static final String ENTER_ID_MESSAGE = "Please enter the task id: ";
@@ -51,13 +54,11 @@ public class UpdateTaskMode {
     private static final String ENTER_PREVIOUS_PRIORITY_MESSAGE = "Please enter the previous task priority: ";
     private static final String ENTER_NEW_DATE_MESSAGE = "Please enter the new task due date: ";
     private static final String ENTER_PREVIOUS_DATE_MESSAGE = "Please enter the previous task due date: ";
-    private final TodoClient client;
     private static final String HELP_MESSAGE = "0:    Help.\n" +
             "1:    Update the task description.\n" +
             "2:    Update the task priority.\n" +
             "3:    Update the task due date.\n" +
             "exit: Exit from the mode.";
-    private BufferedReader reader;
 
     UpdateTaskMode(TodoClient client, BufferedReader reader) {
         this.client = client;

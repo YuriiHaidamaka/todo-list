@@ -33,6 +33,7 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 /**
  * @author Illia Shepilov
  */
+@SuppressWarnings("unused")
 public class ObtainViewMode {
 
     private static final String HELP_MESSAGE = "0:    Help.\n" +

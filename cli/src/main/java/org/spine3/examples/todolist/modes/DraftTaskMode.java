@@ -36,6 +36,7 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 /**
  * @author Illia Shepilov
  */
+@SuppressWarnings("unused")
 public class DraftTaskMode {
 
     private final BufferedReader reader;

@@ -38,15 +38,16 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 /**
  * @author Illia Shepilov
  */
+@SuppressWarnings("unused")
 public class CreateLabelMode {
 
-    private final BufferedReader reader;
-    private final TodoClient client;
     private String title;
     private LabelColor color;
+    private final TodoClient client;
+    private final BufferedReader reader;
     private static final String SET_COLOR_MESSAGE = "Please enter the label color: ";
     private static final String SET_TITLE_MESSAGE = "Please enter the label title: ";
-    private final static String HELP_MESSAGE = "0:    Help\n" +
+    private final static String HELP_MESSAGE = "0:    Help.\n" +
             "1:    Set the label title.\n" +
             "2:    Set the label color.\n" +
             "3:    Create basic label [title is required].\n" +
