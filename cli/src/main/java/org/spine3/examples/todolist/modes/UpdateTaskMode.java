@@ -37,6 +37,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.ParseException;
 
+import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+
 /**
  * @author Illia Shepilov
  */
@@ -50,13 +52,14 @@ public class UpdateTaskMode {
     private static final String ENTER_NEW_DATE_MESSAGE = "Please enter the new task due date: ";
     private static final String ENTER_PREVIOUS_DATE_MESSAGE = "Please enter the previous task due date: ";
     private final TodoClient client;
-    private static final String HELP_MESSAGE = "0:  Help.\n" +
-            "1:  Update the task description.\n" +
-            "2:  Update the task priority.\n" +
-            "3:  Update the task due date.";
+    private static final String HELP_MESSAGE = "0:    Help.\n" +
+            "1:    Update the task description.\n" +
+            "2:    Update the task priority.\n" +
+            "3:    Update the task due date.\n" +
+            "exit: Exit from the mode";
     private BufferedReader reader;
 
-    public UpdateTaskMode(TodoClient client, BufferedReader reader) {
+    UpdateTaskMode(TodoClient client, BufferedReader reader) {
         this.client = client;
         this.reader = reader;
     }
@@ -68,13 +71,13 @@ public class UpdateTaskMode {
 
     @Command(abbrev = "1")
     public void updateTaskDescription() throws IOException {
-        System.out.println(ENTER_ID_MESSAGE);
+        sendMessageToUser(ENTER_ID_MESSAGE);
         final TaskId taskId = TaskId.newBuilder()
                                     .setValue(reader.readLine())
                                     .build();
-        System.out.println(ENTER_NEW_DESCRIPTION_MESSAGE);
+        sendMessageToUser(ENTER_NEW_DESCRIPTION_MESSAGE);
         final String newDescription = reader.readLine();
-        System.out.println(ENTER_PREVIOUS_DESCRIPTION_MESSAGE);
+        sendMessageToUser(ENTER_PREVIOUS_DESCRIPTION_MESSAGE);
         final String previousDescription = reader.readLine();
 
         final StringChange change = StringChange.newBuilder()
@@ -90,13 +93,13 @@ public class UpdateTaskMode {
 
     @Command(abbrev = "2")
     public void updateTaskPriority() throws IOException {
-        System.out.println(ENTER_ID_MESSAGE);
+        sendMessageToUser(ENTER_ID_MESSAGE);
         final TaskId taskId = TaskId.newBuilder()
                                     .setValue(reader.readLine())
                                     .build();
-        System.out.println(ENTER_NEW_PRIORITY_MESSAGE);
+        sendMessageToUser(ENTER_NEW_PRIORITY_MESSAGE);
         final TaskPriority newTaskPriority = TaskPriority.valueOf(reader.readLine());
-        System.out.println(ENTER_PREVIOUS_PRIORITY_MESSAGE);
+        sendMessageToUser(ENTER_PREVIOUS_PRIORITY_MESSAGE);
         final TaskPriority previousTaskPriority = TaskPriority.valueOf(reader.readLine());
 
         final PriorityChange change = PriorityChange.newBuilder()
@@ -112,13 +115,13 @@ public class UpdateTaskMode {
 
     @Command(abbrev = "3")
     public void updateTaskDueDate() throws IOException, ParseException {
-        System.out.println(ENTER_ID_MESSAGE);
+        sendMessageToUser(ENTER_ID_MESSAGE);
         final TaskId taskId = TaskId.newBuilder()
                                     .setValue(reader.readLine())
                                     .build();
-        System.out.println(ENTER_NEW_DATE_MESSAGE);
+        sendMessageToUser(ENTER_NEW_DATE_MESSAGE);
         final Timestamp newDueDate = Timestamps.parse(reader.readLine());
-        System.out.println(ENTER_PREVIOUS_DATE_MESSAGE);
+        sendMessageToUser(ENTER_PREVIOUS_DATE_MESSAGE);
         final Timestamp previousDueDate = Timestamps.parse(reader.readLine());
 
         final TimestampChange change = TimestampChange.newBuilder()

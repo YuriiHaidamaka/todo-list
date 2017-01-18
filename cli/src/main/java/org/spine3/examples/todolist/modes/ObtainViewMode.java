@@ -26,24 +26,24 @@ import org.spine3.examples.todolist.q.projections.DraftTasksView;
 import org.spine3.examples.todolist.q.projections.LabelledTasksView;
 import org.spine3.examples.todolist.q.projections.MyListView;
 
-import java.io.BufferedReader;
 import java.util.List;
+
+import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
  * @author Illia Shepilov
  */
 public class ObtainViewMode {
 
-    private static final String HELP_COMMAND = "0:  Help\n" +
-            "1:  Obtain labelled tasks\n" +
-            "2:  Obtain my tasks\n" +
-            "3:  Obtain draft tasks";
+    private static final String HELP_COMMAND = "0:    Help.\n" +
+            "1:    Obtain labelled tasks.\n" +
+            "2:    Obtain my tasks.\n" +
+            "3:    Obtain draft tasks.\n" +
+            "exit: Exit from the mode.";
     private final TodoClient client;
-    private final BufferedReader reader;
 
-    public ObtainViewMode(TodoClient client, BufferedReader reader) {
+    ObtainViewMode(TodoClient client) {
         this.client = client;
-        this.reader = reader;
     }
 
     @Command(abbrev = "0")
@@ -55,20 +55,20 @@ public class ObtainViewMode {
     public void obtainLabelledTasksView() {
         final List<LabelledTasksView> labelledTasks = client.getLabelledTasksView();
         final String result = labelledTasks.toString();
-        System.out.println(result);
+        sendMessageToUser(result);
     }
 
     @Command(abbrev = "2")
     public void obtainMyListView() {
         final MyListView myListView = client.getMyListView();
         final String result = myListView.toString();
-        System.out.println(result);
+        sendMessageToUser(result);
     }
 
     @Command(abbrev = "3")
     public void obtainDraftTasksView() {
         final DraftTasksView draftTasksView = client.getDraftTasksView();
         final String result = draftTasksView.toString();
-        System.out.println(result);
+        sendMessageToUser(result);
     }
 }

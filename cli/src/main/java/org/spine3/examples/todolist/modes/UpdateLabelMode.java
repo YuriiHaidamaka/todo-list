@@ -31,13 +31,16 @@ import org.spine3.examples.todolist.client.TodoClient;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+
 /**
  * @author Illia Shepilov
  */
 public class UpdateLabelMode {
 
-    private static final String HELP_COMMAND = "0:  Help\n" +
-            "1:  Update the label details";
+    private static final String HELP_COMMAND = "0:    Help.\n" +
+            "1:    Update the label details.\n" +
+            "exit: Exit from the mode.";
     private static final String ENTER_ID_MESSAGE = "Please enter the label id: ";
     private static final String ENTER_NEW_TITLE_MESSAGE = "Please enter the new label title: ";
     private static final String ENTER_PREVIOUS_TITLE_MESSAGE = "Please enter the previous label title: ";
@@ -47,7 +50,7 @@ public class UpdateLabelMode {
     private final TodoClient client;
     private final BufferedReader reader;
 
-    public UpdateLabelMode(TodoClient client, BufferedReader reader) {
+    UpdateLabelMode(TodoClient client, BufferedReader reader) {
         this.client = client;
         this.reader = reader;
     }
@@ -59,17 +62,17 @@ public class UpdateLabelMode {
 
     @Command(abbrev = "1")
     public void updateLabelDetails() throws IOException {
-        System.out.println(ENTER_ID_MESSAGE);
+        sendMessageToUser(ENTER_ID_MESSAGE);
         final TaskLabelId labelId = TaskLabelId.newBuilder()
                                                .setValue(reader.readLine())
                                                .build();
-        System.out.println(ENTER_NEW_TITLE_MESSAGE);
+        sendMessageToUser(ENTER_NEW_TITLE_MESSAGE);
         final String newTitle = reader.readLine();
-        System.out.println(ENTER_PREVIOUS_TITLE_MESSAGE);
+        sendMessageToUser(ENTER_PREVIOUS_TITLE_MESSAGE);
         final String previousTitle = reader.readLine();
-        System.out.println(ENTER_NEW_COLOR_MESSAGE);
+        sendMessageToUser(ENTER_NEW_COLOR_MESSAGE);
         final LabelColor newColor = LabelColor.valueOf(reader.readLine());
-        System.out.println(ENTER_PREVIOUS_COLOR_MESSAGE);
+        sendMessageToUser(ENTER_PREVIOUS_COLOR_MESSAGE);
         final LabelColor previousColor = LabelColor.valueOf(reader.readLine());
         final LabelDetails newLabelDetails = LabelDetails.newBuilder()
                                                          .setTitle(newTitle)

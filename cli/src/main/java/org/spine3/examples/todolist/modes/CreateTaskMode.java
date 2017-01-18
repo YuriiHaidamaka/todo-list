@@ -37,20 +37,22 @@ import java.io.IOException;
 import java.text.ParseException;
 
 import static org.spine3.base.Identifiers.newUuid;
+import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
  * @author Illia Shepilov
  */
 public class CreateTaskMode {
 
-    private static final String HELP_COMMAND = "0:  Help\n" +
-            "1:  Enter the task description\n" +
-            "2:  Enter the task due date\n" +
-            "3:  Enter the task priority\n" +
-            "4:  Create task with specified parameters[description is required]";
-    private static final String ENTER_DESCRIPTION_MESSAGE = "Please enter the task description";
-    private static final String ENTER_DUE_DATE_MESSAGE = "Please enter the task due date";
-    private static final String ENTER_PRIORITY_MESSAGE = "Please enter the one of the available task priority:\n" +
+    private static final String HELP_COMMAND = "0:    Help.\n" +
+            "1:    Set the task description.\n" +
+            "2:    Set the task due date.\n" +
+            "3:    Set the task priority.\n" +
+            "4:    Create the task with specified parameters[description is required].\n" +
+            "exit: Exit from the mode";
+    private static final String SET_DESCRIPTION_MESSAGE = "Please enter the task description";
+    private static final String SET_DUE_DATE_MESSAGE = "Please enter the task due date";
+    private static final String SET_PRIORITY_MESSAGE = "Please enter the one of the available task priority:\n" +
             "LOW\nNORMAL\nHIGH";
     private String description;
     private Timestamp dueDate;
@@ -58,26 +60,26 @@ public class CreateTaskMode {
     private TodoClient client;
     private BufferedReader reader;
 
-    public CreateTaskMode(TodoClient client, BufferedReader reader) {
+    CreateTaskMode(TodoClient client, BufferedReader reader) {
         this.client = client;
         this.reader = reader;
     }
 
     @Command(abbrev = "0")
     public void help() {
-        System.out.println(HELP_COMMAND);
+        sendMessageToUser(HELP_COMMAND);
     }
 
     @Command(abbrev = "1")
     public void enterTaskDescription() throws IOException {
-        System.out.println(ENTER_DESCRIPTION_MESSAGE);
+        sendMessageToUser(SET_DESCRIPTION_MESSAGE);
         final String description = reader.readLine();
         this.description = description;
     }
 
     @Command(abbrev = "2")
     public void enterTaskDueDate() throws IOException, ParseException {
-        System.out.println(ENTER_DUE_DATE_MESSAGE);
+        sendMessageToUser(SET_DUE_DATE_MESSAGE);
         final String dueDate = reader.readLine();
         final Timestamp result = Timestamps.parse(dueDate);
         this.dueDate = result;
@@ -85,7 +87,7 @@ public class CreateTaskMode {
 
     @Command(abbrev = "3")
     public void enterTaskPriority() throws IOException {
-        System.out.println(ENTER_PRIORITY_MESSAGE);
+        sendMessageToUser(SET_PRIORITY_MESSAGE);
         final String priority = reader.readLine();
         this.priority = TaskPriority.valueOf(priority.toUpperCase());
     }
@@ -124,7 +126,7 @@ public class CreateTaskMode {
         }
         final String result = String.format("Created task with parameters:\nid: %s\ndescription: %s\npriority: %s\ndue date: %s",
                                             taskId.getValue(), description, priority, dueDate);
-        System.out.println(result);
+        sendMessageToUser(result);
         setDefaultParameterValues();
     }
 

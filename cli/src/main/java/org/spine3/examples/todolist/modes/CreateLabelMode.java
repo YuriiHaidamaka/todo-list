@@ -33,6 +33,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import static org.spine3.base.Identifiers.newUuid;
+import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
  * @author Illia Shepilov
@@ -43,33 +44,34 @@ public class CreateLabelMode {
     private final TodoClient client;
     private String title;
     private LabelColor color;
-    private static final String ENTER_COLOR_MESSAGE = "Please enter the label color: ";
-    private static final String ENTER_TITLE_MESSAGE = "Please enter the label title: ";
-    private final static String HELP_MESSAGE = "0:  Help\n" +
-            "1:  Enter the label title\n" +
-            "2:  Enter the label color\n" +
-            "3:  Create basic label [title required]";
+    private static final String SET_COLOR_MESSAGE = "Please enter the label color: ";
+    private static final String SET_TITLE_MESSAGE = "Please enter the label title: ";
+    private final static String HELP_MESSAGE = "0:    Help\n" +
+            "1:    Set the label title.\n" +
+            "2:    Set the label color.\n" +
+            "3:    Create basic label [title is required].\n" +
+            "exit: Exit from the mode.";
 
-    public CreateLabelMode(TodoClient client, BufferedReader reader) {
+    CreateLabelMode(TodoClient client, BufferedReader reader) {
         this.client = client;
         this.reader = reader;
     }
 
     @Command(abbrev = "0")
     public void help() {
-        System.out.println(HELP_MESSAGE);
+        sendMessageToUser(HELP_MESSAGE);
     }
 
     @Command(abbrev = "1")
     public void enterTitle() throws IOException {
-        System.out.println(ENTER_TITLE_MESSAGE);
+        sendMessageToUser(SET_TITLE_MESSAGE);
         final String title = reader.readLine();
         this.title = title;
     }
 
     @Command(abbrev = "2")
     public void enterColor() throws IOException {
-        System.out.println(ENTER_COLOR_MESSAGE);
+        sendMessageToUser(SET_COLOR_MESSAGE);
         final LabelColor color = LabelColor.valueOf(reader.readLine());
         this.color = color;
     }
