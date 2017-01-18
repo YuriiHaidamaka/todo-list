@@ -25,3 +25,9 @@ dependencies {
     compile project(path: ':api-java')
     compile project(path: ':client')
 }
+
+task runTodoList(dependsOn: jar, type: JavaExec) {
+    standardInput = System.in
+    main = 'org.spine3.examples.todolist.EntryPoint'
+    classpath = sourceSets.main.runtimeClasspath
+}
