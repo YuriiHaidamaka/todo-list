@@ -25,6 +25,9 @@ package org.spine3.examples.todolist.modes;
  */
 class ModeHelper {
 
+    private ModeHelper() {
+    }
+
     static void sendMessageToUser(String message) {
         System.out.println(message);
     }
