@@ -35,7 +35,8 @@ public class LabelColorValidator implements Validator {
 
     private static final String COLOR_IS_NULL = "Label color cannot be null.";
     private static final String COLOR_IS_EMPTY = "Label color cannot be empty.";
-    private static final String INCORRECT_LABEL_COLOR = "Please enter the correct label color.";
+    private static final String INCORRECT_LABEL_COLOR = "Please enter the correct label color.\n" +
+            "Valid label colors:\n BLUE;\nGRAY;\nGREEN;\nRED.";
     private String message;
 
     @Override
@@ -54,7 +55,11 @@ public class LabelColorValidator implements Validator {
             return false;
         }
 
-        final List<LabelColor> colors = newArrayList(LabelColor.BLUE, LabelColor.GRAY, LabelColor.GREEN, LabelColor.RED);
+        final List<LabelColor> colors = newArrayList(LabelColor.BLUE,
+                                                     LabelColor.GRAY,
+                                                     LabelColor.GREEN,
+                                                     LabelColor.RED,
+                                                     LabelColor.LC_UNDEFINED);
 
         boolean isValid = false;
         for (LabelColor currentColor : colors) {

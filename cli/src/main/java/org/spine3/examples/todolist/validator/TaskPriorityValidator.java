@@ -33,9 +33,10 @@ import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
  */
 public class TaskPriorityValidator implements Validator {
 
-    private static final String INCORRECT_PRIORITY = "Please enter the valid priority.";
     private static final String PRIORITY_IS_NULL = "The task priority cannot be null.";
     private static final String PRIORITY_IS_EMPTY = "The task priority cannot be empty.";
+    private static final String INCORRECT_PRIORITY = "Please enter the correct task priority.\n" +
+            "Valid task priority:\nLOW;\nNORMAL;\nHIGH.";
     private String message;
 
     @Override
@@ -56,11 +57,13 @@ public class TaskPriorityValidator implements Validator {
 
         final List<TaskPriority> validPriorities = Lists.newArrayList(TaskPriority.LOW,
                                                                       TaskPriority.NORMAL,
-                                                                      TaskPriority.HIGH);
+                                                                      TaskPriority.HIGH,
+                                                                      TaskPriority.TP_UNDEFINED);
         boolean isValid = false;
         for (TaskPriority currentPriority : validPriorities) {
+            final String inputPriority = input.toUpperCase();
             if (currentPriority.name()
-                               .equals(input.toUpperCase())) {
+                               .equals(inputPriority)) {
                 isValid = true;
             }
         }

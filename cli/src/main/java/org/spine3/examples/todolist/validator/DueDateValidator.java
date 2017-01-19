@@ -20,10 +20,11 @@
 
 package org.spine3.examples.todolist.validator;
 
-import com.google.protobuf.util.Timestamps;
-
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
+import static org.spine3.examples.todolist.CommonHelper.DATE_FORMAT;
+import static org.spine3.examples.todolist.CommonHelper.getDateFormat;
 import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
 import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
 
@@ -34,7 +35,7 @@ public class DueDateValidator implements Validator {
 
     private static final String DUE_DATE_IS_NULL = "The due date cannot be null.";
     private static final String DUE_DATE_IS_EMPTY = "The due date cannot be empty.";
-    private static final String INCORRECT_DUE_DATE = "Please enter the correct due date format yyyy-MM-dd.";
+    private static final String INCORRECT_DUE_DATE = "Incorrect due date format. Correct format: " + DATE_FORMAT + ".";
     private String message;
 
     @Override
@@ -58,7 +59,8 @@ public class DueDateValidator implements Validator {
 
     private boolean isCorrectFormat(String input) {
         try {
-            Timestamps.parse(input);
+            final SimpleDateFormat simpleDateFormat = getDateFormat();
+            simpleDateFormat.parse(input);
         } catch (ParseException e) {
             message = INCORRECT_DUE_DATE;
             return false;
