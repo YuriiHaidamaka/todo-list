@@ -35,22 +35,20 @@ import org.spine3.examples.todolist.validator.Validator;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import static org.spine3.examples.todolist.modes.MainMode.ENTER_LABEL_ID_MESSAGE;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.ENTER_LABEL_ID_MESSAGE;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+import static org.spine3.examples.todolist.modes.UpdateLabelMode.UpdateLabelModeConstants.ENTER_NEW_COLOR_MESSAGE;
+import static org.spine3.examples.todolist.modes.UpdateLabelMode.UpdateLabelModeConstants.ENTER_NEW_TITLE_MESSAGE;
+import static org.spine3.examples.todolist.modes.UpdateLabelMode.UpdateLabelModeConstants.ENTER_PREVIOUS_COLOR_MESSAGE;
+import static org.spine3.examples.todolist.modes.UpdateLabelMode.UpdateLabelModeConstants.ENTER_PREVIOUS_TITLE_MESSAGE;
+import static org.spine3.examples.todolist.modes.UpdateLabelMode.UpdateLabelModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.UpdateLabelMode.UpdateLabelModeConstants.UPDATED_LABLE_DETAILS_MESSAGE;
 
 /**
  * @author Illia Shepilov
  */
 @SuppressWarnings("unused")
 public class UpdateLabelMode {
-
-    private static final String HELP_MESSAGE = "0:    Help.\n" +
-            "1:    Update the label details.\n" +
-            "exit: Exit from the mode.";
-    private static final String ENTER_NEW_TITLE_MESSAGE = "Please enter the new label title: ";
-    private static final String ENTER_PREVIOUS_TITLE_MESSAGE = "Please enter the previous label title: ";
-    private static final String ENTER_NEW_COLOR_MESSAGE = "Please enter the new label color: ";
-    private static final String ENTER_PREVIOUS_COLOR_MESSAGE = "Please enter the previous label color: ";
 
     private Validator idValidator;
     private Validator colorValidator;
@@ -100,11 +98,15 @@ public class UpdateLabelMode {
                                                                         .setId(labelId)
                                                                         .build();
         client.update(updateLabelDetails);
+        final String message = String.format(UPDATED_LABLE_DETAILS_MESSAGE,
+                                             previousColor, newColor, previousTitle, newTitle);
+        sendMessageToUser(message);
     }
 
     private String obtainLabelColorValue(String message) throws IOException {
         sendMessageToUser(message);
         String color = reader.readLine();
+        color = color == null ? null : color.toUpperCase();
         final boolean isValid = colorValidator.validate(color);
 
         if (!isValid) {
@@ -142,5 +144,17 @@ public class UpdateLabelMode {
         idValidator = new IdValidator();
         colorValidator = new LabelColorValidator();
         commonValidator = new CommonValidator();
+    }
+
+    static class UpdateLabelModeConstants {
+        static final String UPDATED_LABLE_DETAILS_MESSAGE = "The label details updated.\n" +
+                "The label color: %s --> %s.\nThe label title: %s --> %s";
+        static final String ENTER_NEW_TITLE_MESSAGE = "Please enter the new label title: ";
+        static final String ENTER_PREVIOUS_TITLE_MESSAGE = "Please enter the previous label title: ";
+        static final String ENTER_NEW_COLOR_MESSAGE = "Please enter the new label color: ";
+        static final String ENTER_PREVIOUS_COLOR_MESSAGE = "Please enter the previous label color: ";
+        static final String HELP_MESSAGE = "0:    Help.\n" +
+                "1:    Update the label details.\n" +
+                "exit: Exit from the mode.";
     }
 }

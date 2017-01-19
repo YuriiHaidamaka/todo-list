@@ -39,6 +39,21 @@ import org.spine3.examples.todolist.validator.Validator;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.CREATE_LABEL_PROMPT;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.CREATE_LABEL_TITLE;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.CREATE_TASK_PROMPT;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.CREATE_TASK_TITLE;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.DRAFT_TASK_PROMPT;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.DRAFT_TASK_TITLE;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.ENTER_LABEL_ID_MESSAGE;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.ENTER_TASK_ID_MESSAGE;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.OBTAIN_VIEWS_PROMPT;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.OBTAIN_VIEW_TITLE;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.UPDATE_LABEL_PROMPT;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.UPDATE_LABEL_TITLE;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.UPDATE_TASK_PROMPT;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.UPDATE_TASK_TITLE;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
@@ -47,41 +62,6 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 @SuppressWarnings("unused")
 public class MainMode implements ShellDependent {
 
-    static final String ENTER_TASK_ID_MESSAGE = "Please enter the task id: ";
-    static final String ENTER_LABEL_ID_MESSAGE = "Please enter the label id: ";
-    public static final String HELP_ADVICE = "Enter 'help' to view all commands.";
-    private static final String CREATE_TASK_PROMPT = "create-task";
-    private static final String UPDATE_TASK_PROMPT = "update-task";
-    private static final String CREATE_LABEL_PROMPT = "create-label";
-    private static final String UPDATE_LABEL_PROMPT = "update-label";
-    private static final String OBTAIN_VIEWS_PROMPT = "obtain-views";
-    private static final String DRAFT_TASK_PROMPT = "draft-task";
-    private static final String CREATE_TASK_MODE = "******************Create task mode******************\n";
-    private static final String CREATE_TASK_TITLE = CREATE_TASK_MODE + HELP_ADVICE;
-    private static final String UPDATE_TASK_MODE = "******************Update task mode******************\n";
-    private static final String UPDATE_TASK_TITLE = UPDATE_TASK_MODE + HELP_ADVICE;
-    private static final String CREATE_LABEL_MODE = "******************Create label mode*****************\n";
-    private static final String CREATE_LABEL_TITLE = CREATE_LABEL_MODE + HELP_ADVICE;
-    private static final String UPDATE_LABEL_MODE = "******************Update label mode*****************\n";
-    private static final String UPDATE_LABEL_TITLE = UPDATE_LABEL_MODE + HELP_ADVICE;
-    private static final String OBTAIN_VIEW_MODE = "******************Obtain view mode******************\n";
-    private static final String OBTAIN_VIEW_TITLE = OBTAIN_VIEW_MODE + HELP_ADVICE;
-    private static final String DRAFT_TASK_MODE = "******************Draft task mode*******************\n";
-    private static final String DRAFT_TASK_TITLE = DRAFT_TASK_MODE + HELP_ADVICE;
-    private static final String HELP_MESSAGE = "0:    Help.\n" +
-            "1:    Create the task mode.\n" +
-            "2:    Update the task mode.\n" +
-            "3:    Create the label mode.\n" +
-            "4:    Update the label mode.\n" +
-            "5:    Assign label to task mode.\n" +
-            "6:    Remove label from task mode.\n" +
-            "7:    Delete task mode.\n" +
-            "8:    Reopen task mode.\n" +
-            "9:    Restore task mode.\n" +
-            "10:   Complete task mode.\n" +
-            "11:   Obtain views mode.\n" +
-            "12:   Draft task mode.\n" +
-            "exit: Exit from the mode.";
     private final TodoClient client;
     private final BufferedReader reader;
     private Validator idValidator;
@@ -217,7 +197,7 @@ public class MainMode implements ShellDependent {
 
     @Command(abbrev = "12")
     public void draftTaskMode() throws IOException {
-        ShellFactory.createSubshell(DRAFT_TASK_PROMPT, shell, DRAFT_TASK_TITLE, new ObtainViewMode(client))
+        ShellFactory.createSubshell(DRAFT_TASK_PROMPT, shell, DRAFT_TASK_TITLE, new DraftTaskMode(client, reader))
                     .commandLoop();
     }
 
@@ -247,5 +227,49 @@ public class MainMode implements ShellDependent {
 
     private void initValidators() {
         idValidator = new IdValidator();
+    }
+
+    public static class MainModeConstants {
+        public static final String HELP_ADVICE = "Enter 'help' or '0' to view all commands.\n";
+        public static final String HELP_MESSAGE = "0:    Help.\n" +
+                "1:    Create the task mode.\n" +
+                "2:    Update the task mode.\n" +
+                "3:    Create the label mode.\n" +
+                "4:    Update the label mode.\n" +
+                "5:    Assign label to task mode.\n" +
+                "6:    Remove label from task mode.\n" +
+                "7:    Delete task mode.\n" +
+                "8:    Reopen task mode.\n" +
+                "9:    Restore task mode.\n" +
+                "10:   Complete task mode.\n" +
+                "11:   Obtain views mode.\n" +
+                "12:   Draft task mode.\n" +
+                "exit: Exit from the mode.";
+        static final String CREATE_TASK_MODE = "******************Create task mode******************\n";
+        static final String CREATE_TASK_TITLE = CREATE_TASK_MODE + HELP_ADVICE +
+                CreateTaskMode.CreateTaskModeConstants.HELP_MESSAGE;
+        static final String UPDATE_TASK_MODE = "******************Update task mode******************\n";
+        static final String UPDATE_TASK_TITLE = UPDATE_TASK_MODE + HELP_ADVICE +
+                UpdateTaskMode.UpdateTaskModeConstants.HELP_MESSAGE;
+        static final String CREATE_LABEL_MODE = "******************Create label mode*****************\n";
+        static final String CREATE_LABEL_TITLE = CREATE_LABEL_MODE + HELP_ADVICE +
+                CreateLabelMode.CreateLabelModeConstants.HELP_MESSAGE;
+        static final String UPDATE_LABEL_MODE = "******************Update label mode*****************\n";
+        static final String UPDATE_LABEL_TITLE = UPDATE_LABEL_MODE + HELP_ADVICE +
+                UpdateLabelMode.UpdateLabelModeConstants.HELP_MESSAGE;
+        static final String OBTAIN_VIEW_MODE = "******************Obtain view mode******************\n";
+        static final String OBTAIN_VIEW_TITLE = OBTAIN_VIEW_MODE + HELP_ADVICE +
+                ObtainViewMode.ObtainVewModeConstants.HELP_MESSAGE;
+        static final String DRAFT_TASK_MODE = "******************Draft task mode*******************\n";
+        static final String DRAFT_TASK_TITLE = DRAFT_TASK_MODE + HELP_ADVICE +
+                DraftTaskMode.DraftTaskModeConstants.HELP_MESSAGE;
+        static final String ENTER_TASK_ID_MESSAGE = "Please enter the task id: ";
+        static final String ENTER_LABEL_ID_MESSAGE = "Please enter the label id: ";
+        static final String CREATE_TASK_PROMPT = "create-task";
+        static final String UPDATE_TASK_PROMPT = "update-task";
+        static final String CREATE_LABEL_PROMPT = "create-label";
+        static final String UPDATE_LABEL_PROMPT = "update-label";
+        static final String OBTAIN_VIEWS_PROMPT = "obtain-views";
+        static final String DRAFT_TASK_PROMPT = "draft-task";
     }
 }

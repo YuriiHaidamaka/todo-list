@@ -28,7 +28,14 @@ import org.spine3.examples.todolist.q.projections.MyListView;
 
 import java.util.List;
 
+import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDraftTasks;
+import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyLabelledTasks;
+import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyMyList;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+import static org.spine3.examples.todolist.modes.ObtainViewMode.ObtainVewModeConstants.EMPTY_DRAFT_TASKS;
+import static org.spine3.examples.todolist.modes.ObtainViewMode.ObtainVewModeConstants.EMPTY_LABELLED_TASKS;
+import static org.spine3.examples.todolist.modes.ObtainViewMode.ObtainVewModeConstants.EMPTY_MY_LIST_TASKS;
+import static org.spine3.examples.todolist.modes.ObtainViewMode.ObtainVewModeConstants.HELP_MESSAGE;
 
 /**
  * @author Illia Shepilov
@@ -36,14 +43,6 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 @SuppressWarnings("unused")
 public class ObtainViewMode {
 
-    private static final String EMPTY_LABELLED_TASKS = "No labelled tasks";
-    private static final String EMPTY_MY_LIST_TASKS = "No my list view";
-    private static final String EMPTY_DRAFT_TASKS = "No draft tasks view";
-    private static final String HELP_MESSAGE = "0:    Help.\n" +
-            "1:    Obtain labelled tasks.\n" +
-            "2:    Obtain my tasks.\n" +
-            "3:    Obtain draft tasks.\n" +
-            "exit: Exit from the mode.";
     private final TodoClient client;
 
     ObtainViewMode(TodoClient client) {
@@ -58,8 +57,9 @@ public class ObtainViewMode {
     @Command(abbrev = "1")
     public void obtainLabelledTasksView() {
         final List<LabelledTasksView> labelledTasks = client.getLabelledTasksView();
-        final String result = labelledTasks.isEmpty() ? EMPTY_LABELLED_TASKS : labelledTasks.toString();
-        sendMessageToUser(result);
+        final String message = labelledTasks.isEmpty() ? EMPTY_LABELLED_TASKS :
+                               constructUserFriendlyLabelledTasks(labelledTasks);
+        sendMessageToUser(message);
     }
 
     @Command(abbrev = "2")
@@ -68,8 +68,8 @@ public class ObtainViewMode {
         final int itemsCount = myListView.getMyList()
                                          .getItemsCount();
         final boolean isEmpty = itemsCount == 0;
-        final String result = isEmpty ? EMPTY_MY_LIST_TASKS : myListView.toString();
-        sendMessageToUser(result);
+        final String message = isEmpty ? EMPTY_MY_LIST_TASKS : constructUserFriendlyMyList(myListView);
+        sendMessageToUser(message);
     }
 
     @Command(abbrev = "3")
@@ -78,7 +78,18 @@ public class ObtainViewMode {
         final int itemsCount = draftTasksView.getDraftTasks()
                                              .getItemsCount();
         final boolean isEmpty = itemsCount == 0;
-        final String result = isEmpty ? EMPTY_DRAFT_TASKS : draftTasksView.toString();
-        sendMessageToUser(result);
+        final String message = isEmpty ? EMPTY_DRAFT_TASKS : constructUserFriendlyDraftTasks(draftTasksView);
+        sendMessageToUser(message);
+    }
+
+    static class ObtainVewModeConstants {
+        static final String EMPTY_LABELLED_TASKS = "No labelled tasks.";
+        static final String EMPTY_MY_LIST_TASKS = "No tasks in the my list.";
+        static final String EMPTY_DRAFT_TASKS = "No draft tasks.";
+        static final String HELP_MESSAGE = "0:    Help.\n" +
+                "1:    Obtain labelled tasks.\n" +
+                "2:    Obtain my tasks.\n" +
+                "3:    Obtain draft tasks.\n" +
+                "exit: Exit from the mode.";
     }
 }

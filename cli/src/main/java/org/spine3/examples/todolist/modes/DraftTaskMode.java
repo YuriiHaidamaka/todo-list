@@ -32,7 +32,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import static org.spine3.base.Identifiers.newUuid;
-import static org.spine3.examples.todolist.modes.MainMode.ENTER_TASK_ID_MESSAGE;
+import static org.spine3.examples.todolist.modes.DraftTaskMode.DraftTaskModeConstants.DRAFT_CREATED_MESSAGE;
+import static org.spine3.examples.todolist.modes.DraftTaskMode.DraftTaskModeConstants.DRAFT_FINALIZED_MESSAGE;
+import static org.spine3.examples.todolist.modes.DraftTaskMode.DraftTaskModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.ENTER_TASK_ID_MESSAGE;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
@@ -44,14 +47,10 @@ public class DraftTaskMode {
     private Validator idValidator;
     private final BufferedReader reader;
     private final TodoClient client;
-    private static final String HELP_MESSAGE = "0:    Help.\n" +
-            "1:    Create task draft.\n" +
-            "2:    Finalize task draft.\n" +
-            "exit: Exit from the mode.";
 
-    public DraftTaskMode(BufferedReader reader, TodoClient client) {
-        this.reader = reader;
+    public DraftTaskMode(TodoClient client, BufferedReader reader) {
         this.client = client;
+        this.reader = reader;
         initValidators();
     }
 
@@ -69,13 +68,12 @@ public class DraftTaskMode {
                                                    .setId(taskId)
                                                    .build();
         client.create(createDraft);
-        final String result = "Created task draft with id: " + taskId.getValue();
+        final String result = DRAFT_CREATED_MESSAGE + taskId.getValue();
         sendMessageToUser(result);
     }
 
     @Command(abbrev = "2")
     public void finalizeDraft() throws IOException {
-        sendMessageToUser(ENTER_TASK_ID_MESSAGE);
         final String idValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
                                     .setValue(idValue)
@@ -84,6 +82,8 @@ public class DraftTaskMode {
                                                          .setId(taskId)
                                                          .build();
         client.finalize(finalizeDraft);
+        final String message = String.format(DRAFT_FINALIZED_MESSAGE, idValue);
+        sendMessageToUser(message);
     }
 
     private String obtainTaskIdValue() throws IOException {
@@ -100,5 +100,14 @@ public class DraftTaskMode {
 
     private void initValidators() {
         idValidator = new IdValidator();
+    }
+
+    static class DraftTaskModeConstants {
+        static final String DRAFT_FINALIZED_MESSAGE = "Task with id value: %s finalized.";
+        static final String DRAFT_CREATED_MESSAGE = "Created task draft with id: ";
+        static final String HELP_MESSAGE = "0:    Help.\n" +
+                "1:    Create task draft.\n" +
+                "2:    Finalize task draft.\n" +
+                "exit: Exit from the mode.";
     }
 }

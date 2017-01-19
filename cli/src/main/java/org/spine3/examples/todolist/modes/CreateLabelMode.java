@@ -36,6 +36,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import static org.spine3.base.Identifiers.newUuid;
+import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.CHANGED_COLOR_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.CHANGED_TITLE_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.SET_COLOR_MESSAGE;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
@@ -50,13 +54,6 @@ public class CreateLabelMode {
     private Validator colorValidator;
     private final TodoClient client;
     private final BufferedReader reader;
-    private static final String SET_COLOR_MESSAGE = "Please enter the label color: ";
-    private static final String SET_TITLE_MESSAGE = "Please enter the label title: ";
-    private final static String HELP_MESSAGE = "0:    Help.\n" +
-            "1:    Set the label title.\n" +
-            "2:    Set the label color.\n" +
-            "3:    Create basic label [title is required].\n" +
-            "exit: Exit from the mode.";
 
     CreateLabelMode(TodoClient client, BufferedReader reader) {
         this.client = client;
@@ -73,6 +70,8 @@ public class CreateLabelMode {
     public void setTitle() throws IOException {
         final String title = obtainLabelTitle();
         this.title = title;
+        final String message = CHANGED_TITLE_MESSAGE + title;
+        sendMessageToUser(message);
     }
 
     @Command(abbrev = "2")
@@ -80,6 +79,8 @@ public class CreateLabelMode {
         final String colorValue = obtainLabelColor();
         final LabelColor color = LabelColor.valueOf(colorValue);
         this.color = color;
+        final String message = CHANGED_COLOR_MESSAGE + color;
+        sendMessageToUser(message);
     }
 
     @Command(abbrev = "3")
@@ -87,7 +88,6 @@ public class CreateLabelMode {
         final TaskLabelId labelId = TaskLabelId.newBuilder()
                                                .setValue(newUuid())
                                                .build();
-
         final Validator commonValidator = new CommonValidator();
         final boolean isValidTitle = commonValidator.validate(title);
         if (!isValidTitle) {
@@ -100,6 +100,13 @@ public class CreateLabelMode {
                                                                   .build();
         client.create(createBasicLabel);
 
+        updateLabelDetailsIfNeeded(labelId);
+        final String message = String.format("Created label with id: %s, title: %s, color: %s", labelId, title, color);
+        sendMessageToUser(message);
+        clearValues();
+    }
+
+    private void updateLabelDetailsIfNeeded(TaskLabelId labelId) {
         if (color != LabelColor.LC_UNDEFINED) {
             final LabelDetails newLabelDetails = LabelDetails.newBuilder()
                                                              .setColor(color)
@@ -114,13 +121,10 @@ public class CreateLabelMode {
                                                                             .build();
             client.update(updateLabelDetails);
         }
-        final String result = String.format("Created label with id: %s, title: %s, color: %s", labelId, title, color);
-        sendMessageToUser(result);
-        clearValues();
     }
 
     private String obtainLabelTitle() throws IOException {
-        sendMessageToUser(SET_TITLE_MESSAGE);
+        sendMessageToUser(CHANGED_TITLE_MESSAGE);
         String title = reader.readLine();
         final boolean isValid = commonValidator.validate(title);
 
@@ -152,5 +156,17 @@ public class CreateLabelMode {
     private void initValidators() {
         commonValidator = new CommonValidator();
         colorValidator = new LabelColorValidator();
+    }
+
+    static class CreateLabelModeConstants {
+        static final String CHANGED_COLOR_MESSAGE = "Set the label color. Value: ";
+        static final String CHANGED_TITLE_MESSAGE = "Set the label title. Value: ";
+        static final String SET_COLOR_MESSAGE = "Please enter the label color: ";
+        static final String SET_TITLE_MESSAGE = "Please enter the label title: ";
+        static final String HELP_MESSAGE = "0:    Help.\n" +
+                "1:    Set the label title.\n" +
+                "2:    Set the label color.\n" +
+                "3:    Create basic label [title is required].\n" +
+                "exit: Exit from the mode.";
     }
 }

@@ -38,8 +38,18 @@ import org.spine3.examples.todolist.validator.TaskPriorityValidator;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import static org.spine3.base.Identifiers.newUuid;
+import static org.spine3.examples.todolist.CommonHelper.getDateFormat;
+import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CHANGED_DESCRIPTION_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CHANGED_DUE_DATE_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CHANGED_PRIORITY_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_DESCRIPTION_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_DUE_DATE_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_MESSAGE;
+import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDate;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
@@ -56,16 +66,6 @@ public class CreateTaskMode {
     private Timestamp dueDate = Timestamp.getDefaultInstance();
     private TaskPriority priority = TaskPriority.TP_UNDEFINED;
     private String description;
-    private static final String SET_DESCRIPTION_MESSAGE = "Please enter the task description";
-    private static final String SET_DUE_DATE_MESSAGE = "Please enter the task due date";
-    private static final String SET_PRIORITY_MESSAGE = "Please enter the one of the available task priority:\n" +
-            "LOW\nNORMAL\nHIGH";
-    private static final String HELP_MESSAGE = "0:    Help.\n" +
-            "1:    Set the task description.\n" +
-            "2:    Set the task due date.\n" +
-            "3:    Set the task priority.\n" +
-            "4:    Create the task with specified parameters[description is required].\n" +
-            "exit: Exit from the mode.";
 
     CreateTaskMode(TodoClient client, BufferedReader reader) {
         this.client = client;
@@ -82,19 +82,28 @@ public class CreateTaskMode {
     public void setTaskDescription() throws IOException {
         final String description = obtainDescriptionValue();
         this.description = description;
+        final String message = CHANGED_DESCRIPTION_MESSAGE + description;
+        sendMessageToUser(message);
     }
 
     @Command(abbrev = "2")
     public void setTaskDueDate() throws IOException, ParseException {
-        final String dueDate = obtainDueDateValue();
-        final Timestamp result = Timestamps.parse(dueDate);
-        this.dueDate = result;
+        final String dueDateValue = obtainDueDateValue();
+        final SimpleDateFormat simpleDateFormat = getDateFormat();
+        final long dueDateInMS = simpleDateFormat.parse(dueDateValue)
+                                                 .getTime();
+        final Timestamp dueDate = Timestamps.fromMillis(dueDateInMS);
+        this.dueDate = dueDate;
+        final String message = CHANGED_DUE_DATE_MESSAGE + constructUserFriendlyDate(dueDateInMS);
+        sendMessageToUser(message);
     }
 
     @Command(abbrev = "3")
     public void setTaskPriority() throws IOException {
         final String priority = obtainPriorityValue();
         this.priority = TaskPriority.valueOf(priority.toUpperCase());
+        final String message = CHANGED_PRIORITY_MESSAGE + priority;
+        sendMessageToUser(message);
     }
 
     @Command(abbrev = "4")
@@ -196,5 +205,20 @@ public class CreateTaskMode {
         dueDateValidator = new DueDateValidator();
         taskPriorityValidator = new TaskPriorityValidator();
         descriptionValidator = new DescriptionValidator();
+    }
+
+    static class CreateTaskModeConstants {
+        static final String CHANGED_PRIORITY_MESSAGE = "Set the task priority. Value: ";
+        static final String CHANGED_DUE_DATE_MESSAGE = "Set the task due date. Value: ";
+        static final String CHANGED_DESCRIPTION_MESSAGE = "Set the task description. Value: ";
+        static final String SET_DESCRIPTION_MESSAGE = "Please enter the task description: ";
+        static final String SET_DUE_DATE_MESSAGE = "Please enter the task due date: ";
+        static final String SET_PRIORITY_MESSAGE = "Please enter the task priority";
+        static final String HELP_MESSAGE = "0:    Help.\n" +
+                "1:    Set the task description.\n" +
+                "2:    Set the task due date.\n" +
+                "3:    Set the task priority.\n" +
+                "4:    Create the task with specified parameters[description is required].\n" +
+                "exit: Exit from the mode.";
     }
 }
