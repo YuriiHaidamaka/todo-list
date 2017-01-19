@@ -20,15 +20,108 @@
 
 package org.spine3.examples.todolist.modes;
 
+import com.google.protobuf.util.Timestamps;
+import org.spine3.examples.todolist.q.projections.DraftTasksView;
+import org.spine3.examples.todolist.q.projections.LabelledTasksView;
+import org.spine3.examples.todolist.q.projections.MyListView;
+import org.spine3.examples.todolist.q.projections.TaskView;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import static org.spine3.examples.todolist.CommonHelper.getDateFormat;
+
 /**
  * @author Illia Shepilov
  */
 class ModeHelper {
+
+    private static final String NEW_LINE = "\n";
 
     private ModeHelper() {
     }
 
     static void sendMessageToUser(String message) {
         System.out.println(message);
+    }
+
+    static String constructUserFriendlyDate(long millis) {
+        final SimpleDateFormat simpleDateFormat = getDateFormat();
+        final String date = simpleDateFormat.format(new Date(millis));
+        return date;
+    }
+
+    static String constructUserFriendlyMyList(MyListView myListView) {
+        final StringBuilder builder = new StringBuilder();
+        final List<TaskView> viewList = myListView.getMyList()
+                                                  .getItemsList();
+        builder.append("My list tasks");
+        builder.append(NEW_LINE);
+        for (TaskView view : viewList) {
+            constructUserFriendlyTaskView(builder, view);
+        }
+        return builder.toString();
+    }
+
+    static String constructUserFriendlyDraftTasks(DraftTasksView draftTasksView) {
+        final StringBuilder builder = new StringBuilder();
+        final List<TaskView> viewList = draftTasksView.getDraftTasks()
+                                                      .getItemsList();
+        builder.append("Draft tasks");
+        builder.append(NEW_LINE);
+        for (TaskView view : viewList) {
+            constructUserFriendlyTaskView(builder, view);
+        }
+        return builder.toString();
+    }
+
+    static String constructUserFriendlyLabelledTasks(List<LabelledTasksView> labelledTasksView) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("Labelled tasks");
+        builder.append(NEW_LINE);
+        for (LabelledTasksView labelledView : labelledTasksView) {
+            constructLabelledView(builder, labelledView);
+        }
+
+        return builder.toString();
+    }
+
+    private static void constructLabelledView(StringBuilder builder, LabelledTasksView labelledView) {
+        builder.append("Label id: ");
+        builder.append(NEW_LINE);
+        builder.append("Label title: ");
+        builder.append(labelledView.getLabelTitle());
+        builder.append(NEW_LINE);
+        builder.append("Label color: ");
+        builder.append(labelledView.getLabelColor());
+        builder.append(NEW_LINE);
+        final List<TaskView> viewList = labelledView.getLabelledTasks()
+                                                    .getItemsList();
+        for (TaskView view : viewList) {
+            constructUserFriendlyTaskView(builder, view);
+        }
+    }
+
+    private static void constructUserFriendlyTaskView(StringBuilder builder, TaskView view) {
+        builder.append("Task: ");
+        builder.append(NEW_LINE);
+        builder.append("Task id: ");
+        builder.append(view.getId()
+                           .getValue());
+        builder.append(NEW_LINE);
+        builder.append("Description: ");
+        builder.append(view.getDescription());
+        builder.append(NEW_LINE);
+        builder.append("Priority: ");
+        builder.append(view.getPriority());
+        builder.append(NEW_LINE);
+        builder.append("Due date: ");
+        final String date = constructUserFriendlyDate(Timestamps.toMillis(view.getDueDate()));
+        builder.append(date);
+        builder.append(NEW_LINE);
+        builder.append("Label id: ");
+        builder.append(view.getLabelId());
+        builder.append(NEW_LINE);
     }
 }
