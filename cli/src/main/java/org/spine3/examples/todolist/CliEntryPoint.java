@@ -36,7 +36,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.spine3.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT;
-import static org.spine3.examples.todolist.modes.MainMode.HELP_ADVICE;
+import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.HELP_ADVICE;
 
 /**
  * @author Illia Shepilov
@@ -53,7 +53,7 @@ public class CliEntryPoint {
         final TodoClient client = new CommandLineTodoClient("localhost", DEFAULT_CLIENT_SERVICE_PORT);
         final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8));
         final MainMode entryPoint = new MainMode(client, reader);
-        ShellFactory.createConsoleShell(TODO_PROMPT, HELP_ADVICE, entryPoint)
+        ShellFactory.createConsoleShell(TODO_PROMPT, HELP_ADVICE + MainMode.MainModeConstants.HELP_MESSAGE, entryPoint)
                     .commandLoop();
         reader.close();
         client.shutdown();
