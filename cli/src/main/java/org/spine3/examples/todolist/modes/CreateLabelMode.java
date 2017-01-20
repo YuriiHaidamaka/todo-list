@@ -29,7 +29,6 @@ import org.spine3.examples.todolist.c.commands.CreateBasicLabel;
 import org.spine3.examples.todolist.c.commands.UpdateLabelDetails;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.validator.CommonValidator;
-import org.spine3.examples.todolist.validator.LabelColorValidator;
 import org.spine3.examples.todolist.validator.Validator;
 
 import java.io.BufferedReader;
@@ -40,25 +39,20 @@ import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelMode
 import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.CHANGED_TITLE_MESSAGE;
 import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.HELP_MESSAGE;
 import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.SET_COLOR_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.SET_TITLE_MESSAGE;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
  * @author Illia Shepilov
  */
 @SuppressWarnings("unused")
-public class CreateLabelMode {
+public class CreateLabelMode extends Mode {
 
     private String title;
     private LabelColor color = LabelColor.LC_UNDEFINED;
-    private Validator commonValidator;
-    private Validator colorValidator;
-    private final TodoClient client;
-    private final BufferedReader reader;
 
     CreateLabelMode(TodoClient client, BufferedReader reader) {
-        this.client = client;
-        this.reader = reader;
-        initValidators();
+        super(client, reader);
     }
 
     @Command(abbrev = "0")
@@ -68,7 +62,7 @@ public class CreateLabelMode {
 
     @Command(abbrev = "1")
     public void setTitle() throws IOException {
-        final String title = obtainLabelTitle();
+        final String title = obtainLabelTitle(SET_TITLE_MESSAGE);
         this.title = title;
         final String message = CHANGED_TITLE_MESSAGE + title;
         sendMessageToUser(message);
@@ -76,7 +70,7 @@ public class CreateLabelMode {
 
     @Command(abbrev = "2")
     public void setColor() throws IOException {
-        final String colorValue = obtainLabelColor();
+        final String colorValue = obtainLabelColorValue(SET_COLOR_MESSAGE);
         final LabelColor color = LabelColor.valueOf(colorValue);
         this.color = color;
         final String message = CHANGED_COLOR_MESSAGE + color;
@@ -123,39 +117,9 @@ public class CreateLabelMode {
         }
     }
 
-    private String obtainLabelTitle() throws IOException {
-        sendMessageToUser(CHANGED_TITLE_MESSAGE);
-        String title = reader.readLine();
-        final boolean isValid = commonValidator.validate(title);
-
-        if (!isValid) {
-            sendMessageToUser(commonValidator.getMessage());
-            title = obtainLabelTitle();
-        }
-        return title;
-    }
-
-    private String obtainLabelColor() throws IOException {
-        sendMessageToUser(SET_COLOR_MESSAGE);
-        String input = reader.readLine();
-
-        final boolean isValid = colorValidator.validate(input);
-
-        if (!isValid) {
-            sendMessageToUser(colorValidator.getMessage());
-            input = obtainLabelColor();
-        }
-        return input;
-    }
-
     private void clearValues() {
         color = LabelColor.LC_UNDEFINED;
         title = "";
-    }
-
-    private void initValidators() {
-        commonValidator = new CommonValidator();
-        colorValidator = new LabelColorValidator();
     }
 
     static class CreateLabelModeConstants {
@@ -166,7 +130,7 @@ public class CreateLabelMode {
         static final String HELP_MESSAGE = "0:    Help.\n" +
                 "1:    Set the label title.\n" +
                 "2:    Set the label color.\n" +
-                "3:    Create basic label [title is required].\n" +
+                "3:    Create the label [title is required].\n" +
                 "exit: Exit from the mode.";
     }
 }
