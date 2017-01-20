@@ -39,6 +39,17 @@ class ModeHelper {
 
     private static final String NEW_LINE = "\n";
     private static final String DEFAULT_VALUE = "default";
+    private static final String MY_LIST_TASKS = "My list tasks";
+    private static final String DRAFT_TASKS = "Draft tasks";
+    private static final String LABELLED_TASKS = "Labelled tasks";
+    private static final String TASK = "Task: ";
+    private static final String LABEL_ID_VALUE = "Label id: ";
+    private static final String TASK_ID_VALUE = "Task id: ";
+    private static final String LABEL_TITLE_VALUE = "Label title: ";
+    private static final String LABEL_COLOR_VALUE = "Label color: ";
+    private static final String DESCRIPTION_VALUE = "Description: ";
+    private static final String PRIORITY_VALUE = "Priority: ";
+    private static final String DUE_DATE_VALUE = "Due date: ";
 
     private ModeHelper() {
     }
@@ -57,7 +68,7 @@ class ModeHelper {
         final StringBuilder builder = new StringBuilder();
         final List<TaskView> viewList = myListView.getMyList()
                                                   .getItemsList();
-        builder.append("My list tasks");
+        builder.append(MY_LIST_TASKS);
         builder.append(NEW_LINE);
         for (TaskView view : viewList) {
             constructUserFriendlyTaskView(builder, view);
@@ -69,7 +80,7 @@ class ModeHelper {
         final StringBuilder builder = new StringBuilder();
         final List<TaskView> viewList = draftTasksView.getDraftTasks()
                                                       .getItemsList();
-        builder.append("Draft tasks");
+        builder.append(DRAFT_TASKS);
         builder.append(NEW_LINE);
         for (TaskView view : viewList) {
             constructUserFriendlyTaskView(builder, view);
@@ -79,7 +90,7 @@ class ModeHelper {
 
     static String constructUserFriendlyLabelledTasks(List<LabelledTasksView> labelledTasksView) {
         final StringBuilder builder = new StringBuilder();
-        builder.append("Labelled tasks");
+        builder.append(LABELLED_TASKS);
         builder.append(NEW_LINE);
         for (LabelledTasksView labelledView : labelledTasksView) {
             constructLabelledView(builder, labelledView);
@@ -89,12 +100,12 @@ class ModeHelper {
     }
 
     private static void constructLabelledView(StringBuilder builder, LabelledTasksView labelledView) {
-        builder.append("Label id: ");
+        builder.append(LABEL_ID_VALUE);
         builder.append(NEW_LINE);
-        builder.append("Label title: ");
+        builder.append(LABEL_TITLE_VALUE);
         builder.append(labelledView.getLabelTitle());
         builder.append(NEW_LINE);
-        builder.append("Label color: ");
+        builder.append(LABEL_COLOR_VALUE);
         builder.append(labelledView.getLabelColor());
         builder.append(NEW_LINE);
         final List<TaskView> viewList = labelledView.getLabelledTasks()
@@ -105,23 +116,24 @@ class ModeHelper {
     }
 
     private static void constructUserFriendlyTaskView(StringBuilder builder, TaskView view) {
-        builder.append("Task: ");
+        builder.append(TASK);
         builder.append(NEW_LINE);
-        builder.append("Task id: ");
-        builder.append(view.getId()
-                           .getValue());
+        builder.append(TASK_ID_VALUE);
+        final String taskIdValue = view.getId()
+                                       .getValue();
+        builder.append(taskIdValue);
         builder.append(NEW_LINE);
-        builder.append("Description: ");
+        builder.append(DESCRIPTION_VALUE);
         builder.append(view.getDescription());
         builder.append(NEW_LINE);
-        builder.append("Priority: ");
+        builder.append(PRIORITY_VALUE);
         builder.append(view.getPriority());
         builder.append(NEW_LINE);
-        builder.append("Due date: ");
+        builder.append(DUE_DATE_VALUE);
         final String date = constructUserFriendlyDate(Timestamps.toMillis(view.getDueDate()));
         builder.append(date);
         builder.append(NEW_LINE);
-        builder.append("Label id: ");
+        builder.append(LABEL_ID_VALUE);
         builder.append(view.getLabelId());
         builder.append(NEW_LINE);
     }
