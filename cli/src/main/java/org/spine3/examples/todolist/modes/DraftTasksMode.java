@@ -22,35 +22,28 @@ package org.spine3.examples.todolist.modes;
 
 import asg.cliche.Command;
 import org.spine3.examples.todolist.TaskId;
-import org.spine3.examples.todolist.c.commands.CreateDraft;
 import org.spine3.examples.todolist.c.commands.FinalizeDraft;
 import org.spine3.examples.todolist.client.TodoClient;
+import org.spine3.examples.todolist.q.projections.DraftTasksView;
 import org.spine3.examples.todolist.validator.IdValidator;
-import org.spine3.examples.todolist.validator.Validator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import static org.spine3.base.Identifiers.newUuid;
-import static org.spine3.examples.todolist.modes.DraftTaskMode.DraftTaskModeConstants.DRAFT_CREATED_MESSAGE;
-import static org.spine3.examples.todolist.modes.DraftTaskMode.DraftTaskModeConstants.DRAFT_FINALIZED_MESSAGE;
-import static org.spine3.examples.todolist.modes.DraftTaskMode.DraftTaskModeConstants.HELP_MESSAGE;
-import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.ENTER_TASK_ID_MESSAGE;
+import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.DRAFT_FINALIZED_MESSAGE;
+import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.EMPTY_DRAFT_TASKS;
+import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDraftTasks;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
  * @author Illia Shepilov
  */
 @SuppressWarnings("unused")
-public class DraftTaskMode {
+public class DraftTasksMode extends CommonMode {
 
-    private Validator idValidator;
-    private final BufferedReader reader;
-    private final TodoClient client;
-
-    public DraftTaskMode(TodoClient client, BufferedReader reader) {
-        this.client = client;
-        this.reader = reader;
+    DraftTasksMode(TodoClient client, BufferedReader reader) {
+        super(client, reader);
         initValidators();
     }
 
@@ -60,19 +53,16 @@ public class DraftTaskMode {
     }
 
     @Command(abbrev = "1")
-    public void createDraft() throws IOException {
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(newUuid())
-                                    .build();
-        final CreateDraft createDraft = CreateDraft.newBuilder()
-                                                   .setId(taskId)
-                                                   .build();
-        client.create(createDraft);
-        final String result = DRAFT_CREATED_MESSAGE + taskId.getValue();
-        sendMessageToUser(result);
+    public void showDraftTasks() {
+        final DraftTasksView draftTasksView = client.getDraftTasksView();
+        final int itemsCount = draftTasksView.getDraftTasks()
+                                             .getItemsCount();
+        final boolean isEmpty = itemsCount == 0;
+        final String message = isEmpty ? EMPTY_DRAFT_TASKS : constructUserFriendlyDraftTasks(draftTasksView);
+        sendMessageToUser(message);
     }
 
-    @Command(abbrev = "2")
+    @Command(abbrev = "12")
     public void finalizeDraft() throws IOException {
         final String idValue = obtainTaskIdValue();
         final TaskId taskId = TaskId.newBuilder()
@@ -86,28 +76,17 @@ public class DraftTaskMode {
         sendMessageToUser(message);
     }
 
-    private String obtainTaskIdValue() throws IOException {
-        sendMessageToUser(ENTER_TASK_ID_MESSAGE);
-        String taskIdInput = reader.readLine();
-        final boolean isValid = idValidator.validate(taskIdInput);
-
-        if (!isValid) {
-            sendMessageToUser(idValidator.getMessage());
-            taskIdInput = obtainTaskIdValue();
-        }
-        return taskIdInput;
-    }
-
     private void initValidators() {
         idValidator = new IdValidator();
     }
 
-    static class DraftTaskModeConstants {
+    static class DraftTasksModeConstants {
+        static final String EMPTY_DRAFT_TASKS = "No draft tasks.";
         static final String DRAFT_FINALIZED_MESSAGE = "Task with id value: %s finalized.";
-        static final String DRAFT_CREATED_MESSAGE = "Created task draft with id: ";
         static final String HELP_MESSAGE = "0:    Help.\n" +
-                "1:    Create task draft.\n" +
-                "2:    Finalize task draft.\n" +
+                "1:    Show the tasks in the draft state.\n" +
+                CommonMode.CommonModeConstants.HELP_MESSAGE +
+                "12:   Finalize the draft.\n" +
                 "exit: Exit from the mode.";
     }
 }

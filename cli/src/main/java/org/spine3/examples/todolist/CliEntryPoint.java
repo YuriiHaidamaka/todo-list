@@ -24,7 +24,7 @@ import asg.cliche.ShellFactory;
 import com.google.common.base.Charsets;
 import org.spine3.examples.todolist.client.CommandLineTodoClient;
 import org.spine3.examples.todolist.client.TodoClient;
-import org.spine3.examples.todolist.modes.MainMode;
+import org.spine3.examples.todolist.modes.GeneralMode;
 import org.spine3.examples.todolist.server.Server;
 import org.spine3.server.storage.memory.InMemoryStorageFactory;
 import org.spine3.util.Exceptions;
@@ -36,7 +36,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.spine3.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT;
-import static org.spine3.examples.todolist.modes.MainMode.MainModeConstants.HELP_ADVICE;
+import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.HELP_ADVICE;
 
 /**
  * @author Illia Shepilov
@@ -52,8 +52,8 @@ public class CliEntryPoint {
 
         final TodoClient client = new CommandLineTodoClient("localhost", DEFAULT_CLIENT_SERVICE_PORT);
         final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8));
-        final MainMode entryPoint = new MainMode(client, reader);
-        ShellFactory.createConsoleShell(TODO_PROMPT, HELP_ADVICE + MainMode.MainModeConstants.HELP_MESSAGE, entryPoint)
+        final GeneralMode entryPoint = new GeneralMode(client, reader);
+        ShellFactory.createConsoleShell(TODO_PROMPT, HELP_ADVICE + GeneralMode.MainModeConstants.HELP_MESSAGE, entryPoint)
                     .commandLoop();
         reader.close();
         client.shutdown();
