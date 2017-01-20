@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 /**
  * @author Illia Shepilov
  */
-public class CommonHelper {
+public class DateHelper {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd";
     private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT);

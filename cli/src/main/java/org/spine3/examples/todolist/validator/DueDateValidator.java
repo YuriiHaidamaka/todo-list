@@ -23,8 +23,8 @@ package org.spine3.examples.todolist.validator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import static org.spine3.examples.todolist.CommonHelper.DATE_FORMAT;
-import static org.spine3.examples.todolist.CommonHelper.getDateFormat;
+import static org.spine3.examples.todolist.DateHelper.DATE_FORMAT;
+import static org.spine3.examples.todolist.DateHelper.getDateFormat;
 import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
 import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
 
