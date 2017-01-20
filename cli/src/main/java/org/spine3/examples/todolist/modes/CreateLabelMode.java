@@ -21,6 +21,7 @@
 package org.spine3.examples.todolist.modes;
 
 import asg.cliche.Command;
+import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.LabelColor;
 import org.spine3.examples.todolist.LabelDetails;
 import org.spine3.examples.todolist.LabelDetailsChange;
@@ -31,7 +32,6 @@ import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.validators.CommonValidator;
 import org.spine3.examples.todolist.validators.Validator;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 
 import static org.spine3.base.Identifiers.newUuid;
@@ -51,7 +51,7 @@ public class CreateLabelMode extends Mode {
     private String title;
     private LabelColor color = LabelColor.LC_UNDEFINED;
 
-    CreateLabelMode(TodoClient client, BufferedReader reader) {
+    CreateLabelMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
     }
 
@@ -120,6 +120,11 @@ public class CreateLabelMode extends Mode {
     private void clearValues() {
         color = LabelColor.LC_UNDEFINED;
         title = "";
+    }
+
+    @Override
+    void start() {
+
     }
 
     static class CreateLabelModeConstants {

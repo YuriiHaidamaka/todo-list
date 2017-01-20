@@ -22,6 +22,7 @@ package org.spine3.examples.todolist.modes;
 
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
+import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.validators.ApproveValidator;
 import org.spine3.examples.todolist.validators.CommonValidator;
@@ -32,7 +33,6 @@ import org.spine3.examples.todolist.validators.LabelColorValidator;
 import org.spine3.examples.todolist.validators.TaskPriorityValidator;
 import org.spine3.examples.todolist.validators.Validator;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,13 +54,15 @@ abstract class Mode {
     Validator descriptionValidator;
     Validator approveValidator;
     final TodoClient client;
-    final BufferedReader reader;
+    final ConsoleReader reader;
 
-    Mode(TodoClient client, BufferedReader reader) {
+    Mode(TodoClient client, ConsoleReader reader) {
         this.client = client;
         this.reader = reader;
         initValidators();
     }
+
+    abstract void start() throws IOException;
 
     String obtainLabelColorValue(String message) throws IOException {
         sendMessageToUser(message);

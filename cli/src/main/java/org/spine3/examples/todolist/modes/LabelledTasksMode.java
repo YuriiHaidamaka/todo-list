@@ -21,6 +21,7 @@
 package org.spine3.examples.todolist.modes;
 
 import asg.cliche.Command;
+import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.q.projections.LabelledTasksView;
 
@@ -38,7 +39,7 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 @SuppressWarnings("unused")
 public class LabelledTasksMode extends CommonMode {
 
-    LabelledTasksMode(TodoClient client, BufferedReader reader) {
+    LabelledTasksMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
     }
 

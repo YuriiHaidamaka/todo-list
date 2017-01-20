@@ -21,6 +21,7 @@
 package org.spine3.examples.todolist.modes;
 
 import asg.cliche.Command;
+import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.q.projections.MyListView;
 
@@ -37,7 +38,7 @@ import static org.spine3.examples.todolist.modes.MyTasksMode.MyTasksModeConstant
 @SuppressWarnings("unused")
 public class MyTasksMode extends CommonMode {
 
-    MyTasksMode(TodoClient client, BufferedReader reader) {
+    MyTasksMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
     }
 

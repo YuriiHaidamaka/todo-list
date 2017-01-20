@@ -23,6 +23,7 @@ package org.spine3.examples.todolist.modes;
 import asg.cliche.Command;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
+import jline.console.ConsoleReader;
 import org.spine3.change.StringChange;
 import org.spine3.change.TimestampChange;
 import org.spine3.examples.todolist.PriorityChange;
@@ -69,8 +70,19 @@ public class CreateTaskMode extends Mode {
     private TaskPriority priority = TaskPriority.TP_UNDEFINED;
     private String description;
 
-    CreateTaskMode(TodoClient client, BufferedReader reader) {
+    CreateTaskMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
+    }
+
+    @Override
+    void start() throws IOException {
+        String line;
+        while ((line = reader.readLine())!=null){
+            if(line.equals("back")){
+                return;
+            }
+
+        }
     }
 
     @Command(abbrev = "0")

@@ -23,6 +23,7 @@ package org.spine3.examples.todolist.modes;
 import asg.cliche.Command;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
+import jline.console.ConsoleReader;
 import org.spine3.change.StringChange;
 import org.spine3.change.TimestampChange;
 import org.spine3.examples.todolist.LabelColor;
@@ -73,8 +74,13 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
  */
 public class CommonMode extends Mode {
 
-    CommonMode(TodoClient client, BufferedReader reader) {
+    CommonMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
+    }
+
+    @Override
+    void start() {
+
     }
 
     @Command(abbrev = "2")

@@ -18,25 +18,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist;
+package org.spine3.examples.todolist.modes;
 
-import asg.cliche.ShellFactory;
-import com.google.common.base.Charsets;
+import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.client.CommandLineTodoClient;
 import org.spine3.examples.todolist.client.TodoClient;
-import org.spine3.examples.todolist.modes.GeneralMode;
 import org.spine3.examples.todolist.server.Server;
 import org.spine3.server.storage.memory.InMemoryStorageFactory;
 import org.spine3.util.Exceptions;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.spine3.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.HELP_ADVICE;
 
 /**
  * @author Illia Shepilov
@@ -49,12 +44,10 @@ public class CliEntryPoint {
         final InMemoryStorageFactory storageFactory = InMemoryStorageFactory.getInstance();
         final Server server = new Server(storageFactory);
         startServer(server);
-
         final TodoClient client = new CommandLineTodoClient("localhost", DEFAULT_CLIENT_SERVICE_PORT);
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8));
-        final GeneralMode entryPoint = new GeneralMode(client, reader);
-        ShellFactory.createConsoleShell(TODO_PROMPT, HELP_ADVICE + GeneralMode.MainModeConstants.HELP_MESSAGE, entryPoint)
-                    .commandLoop();
+        final ConsoleReader reader = new ConsoleReader();
+        final Mode entryPoint = new GeneralMode(client, reader);
+        entryPoint.start();
         reader.close();
         client.shutdown();
         server.shutdown();

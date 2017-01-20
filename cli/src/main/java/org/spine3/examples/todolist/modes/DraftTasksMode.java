@@ -21,6 +21,7 @@
 package org.spine3.examples.todolist.modes;
 
 import asg.cliche.Command;
+import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.c.commands.FinalizeDraft;
 import org.spine3.examples.todolist.client.TodoClient;
@@ -42,7 +43,7 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 @SuppressWarnings("unused")
 public class DraftTasksMode extends CommonMode {
 
-    DraftTasksMode(TodoClient client, BufferedReader reader) {
+    DraftTasksMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
         initValidators();
     }

@@ -24,10 +24,12 @@ import asg.cliche.Command;
 import asg.cliche.Shell;
 import asg.cliche.ShellDependent;
 import asg.cliche.ShellFactory;
+import com.google.common.collect.Maps;
+import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.client.TodoClient;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Map;
 
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.CREATE_LABEL_PROMPT;
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.CREATE_LABEL_TITLE;
@@ -45,15 +47,38 @@ import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.M
  * @author Illia Shepilov
  */
 @SuppressWarnings("unused")
-public class GeneralMode implements ShellDependent {
+public class GeneralMode extends Mode implements ShellDependent {
 
-    private final TodoClient client;
-    private final BufferedReader reader;
     private Shell shell;
+    private Map<String, Mode> modeMap = Maps.newHashMap();
 
-    public GeneralMode(TodoClient client, BufferedReader reader) {
-        this.client = client;
-        this.reader = reader;
+    public GeneralMode(TodoClient client, ConsoleReader reader) {
+        super(client, reader);
+        modeMap.put("1", new CreateTaskMode(client, reader));
+        modeMap.put("2", new CreateLabelMode(client, reader));
+        modeMap.put("3", new DraftTasksMode(client, reader));
+        modeMap.put("4", new LabelledTasksMode(client, reader));
+        modeMap.put("5", new MyTasksMode(client, reader));
+    }
+
+    @Override
+    void start() throws IOException {
+        String line;
+        while ((line = reader.readLine()) != null) {
+
+            if (line.equals("exit")) {
+                return;
+            }
+
+            final Mode mode = modeMap.get(line);
+
+            if (mode == null) {
+                ModeHelper.sendMessageToUser("Incorrect command.");
+                continue;
+            }
+
+            mode.start();
+        }
     }
 
     @Override
