@@ -28,8 +28,8 @@ import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.c.commands.CreateBasicLabel;
 import org.spine3.examples.todolist.c.commands.UpdateLabelDetails;
 import org.spine3.examples.todolist.client.TodoClient;
-import org.spine3.examples.todolist.validator.CommonValidator;
-import org.spine3.examples.todolist.validator.Validator;
+import org.spine3.examples.todolist.validators.CommonValidator;
+import org.spine3.examples.todolist.validators.Validator;
 
 import java.io.BufferedReader;
 import java.io.IOException;

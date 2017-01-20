@@ -18,10 +18,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.validator;
+package org.spine3.examples.todolist.validators;
 
-import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
-import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
+import static org.spine3.examples.todolist.validators.ValidatorHelper.isEmpty;
+import static org.spine3.examples.todolist.validators.ValidatorHelper.isNull;
 
 /**
  * @author Illia Shepilov

@@ -25,7 +25,7 @@ import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.c.commands.FinalizeDraft;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.q.projections.DraftTasksView;
-import org.spine3.examples.todolist.validator.IdValidator;
+import org.spine3.examples.todolist.validators.IdValidator;
 
 import java.io.BufferedReader;
 import java.io.IOException;

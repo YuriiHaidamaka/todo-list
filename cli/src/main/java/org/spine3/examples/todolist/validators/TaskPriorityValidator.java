@@ -18,15 +18,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.validator;
+package org.spine3.examples.todolist.validators;
 
 import com.google.common.collect.Lists;
 import org.spine3.examples.todolist.TaskPriority;
 
 import java.util.List;
 
-import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
-import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
+import static org.spine3.examples.todolist.validators.ValidatorHelper.isEmpty;
+import static org.spine3.examples.todolist.validators.ValidatorHelper.isNull;
 
 /**
  * @author Illia Shepilov

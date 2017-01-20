@@ -18,18 +18,39 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.validator;
+package org.spine3.examples.todolist.validators;
+
+import static org.spine3.examples.todolist.validators.ValidatorHelper.isEmpty;
+import static org.spine3.examples.todolist.validators.ValidatorHelper.isNull;
 
 /**
  * @author Illia Shepilov
  */
-class ValidatorHelper {
+public class CommonValidator implements Validator {
 
-    static boolean isNull(String input) {
-        return input == null;
+    private static final String EMPTY_VALUE = "Inserted value cannot be empty.";
+    private static final String VALUE_IS_NULL = "Inserted value cannot be null";
+    private String message;
+
+    @Override
+    public boolean validate(String input) {
+        final boolean isNull = isNull(input);
+        if (isNull) {
+            message = VALUE_IS_NULL;
+            return false;
+        }
+
+        final boolean isEmpty = isEmpty(input);
+        if (isEmpty) {
+            message = EMPTY_VALUE;
+            return false;
+        }
+
+        return true;
     }
 
-    static boolean isEmpty(String input) {
-        return input.isEmpty();
+    @Override
+    public String getMessage() {
+        return message;
     }
 }

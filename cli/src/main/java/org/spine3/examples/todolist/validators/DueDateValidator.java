@@ -18,18 +18,24 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.validator;
+package org.spine3.examples.todolist.validators;
 
-import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
-import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import static org.spine3.examples.todolist.DateHelper.DATE_FORMAT;
+import static org.spine3.examples.todolist.DateHelper.getDateFormat;
+import static org.spine3.examples.todolist.validators.ValidatorHelper.isEmpty;
+import static org.spine3.examples.todolist.validators.ValidatorHelper.isNull;
 
 /**
  * @author Illia Shepilov
  */
-public class IdValidator implements Validator {
+public class DueDateValidator implements Validator {
 
-    private static final String ID_IS_NULL = "Id cannot be null.";
-    private static final String ID_IS_EMPTY = "Id cannot be empty.";
+    private static final String DUE_DATE_IS_NULL = "The due date cannot be null.";
+    private static final String DUE_DATE_IS_EMPTY = "The due date cannot be empty.";
+    private static final String INCORRECT_DUE_DATE = "Incorrect due date format. Correct format: " + DATE_FORMAT + ".";
     private String message;
 
     @Override
@@ -37,13 +43,26 @@ public class IdValidator implements Validator {
         final boolean isNull = isNull(input);
 
         if (isNull) {
-            message = ID_IS_NULL;
+            message = DUE_DATE_IS_NULL;
             return false;
         }
-        final boolean isEmpty = isEmpty(input);
 
+        final boolean isEmpty = isEmpty(input);
         if (isEmpty) {
-            message = ID_IS_EMPTY;
+            message = DUE_DATE_IS_EMPTY;
+            return false;
+        }
+
+        final boolean result = isCorrectFormat(input);
+        return result;
+    }
+
+    private boolean isCorrectFormat(String input) {
+        try {
+            final SimpleDateFormat simpleDateFormat = getDateFormat();
+            simpleDateFormat.parse(input);
+        } catch (ParseException e) {
+            message = INCORRECT_DUE_DATE;
             return false;
         }
         return true;
