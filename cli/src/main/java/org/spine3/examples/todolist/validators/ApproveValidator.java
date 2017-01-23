@@ -31,9 +31,8 @@ public class ApproveValidator implements Validator {
     @Override
     public boolean validate(String input) {
 
-        final boolean isNegativeAns = input.equals("n");
-        final boolean isPositiveAns = input.equals("y");
-        final boolean isInvalidInput = input.isEmpty() || !isNegativeAns || !isPositiveAns;
+        final boolean isNegativeOrPositiveAns = input.equals("n") || input.equals("y");
+        final boolean isInvalidInput = input.isEmpty() || !isNegativeOrPositiveAns;
 
         if (isInvalidInput) {
             this.message = INCORRECT_INPUT;
