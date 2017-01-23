@@ -170,6 +170,17 @@ abstract class Mode {
         return taskIdValue;
     }
 
+    String obtainApproveValue(String message) throws IOException {
+        sendMessageToUser(message);
+        String approveValue = reader.readLine();
+        final boolean isValid = approveValidator.validate(approveValue);
+        if (!isValid) {
+            sendMessageToUser(approveValidator.getMessage());
+            approveValue = obtainApproveValue(message);
+        }
+        return approveValue;
+    }
+
     private void initValidators() {
         descriptionValidator = new DescriptionValidator();
         dueDateValidator = new DueDateValidator();
