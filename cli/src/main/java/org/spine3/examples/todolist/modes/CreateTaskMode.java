@@ -37,7 +37,6 @@ import org.spine3.examples.todolist.c.commands.UpdateTaskDescription;
 import org.spine3.examples.todolist.c.commands.UpdateTaskDueDate;
 import org.spine3.examples.todolist.c.commands.UpdateTaskPriority;
 import org.spine3.examples.todolist.client.TodoClient;
-import org.spine3.examples.todolist.client.builder.TaskBuilder;
 
 import java.io.IOException;
 import java.text.ParseException;
