@@ -20,10 +20,6 @@
 
 package org.spine3.examples.todolist.modes;
 
-import asg.cliche.Command;
-import asg.cliche.Shell;
-import asg.cliche.ShellDependent;
-import asg.cliche.ShellFactory;
 import com.google.common.collect.Maps;
 import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.client.TodoClient;
@@ -31,29 +27,19 @@ import org.spine3.examples.todolist.client.TodoClient;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.CREATE_LABEL_PROMPT;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.CREATE_LABEL_TITLE;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.CREATE_TASK_PROMPT;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.CREATE_TASK_TITLE;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.DRAFT_TASKS_PROMPT;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.DRAFT_TASKS_TITLE;
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.HELP_MESSAGE;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.LABELLED_TASKS_PROMPT;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.LABELLED_TASKS_TITLE;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.MY_TASKS_PROMPT;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.MY_TASKS_TITLE;
+import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
  * @author Illia Shepilov
  */
-@SuppressWarnings("unused")
-public class GeneralMode extends Mode implements ShellDependent {
+public class GeneralMode extends Mode {
 
-    private Shell shell;
     private Map<String, Mode> modeMap = Maps.newHashMap();
 
     public GeneralMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
+        modeMap.put("0", new HelpMode(client, reader, HELP_MESSAGE));
         modeMap.put("1", new CreateTaskMode(client, reader));
         modeMap.put("2", new CreateLabelMode(client, reader));
         modeMap.put("3", new DraftTasksMode(client, reader));
@@ -63,6 +49,7 @@ public class GeneralMode extends Mode implements ShellDependent {
 
     @Override
     void start() throws IOException {
+        sendMessageToUser(HELP_MESSAGE);
         String line;
         while ((line = reader.readLine()) != null) {
 
@@ -73,60 +60,17 @@ public class GeneralMode extends Mode implements ShellDependent {
             final Mode mode = modeMap.get(line);
 
             if (mode == null) {
-                ModeHelper.sendMessageToUser("Incorrect command.");
+                sendMessageToUser("Incorrect command.");
                 continue;
             }
 
             mode.start();
+            sendMessageToUser(HELP_MESSAGE);
         }
-    }
-
-    @Override
-    public void cliSetShell(Shell theShell) {
-        this.shell = theShell;
-    }
-
-    @Command(abbrev = "0")
-    public String help() throws IOException {
-        return HELP_MESSAGE;
-    }
-
-    @Command(abbrev = "1")
-    public void createTask() throws IOException {
-        ShellFactory.createSubshell(CREATE_TASK_PROMPT, shell, CREATE_TASK_TITLE, new CreateTaskMode(client, reader))
-                    .commandLoop();
-    }
-
-    @Command(abbrev = "2")
-    public void createLabel() throws IOException {
-        ShellFactory.createSubshell(CREATE_LABEL_PROMPT, shell, CREATE_LABEL_TITLE, new CreateLabelMode(client, reader))
-                    .commandLoop();
-    }
-
-    @Command(abbrev = "3")
-    public void showDraftTasks() throws IOException {
-        ShellFactory.createSubshell(DRAFT_TASKS_PROMPT, shell, DRAFT_TASKS_TITLE, new DraftTasksMode(client, reader))
-                    .commandLoop();
-    }
-
-    @Command(abbrev = "4")
-    public void showLabelledTasks() throws IOException {
-        ShellFactory.createSubshell(LABELLED_TASKS_PROMPT, shell, LABELLED_TASKS_TITLE, new LabelledTasksMode(client,
-                                                                                                              reader))
-                    .commandLoop();
-    }
-
-    @Command(abbrev = "5")
-    public void showMyTasks() throws IOException {
-        ShellFactory.createSubshell(MY_TASKS_PROMPT, shell, MY_TASKS_TITLE, new MyTasksMode(client, reader))
-                    .commandLoop();
     }
 
     public static class MainModeConstants {
         public static final String HELP_ADVICE = "Enter 'help' or '0' to view all commands.\n";
-        static final String CREATE_TASK_MODE = "********************Create task menu********************\n";
-        static final String CREATE_TASK_TITLE = CREATE_TASK_MODE + HELP_ADVICE +
-                CreateTaskMode.CreateTaskModeConstants.HELP_MESSAGE;
         static final String CREATE_LABEL_MODE = "********************Create label menu*******************\n";
         static final String CREATE_LABEL_TITLE = CREATE_LABEL_MODE + HELP_ADVICE +
                 CreateLabelMode.CreateLabelModeConstants.HELP_MESSAGE;
@@ -141,7 +85,6 @@ public class GeneralMode extends Mode implements ShellDependent {
                 MyTasksMode.MyTasksModeConstants.HELP_MESSAGE;
         static final String ENTER_TASK_ID_MESSAGE = "Please enter the task id: ";
         static final String ENTER_LABEL_ID_MESSAGE = "Please enter the label id: ";
-        static final String CREATE_TASK_PROMPT = "create-task";
         static final String CREATE_LABEL_PROMPT = "create-label";
         static final String DRAFT_TASKS_PROMPT = "draft-tasks";
         static final String LABELLED_TASKS_PROMPT = "labelled-tasks";
@@ -152,6 +95,6 @@ public class GeneralMode extends Mode implements ShellDependent {
                 "3:    Show the tasks in the draft state.\n" +
                 "4:    Show the labelled tasks.\n" +
                 "5:    Show my tasks.\n" +
-                "exit: Exit from the mode.";
+                "exit: Exit from the application.";
     }
 }
