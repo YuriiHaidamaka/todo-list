@@ -72,7 +72,7 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 /**
  * @author Illia Shepilov
  */
-public abstract class CommonMode extends Mode {
+abstract class CommonMode extends Mode {
 
     final Map<String, Mode> modeMap;
 
@@ -160,7 +160,6 @@ public abstract class CommonMode extends Mode {
         @Override
         void start() throws IOException {
             try {
-
                 final String taskIdValue = obtainTaskIdValue();
                 final TaskId taskId = TaskId.newBuilder()
                                             .setValue(taskIdValue)
@@ -187,8 +186,7 @@ public abstract class CommonMode extends Mode {
                 final String message = String.format(UPDATED_DUE_DATE_MESSAGE, previousDueDateForUser, newDueDateValue);
                 sendMessageToUser(message);
             } catch (ParseException e) {
-                //TODO
-                e.printStackTrace();
+                throw new ParseDateException(e);
             }
         }
     }
