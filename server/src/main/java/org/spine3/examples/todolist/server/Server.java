@@ -34,6 +34,7 @@ import org.spine3.server.storage.StorageFactory;
 import org.spine3.server.transport.GrpcContainer;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import static org.spine3.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT;
 import static org.spine3.server.event.EventStore.log;
@@ -54,11 +55,16 @@ public class Server {
     private DraftTasksViewRepository draftTasksViewRepository;
 
     public Server(StorageFactory storageFactory) {
-        final EventEnricherFactory eventEnricherFactory = new EventEnricherFactory();
-        this.boundedContext = initBoundedContext(storageFactory, eventEnricherFactory.getInstance());
+        final TodoListRepositoryProvider repositoryProvider = new TodoListRepositoryProvider();
+        final Supplier<EventEnricher> eventEnricherSupplier = EventEnricherSupplier.newBuilder()
+                                                                                   .setRepositoryProvider(repositoryProvider)
+                                                                                   .build();
+        final EventEnricher eventEnricher = eventEnricherSupplier.get();
+        this.boundedContext = initBoundedContext(storageFactory, eventEnricher);
         initRepositories(storageFactory);
         registerRepositories();
-        eventEnricherFactory.injectRepositories(taskAggregateRepository, taskLabelAggregateRepository);
+        repositoryProvider.setTaskAggregateRepository(taskAggregateRepository);
+        repositoryProvider.setLabelAggregateRepository(taskLabelAggregateRepository);
         final CommandService commandService = initCommandService();
         final QueryService queryService = initQueryService();
         final SubscriptionService subscriptionService = initSubscriptionService();

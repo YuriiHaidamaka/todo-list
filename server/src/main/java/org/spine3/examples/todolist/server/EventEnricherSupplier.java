@@ -29,48 +29,31 @@ import org.spine3.examples.todolist.TaskLabel;
 import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.c.aggregates.TaskAggregate;
 import org.spine3.examples.todolist.c.aggregates.TaskLabelAggregate;
+import org.spine3.examples.todolist.repositories.TaskAggregateRepository;
+import org.spine3.examples.todolist.repositories.TaskLabelAggregateRepository;
 import org.spine3.server.BoundedContext;
-import org.spine3.server.aggregate.AggregateRepository;
 import org.spine3.server.event.enrich.EventEnricher;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Performs all necessary initializations to provide the ready-to-use {@link EventEnricher}.
  *
- * <p> This class provides the method to obtain the constructed {@link EventEnricher} instance.
- *
  * @author Illia Shepilov
  */
-class EventEnricherFactory {
+class EventEnricherSupplier implements Supplier<EventEnricher> {
 
-    private AggregateRepository<TaskId, TaskAggregate> taskAggregateRepository;
-    private AggregateRepository<TaskLabelId, TaskLabelAggregate> taskLabelAggregateRepository;
+    private static final String REPOSITORY_IS_NOT_INITIALIZED = "Repository is not initialized.";
+    private TodoListRepositoryProvider repositoryProvider;
 
-    /**
-     * Injects the {@link AggregateRepository}.
-     *
-     * <p> We cannot use the constructor for the repositories initialization.
-     * <p> Because in time, when we need the {@link EventEnricher} instance, repositories are not initialized yet.
-     * <p> For initialize the {@link BoundedContext} we need the {@code EventEnricher}, for initialize the repositories
-     * <p> we need the {@code BoundedContext} and for the {@code EventEnricher} initialization we need the repositories.
-     *
-     * @param taskRepository  the task aggregate repository
-     * @param labelRepository the task label aggregate repository
-     */
-    void injectRepositories(AggregateRepository<TaskId, TaskAggregate> taskRepository,
-                            AggregateRepository<TaskLabelId, TaskLabelAggregate> labelRepository) {
-        this.taskAggregateRepository = taskRepository;
-        this.taskLabelAggregateRepository = labelRepository;
+    private EventEnricherSupplier(Builder builder) {
+        this.repositoryProvider = builder.repositoryProvider;
     }
 
-    /**
-     * Returns the constructed {@link EventEnricher}.
-     *
-     * @return the {@code EventEnricher} instance
-     */
-    EventEnricher getInstance() {
+    @Override
+    public EventEnricher get() {
         final Function<TaskLabelId, LabelDetails> taskLabelIdToLabelDetails = initLabelIdToDetailsFunction();
         final Function<TaskId, Task> taskIdToTask = initTaskIdToTaskFunction();
         final Function<TaskId, TaskDetails> taskIdToTaskDetails = initTaskIdToDetailsFunction();
@@ -97,6 +80,10 @@ class EventEnricherFactory {
             if (taskId == null) {
                 return Task.getDefaultInstance();
             }
+            final TaskAggregateRepository taskAggregateRepository =
+                    repositoryProvider.getTaskAggregateRepository()
+                                      .orElseThrow(() -> new RepositoryNotInitializedException(
+                                              REPOSITORY_IS_NOT_INITIALIZED));
             final TaskAggregate taskAggregate = taskAggregateRepository.load(taskId);
             final Task task = taskAggregate.getState();
             return task;
@@ -109,7 +96,11 @@ class EventEnricherFactory {
             if (labelId == null) {
                 return LabelDetails.getDefaultInstance();
             }
-            final TaskLabelAggregate aggregate = taskLabelAggregateRepository.load(labelId);
+            final TaskLabelAggregateRepository labelAggregateRepository =
+                    repositoryProvider.getLabelAggregateRepository()
+                                      .orElseThrow(() -> new RepositoryNotInitializedException(
+                                              REPOSITORY_IS_NOT_INITIALIZED));
+            final TaskLabelAggregate aggregate = labelAggregateRepository.load(labelId);
             final TaskLabel state = aggregate.getState();
             final LabelDetails details = LabelDetails.newBuilder()
                                                      .setColor(state.getColor())
@@ -126,6 +117,10 @@ class EventEnricherFactory {
             if (taskId == null) {
                 return TaskDetails.getDefaultInstance();
             }
+            final TaskAggregateRepository taskAggregateRepository =
+                    repositoryProvider.getTaskAggregateRepository()
+                                      .orElseThrow(() -> new RepositoryNotInitializedException(
+                                              REPOSITORY_IS_NOT_INITIALIZED));
             final TaskAggregate aggregate = taskAggregateRepository.load(taskId);
             final Task state = aggregate.getState();
             final TaskDetails details = TaskDetails.newBuilder()
@@ -140,6 +135,10 @@ class EventEnricherFactory {
 
     private Function<TaskId, LabelIdList> initTaskIdToLabelListFunction() {
         final Function<TaskId, LabelIdList> result = taskId -> {
+            final TaskAggregateRepository taskAggregateRepository =
+                    repositoryProvider.getTaskAggregateRepository()
+                                      .orElseThrow(() -> new RepositoryNotInitializedException(
+                                              REPOSITORY_IS_NOT_INITIALIZED));
             final TaskAggregate aggregate = taskAggregateRepository.load(taskId);
             final List<TaskLabelId> labelIdsList = aggregate.getState()
                                                             .getLabelIdsList();
@@ -149,5 +148,56 @@ class EventEnricherFactory {
             return labelIdList;
         };
         return result;
+    }
+
+    /**
+     * Creates a new builder for (@code EventEnricherSupplier).
+     *
+     * @return new builder instance
+     */
+    static Builder newBuilder() {
+        return new Builder();
+    }
+
+    /**
+     * A builder for producing {@code EventEnricherSupplier} instances.
+     */
+    static class Builder {
+
+        private TodoListRepositoryProvider repositoryProvider;
+
+        private Builder() {
+        }
+
+        /**
+         * Sets the {@link TodoListRepositoryProvider}.
+         *
+         * <p> It is not possible to pass the initialized repositories to the {@link EventEnricherSupplier} constructor,
+         * because at the time of {@code enricher} initialization, the repositories are not initialized yet.
+         *
+         * <p> To initialize the {@link BoundedContext}, the instance of the {@code EventEnrciher} is required.
+         * And to initialize the {@code repository} instances, the {@code BoundedContext} instance is required.
+         *
+         * <p> The {@code TodoListRepositoryProvider} is intended to break the cyclic dependency
+         * by providing the {@code repository} instances in a “lazy” mode.
+         *
+         * @param repositoryProvider the task aggregate repository
+         * @return the {@code Builder}
+         * @see TodoListRepositoryProvider
+         */
+        Builder setRepositoryProvider(TodoListRepositoryProvider repositoryProvider) {
+            this.repositoryProvider = repositoryProvider;
+            return this;
+        }
+
+        /**
+         * Returns the constructed {@link EventEnricherSupplier}.
+         *
+         * @return the {@code EventEnricherSupplier} instance
+         */
+        EventEnricherSupplier build() {
+            final EventEnricherSupplier result = new EventEnricherSupplier(this);
+            return result;
+        }
     }
 }
