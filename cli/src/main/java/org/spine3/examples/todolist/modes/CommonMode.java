@@ -20,7 +20,6 @@
 
 package org.spine3.examples.todolist.modes;
 
-import asg.cliche.Command;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import jline.console.ConsoleReader;
@@ -45,11 +44,12 @@ import org.spine3.examples.todolist.c.commands.UpdateTaskDueDate;
 import org.spine3.examples.todolist.c.commands.UpdateTaskPriority;
 import org.spine3.examples.todolist.client.TodoClient;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static org.spine3.examples.todolist.DateHelper.getDateFormat;
 import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.DEFAULT_VALUE;
 import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.EMPTY;
@@ -72,212 +72,298 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 /**
  * @author Illia Shepilov
  */
-public class CommonMode extends Mode {
+public abstract class CommonMode extends Mode {
+
+    final Map<String, Mode> modeMap;
 
     CommonMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
+        modeMap = newHashMap();
+        modeMap.put("2", new UpdateTaskDescriptionMode(client, reader));
+        modeMap.put("3", new UpdateTaskPriorityMode(client, reader));
+        modeMap.put("4", new UpdateTaskDueDateMode(client, reader));
+        modeMap.put("5", new UpdateLabelDetailsMode(client, reader));
+        modeMap.put("6", new DeleteTaskMode(client, reader));
+        modeMap.put("7", new ReopenTaskMode(client, reader));
+        modeMap.put("8", new RestoreTaskMode(client, reader));
+        modeMap.put("9", new CompleteTaskMode(client, reader));
+        modeMap.put("10", new AssignLabelToTaskMode(client, reader));
+        modeMap.put("11", new RemoveLabelFromTaskMode(client, reader));
     }
 
-    @Override
-    void start() {
+    private static class UpdateTaskDescriptionMode extends Mode {
 
-    }
+        private UpdateTaskDescriptionMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
 
-    @Command(abbrev = "2")
-    public void updateTaskDescription() throws IOException {
-        final String taskIdValue = obtainTaskIdValue();
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(taskIdValue)
-                                    .build();
+        @Override
+        void start() throws IOException {
+            final String taskIdValue = obtainTaskIdValue();
+            final TaskId taskId = TaskId.newBuilder()
+                                        .setValue(taskIdValue)
+                                        .build();
 
-        final String newDescription = obtainDescriptionValue(ENTER_NEW_DESCRIPTION_MESSAGE, true);
-        final String previousDescription = obtainDescriptionValue(ENTER_PREVIOUS_DESCRIPTION_MESSAGE, false);
-        final StringChange change = StringChange.newBuilder()
-                                                .setNewValue(newDescription)
-                                                .setPreviousValue(previousDescription)
-                                                .build();
-        final UpdateTaskDescription updateTaskDescription = UpdateTaskDescription.newBuilder()
-                                                                                 .setDescriptionChange(change)
-                                                                                 .setId(taskId)
-                                                                                 .build();
-        client.update(updateTaskDescription);
-        final String userFriendlyPrevDescr = previousDescription.isEmpty() ? DEFAULT_VALUE : previousDescription;
-        final String message = String.format(UPDATED_DESCRIPTION_MESSAGE, userFriendlyPrevDescr, newDescription);
-        sendMessageToUser(message);
-    }
-
-    @Command(abbrev = "3")
-    public void updateTaskPriority() throws IOException {
-        final String taskIdValue = obtainTaskIdValue();
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(taskIdValue)
-                                    .build();
-        final String priorityValue = obtainPriorityValue(ENTER_NEW_PRIORITY_MESSAGE);
-        final TaskPriority newTaskPriority = TaskPriority.valueOf(priorityValue);
-        final String previousPriorityValue = obtainPriorityValue(ENTER_PREVIOUS_PRIORITY_MESSAGE);
-        final TaskPriority previousTaskPriority = TaskPriority.valueOf(previousPriorityValue);
-        final PriorityChange change = PriorityChange.newBuilder()
-                                                    .setPreviousValue(previousTaskPriority)
-                                                    .setNewValue(newTaskPriority)
+            final String newDescription = obtainDescriptionValue(ENTER_NEW_DESCRIPTION_MESSAGE, true);
+            final String previousDescription = obtainDescriptionValue(ENTER_PREVIOUS_DESCRIPTION_MESSAGE, false);
+            final StringChange change = StringChange.newBuilder()
+                                                    .setNewValue(newDescription)
+                                                    .setPreviousValue(previousDescription)
                                                     .build();
-        final UpdateTaskPriority updateTaskPriority = UpdateTaskPriority.newBuilder()
-                                                                        .setPriorityChange(change)
-                                                                        .setId(taskId)
-                                                                        .build();
-        client.update(updateTaskPriority);
-        final String message = String.format(UPDATED_PRIORITY_MESSAGE, previousPriorityValue, newTaskPriority);
-        sendMessageToUser(message);
+            final UpdateTaskDescription updateTaskDescription = UpdateTaskDescription.newBuilder()
+                                                                                     .setDescriptionChange(change)
+                                                                                     .setId(taskId)
+                                                                                     .build();
+            client.update(updateTaskDescription);
+            final String userFriendlyPrevDescr = previousDescription.isEmpty() ? DEFAULT_VALUE : previousDescription;
+            final String message = String.format(UPDATED_DESCRIPTION_MESSAGE, userFriendlyPrevDescr, newDescription);
+            sendMessageToUser(message);
+
+        }
     }
 
-    @Command(abbrev = "4")
-    public void updateTaskDueDate() throws IOException, ParseException {
-        final String taskIdValue = obtainTaskIdValue();
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(taskIdValue)
-                                    .build();
-        final SimpleDateFormat simpleDateFormat = getDateFormat();
-        final String newDueDateValue = obtainDueDateValue(ENTER_NEW_DATE_MESSAGE, true);
-        final long newDueDateInMS = simpleDateFormat.parse(newDueDateValue)
-                                                    .getTime();
-        final Timestamp newDueDate = Timestamps.fromMillis(newDueDateInMS);
-        final String previousDueDateValue = obtainDueDateValue(ENTER_PREVIOUS_DATE_MESSAGE, false);
-        Timestamp previousDueDate = constructPreviousPriority(simpleDateFormat, previousDueDateValue);
-        final TimestampChange change = TimestampChange.newBuilder()
-                                                      .setPreviousValue(previousDueDate)
-                                                      .setNewValue(newDueDate)
-                                                      .build();
-        final UpdateTaskDueDate updateTaskDueDate = UpdateTaskDueDate.newBuilder()
-                                                                     .setDueDateChange(change)
-                                                                     .setId(taskId)
-                                                                     .build();
-        client.update(updateTaskDueDate);
-        final boolean isEmpty = previousDueDateValue.equals(EMPTY);
-        final String previousDueDateForUser = isEmpty ? DEFAULT_VALUE : previousDueDateValue;
-        final String message = String.format(UPDATED_DUE_DATE_MESSAGE, previousDueDateForUser, newDueDateValue);
-        sendMessageToUser(message);
+    private static class UpdateTaskPriorityMode extends Mode {
+
+        private UpdateTaskPriorityMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
+
+        @Override
+        void start() throws IOException {
+            final String taskIdValue = obtainTaskIdValue();
+            final TaskId taskId = TaskId.newBuilder()
+                                        .setValue(taskIdValue)
+                                        .build();
+            final String priorityValue = obtainPriorityValue(ENTER_NEW_PRIORITY_MESSAGE);
+            final TaskPriority newTaskPriority = TaskPriority.valueOf(priorityValue);
+            final String previousPriorityValue = obtainPriorityValue(ENTER_PREVIOUS_PRIORITY_MESSAGE);
+            final TaskPriority previousTaskPriority = TaskPriority.valueOf(previousPriorityValue);
+            final PriorityChange change = PriorityChange.newBuilder()
+                                                        .setPreviousValue(previousTaskPriority)
+                                                        .setNewValue(newTaskPriority)
+                                                        .build();
+            final UpdateTaskPriority updateTaskPriority = UpdateTaskPriority.newBuilder()
+                                                                            .setPriorityChange(change)
+                                                                            .setId(taskId)
+                                                                            .build();
+            client.update(updateTaskPriority);
+            final String message = String.format(UPDATED_PRIORITY_MESSAGE, previousPriorityValue, newTaskPriority);
+            sendMessageToUser(message);
+        }
     }
 
-    @Command(abbrev = "5")
-    public void updateLabelDetails() throws IOException {
-        final String labelIdValue = obtainLabelIdValue();
-        final TaskLabelId labelId = TaskLabelId.newBuilder()
-                                               .setValue(labelIdValue)
-                                               .build();
-        final String newTitle = obtainLabelTitle(ENTER_NEW_TITLE_MESSAGE);
-        final String previousTitle = obtainLabelTitle(ENTER_PREVIOUS_TITLE_MESSAGE);
-        final String labelColorValue = obtainLabelColorValue(ENTER_NEW_COLOR_MESSAGE);
-        final LabelColor newColor = LabelColor.valueOf(labelColorValue);
-        final String previousColorValue = obtainLabelColorValue(ENTER_PREVIOUS_COLOR_MESSAGE);
-        final LabelColor previousColor = LabelColor.valueOf(previousColorValue);
+    private static class UpdateTaskDueDateMode extends Mode {
+        private UpdateTaskDueDateMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
 
-        final LabelDetails newLabelDetails = LabelDetails.newBuilder()
-                                                         .setTitle(newTitle)
-                                                         .setColor(newColor)
-                                                         .build();
-        final LabelDetails previousLabelDetails = LabelDetails.newBuilder()
-                                                              .setTitle(previousTitle)
-                                                              .setColor(previousColor)
+        @Override
+        void start() throws IOException {
+            try {
+
+                final String taskIdValue = obtainTaskIdValue();
+                final TaskId taskId = TaskId.newBuilder()
+                                            .setValue(taskIdValue)
+                                            .build();
+                final SimpleDateFormat simpleDateFormat = getDateFormat();
+                final String newDueDateValue = obtainDueDateValue(ENTER_NEW_DATE_MESSAGE, true);
+                final long newDueDateInMS = simpleDateFormat.parse(newDueDateValue)
+                                                            .getTime();
+                final Timestamp newDueDate = Timestamps.fromMillis(newDueDateInMS);
+                final String previousDueDateValue;
+                previousDueDateValue = obtainDueDateValue(ENTER_PREVIOUS_DATE_MESSAGE, false);
+                Timestamp previousDueDate = constructPreviousPriority(simpleDateFormat, previousDueDateValue);
+                final TimestampChange change = TimestampChange.newBuilder()
+                                                              .setPreviousValue(previousDueDate)
+                                                              .setNewValue(newDueDate)
                                                               .build();
-        final LabelDetailsChange change = LabelDetailsChange.newBuilder()
-                                                            .setNewDetails(newLabelDetails)
-                                                            .setPreviousDetails(previousLabelDetails)
-                                                            .build();
-        final UpdateLabelDetails updateLabelDetails = UpdateLabelDetails.newBuilder()
-                                                                        .setId(labelId)
-                                                                        .setLabelDetailsChange(change)
-                                                                        .setId(labelId)
-                                                                        .build();
-        client.update(updateLabelDetails);
-        final String message = String.format(UPDATED_LABLE_DETAILS_MESSAGE,
-                                             previousColor, newColor, previousTitle, newTitle);
-        sendMessageToUser(message);
+                final UpdateTaskDueDate updateTaskDueDate = UpdateTaskDueDate.newBuilder()
+                                                                             .setDueDateChange(change)
+                                                                             .setId(taskId)
+                                                                             .build();
+                client.update(updateTaskDueDate);
+                final boolean isEmpty = previousDueDateValue.equals(EMPTY);
+                final String previousDueDateForUser = isEmpty ? DEFAULT_VALUE : previousDueDateValue;
+                final String message = String.format(UPDATED_DUE_DATE_MESSAGE, previousDueDateForUser, newDueDateValue);
+                sendMessageToUser(message);
+            } catch (ParseException e) {
+                //TODO
+                e.printStackTrace();
+            }
+        }
     }
 
-    @Command(abbrev = "6")
-    public void deleteTask() throws IOException {
-        final String taskIdValue = obtainTaskIdValue();
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(taskIdValue)
-                                    .build();
-        final DeleteTask deleteTask = DeleteTask.newBuilder()
-                                                .setId(taskId)
-                                                .build();
-        client.delete(deleteTask);
+    protected static class UpdateLabelDetailsMode extends Mode {
+
+        private UpdateLabelDetailsMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
+
+        @Override
+        void start() throws IOException {
+            final String labelIdValue = obtainLabelIdValue();
+            final TaskLabelId labelId = TaskLabelId.newBuilder()
+                                                   .setValue(labelIdValue)
+                                                   .build();
+            final String newTitle = obtainLabelTitle(ENTER_NEW_TITLE_MESSAGE);
+            final String previousTitle = obtainLabelTitle(ENTER_PREVIOUS_TITLE_MESSAGE);
+            final String labelColorValue = obtainLabelColorValue(ENTER_NEW_COLOR_MESSAGE);
+            final LabelColor newColor = LabelColor.valueOf(labelColorValue);
+            final String previousColorValue = obtainLabelColorValue(ENTER_PREVIOUS_COLOR_MESSAGE);
+            final LabelColor previousColor = LabelColor.valueOf(previousColorValue);
+
+            final LabelDetails newLabelDetails = LabelDetails.newBuilder()
+                                                             .setTitle(newTitle)
+                                                             .setColor(newColor)
+                                                             .build();
+            final LabelDetails previousLabelDetails = LabelDetails.newBuilder()
+                                                                  .setTitle(previousTitle)
+                                                                  .setColor(previousColor)
+                                                                  .build();
+            final LabelDetailsChange change = LabelDetailsChange.newBuilder()
+                                                                .setNewDetails(newLabelDetails)
+                                                                .setPreviousDetails(previousLabelDetails)
+                                                                .build();
+            final UpdateLabelDetails updateLabelDetails = UpdateLabelDetails.newBuilder()
+                                                                            .setId(labelId)
+                                                                            .setLabelDetailsChange(change)
+                                                                            .setId(labelId)
+                                                                            .build();
+            client.update(updateLabelDetails);
+            final String message = String.format(UPDATED_LABLE_DETAILS_MESSAGE,
+                                                 previousColor, newColor, previousTitle, newTitle);
+            sendMessageToUser(message);
+        }
     }
 
-    @Command(abbrev = "7")
-    public void reopenTask() throws IOException {
-        final String taskIdValue = obtainTaskIdValue();
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(taskIdValue)
-                                    .build();
-        final ReopenTask reopenTask = ReopenTask.newBuilder()
-                                                .setId(taskId)
-                                                .build();
-        client.reopen(reopenTask);
+    private static class DeleteTaskMode extends Mode {
+
+        private DeleteTaskMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
+
+        @Override
+        void start() throws IOException {
+            final String taskIdValue = obtainTaskIdValue();
+            final TaskId taskId = TaskId.newBuilder()
+                                        .setValue(taskIdValue)
+                                        .build();
+            final DeleteTask deleteTask = DeleteTask.newBuilder()
+                                                    .setId(taskId)
+                                                    .build();
+            client.delete(deleteTask);
+        }
     }
 
-    @Command(abbrev = "8")
-    public void restoreTask() throws IOException {
-        final String taskIdValue = obtainTaskIdValue();
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(taskIdValue)
-                                    .build();
-        final RestoreDeletedTask restoreDeletedTask = RestoreDeletedTask.newBuilder()
-                                                                        .setId(taskId)
-                                                                        .build();
-        client.restore(restoreDeletedTask);
+    private static class ReopenTaskMode extends Mode {
+
+        private ReopenTaskMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
+
+        @Override
+        void start() throws IOException {
+            final String taskIdValue = obtainTaskIdValue();
+            final TaskId taskId = TaskId.newBuilder()
+                                        .setValue(taskIdValue)
+                                        .build();
+            final ReopenTask reopenTask = ReopenTask.newBuilder()
+                                                    .setId(taskId)
+                                                    .build();
+
+            client.reopen(reopenTask);
+        }
     }
 
-    @Command(abbrev = "9")
-    public void completeTask() throws IOException {
-        final String taskIdValue = obtainTaskIdValue();
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(taskIdValue)
-                                    .build();
-        final CompleteTask completeTask = CompleteTask.newBuilder()
-                                                      .setId(taskId)
-                                                      .build();
-        client.complete(completeTask);
+    private static class RestoreTaskMode extends Mode {
+
+        private RestoreTaskMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
+
+        @Override
+        void start() throws IOException {
+            final String taskIdValue = obtainTaskIdValue();
+            final TaskId taskId = TaskId.newBuilder()
+                                        .setValue(taskIdValue)
+                                        .build();
+            final RestoreDeletedTask restoreDeletedTask = RestoreDeletedTask.newBuilder()
+                                                                            .setId(taskId)
+                                                                            .build();
+            client.restore(restoreDeletedTask);
+        }
     }
 
-    @Command(abbrev = "10")
-    public void assignLabel() throws IOException {
-        final String taskIdValue = obtainTaskIdValue();
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(taskIdValue)
-                                    .build();
-        final String labelIdValue = obtainLabelIdValue();
-        final TaskLabelId labelId = TaskLabelId.newBuilder()
-                                               .setValue(labelIdValue)
-                                               .build();
-        final AssignLabelToTask assignLabelToTask = AssignLabelToTask.newBuilder()
-                                                                     .setId(taskId)
-                                                                     .setLabelId(labelId)
-                                                                     .build();
-        client.assignLabel(assignLabelToTask);
+    private static class CompleteTaskMode extends Mode {
+
+        private CompleteTaskMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
+
+        @Override
+        void start() throws IOException {
+            final String taskIdValue = obtainTaskIdValue();
+            final TaskId taskId = TaskId.newBuilder()
+                                        .setValue(taskIdValue)
+                                        .build();
+            final CompleteTask completeTask = CompleteTask.newBuilder()
+                                                          .setId(taskId)
+                                                          .build();
+            client.complete(completeTask);
+        }
     }
 
-    @Command(abbrev = "11")
-    public void removeLabel() throws IOException {
-        final String taskIdValue = obtainTaskIdValue();
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(taskIdValue)
-                                    .build();
-        final String labelIdValue = obtainLabelIdValue();
-        final TaskLabelId labelId = TaskLabelId.newBuilder()
-                                               .setValue(labelIdValue)
-                                               .build();
-        final RemoveLabelFromTask removeLabelFromTask = RemoveLabelFromTask.newBuilder()
-                                                                           .setId(taskId)
-                                                                           .setLabelId(labelId)
-                                                                           .build();
-        client.removeLabel(removeLabelFromTask);
+    private static class AssignLabelToTaskMode extends Mode {
+
+        private AssignLabelToTaskMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
+
+        @Override
+        void start() throws IOException {
+            final String taskIdValue = obtainTaskIdValue();
+            final TaskId taskId = TaskId.newBuilder()
+                                        .setValue(taskIdValue)
+                                        .build();
+            final String labelIdValue = obtainLabelIdValue();
+            final TaskLabelId labelId = TaskLabelId.newBuilder()
+                                                   .setValue(labelIdValue)
+                                                   .build();
+            final AssignLabelToTask assignLabelToTask = AssignLabelToTask.newBuilder()
+                                                                         .setId(taskId)
+                                                                         .setLabelId(labelId)
+                                                                         .build();
+            client.assignLabel(assignLabelToTask);
+        }
+    }
+
+    private static class RemoveLabelFromTaskMode extends Mode {
+
+        private RemoveLabelFromTaskMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
+
+        @Override
+        void start() throws IOException {
+            final String taskIdValue = obtainTaskIdValue();
+            final TaskId taskId = TaskId.newBuilder()
+                                        .setValue(taskIdValue)
+                                        .build();
+            final String labelIdValue = obtainLabelIdValue();
+            final TaskLabelId labelId = TaskLabelId.newBuilder()
+                                                   .setValue(labelIdValue)
+                                                   .build();
+            final RemoveLabelFromTask removeLabelFromTask = RemoveLabelFromTask.newBuilder()
+                                                                               .setId(taskId)
+                                                                               .setLabelId(labelId)
+                                                                               .build();
+            client.removeLabel(removeLabelFromTask);
+        }
     }
 
     static class CommonModeConstants {
         static final String EMPTY = "";
-        final static String DEFAULT_VALUE = "default";
+        static final String DEFAULT_VALUE = "default";
         static final String UPDATED_DESCRIPTION_MESSAGE = "The task description updated. %s --> %s";
         static final String UPDATED_PRIORITY_MESSAGE = "The task priority updated. %s --> %s";
         static final String UPDATED_DUE_DATE_MESSAGE = "The task due date updated. %s --> %s";
@@ -294,7 +380,7 @@ public class CommonMode extends Mode {
         static final String ENTER_PREVIOUS_TITLE_MESSAGE = "Please enter the previous label title: ";
         static final String ENTER_NEW_COLOR_MESSAGE = "Please enter the new label color: ";
         static final String ENTER_PREVIOUS_COLOR_MESSAGE = "Please enter the previous label color: ";
-        final static String HELP_MESSAGE = "2:    Update the task description.\n" +
+        static final String HELP_MESSAGE = "2:    Update the task description.\n" +
                 "3:    Update the task priority.\n" +
                 "4:    Update the task due date.\n" +
                 "5:    Update the label details.\n" +
@@ -304,5 +390,8 @@ public class CommonMode extends Mode {
                 "9:    Complete the task.\n" +
                 "10:   Assign the label to task.\n" +
                 "11:   Remove the lable from task.\n";
+
+        private CommonModeConstants() {
+        }
     }
 }

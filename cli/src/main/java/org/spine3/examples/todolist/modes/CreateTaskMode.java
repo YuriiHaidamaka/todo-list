@@ -20,7 +20,6 @@
 
 package org.spine3.examples.todolist.modes;
 
-import asg.cliche.Command;
 import com.google.common.collect.Maps;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
@@ -57,6 +56,8 @@ import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeCo
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_DUE_DATE_MESSAGE;
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_MESSAGE;
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.HELP_ADVICE;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_COMMAND;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDate;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
@@ -68,11 +69,12 @@ public class CreateTaskMode extends Mode {
     private static final String SET_PRIORITY_APPROVE_MESSAGE = "Do you want to set the task priority?(y/n)";
     private static final String SET_DUE_DATE_APPROVE_MESSAGE = "Do you want to set the task due date?(y/n)";
     private static final String CREATE_TASK_APPROVE_MESSAGE = "Do you want to create one more task?(y/n)";
+    private static final String BACK_TO_THE_PREVIOUS_MENU_MESSAGE = "Do you want go back to the main menu?";
     private static final String NEGATIVE_ANSWER = "n";
     private Timestamp dueDate = Timestamp.getDefaultInstance();
     private TaskPriority priority = TaskPriority.TP_UNDEFINED;
     private String description;
-    private Map<String, Mode> map = Maps.newHashMap();
+    private final Map<String, Mode> map = Maps.newHashMap();
 
     CreateTaskMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
@@ -86,107 +88,21 @@ public class CreateTaskMode extends Mode {
         sendMessageToUser(CREATE_TASK_TITLE);
         reader.setPrompt(CREATE_TASK_PROMPT);
         String line = "";
-        while ((line = reader.readLine()) != null) {
-            if (line.equals("back")) {
-                reader.setPrompt("todo>");
-                return;
-            }
+        while (!line.equals(BACK)) {
+            line = reader.readLine();
             final Mode mode = map.get(line);
-            if (mode != null) {
-                mode.start();
-                reader.setPrompt("todo>");
+
+            if (mode == null) {
+                sendMessageToUser(INCORRECT_COMMAND);
+                continue;
             }
-            sendMessageToUser("Incorrect command.");
+            mode.start();
+            final String approve = obtainApproveValue(BACK_TO_THE_PREVIOUS_MENU_MESSAGE);
+            if (approve.equals("y")) {
+                line = BACK;
+            }
         }
-    }
-
-    @Command(abbrev = "0")
-    public void help() {
-        sendMessageToUser(HELP_MESSAGE);
-    }
-
-    private void createTaskDraft() throws IOException {
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(newUuid())
-                                    .build();
-        createTaskDraft(taskId);
-        updateTaskValuesIfNeeded(taskId);
-
-        final String userFriendlyDate = constructUserFriendlyDate(Timestamps.toMillis(dueDate));
-        final String idValue = taskId.getValue();
-        final String result = String.format(CREATED_DRAFT_MESSAGE, idValue, description, priority, userFriendlyDate);
-        sendMessageToUser(result);
-
-        finalizeDraftIfNeeded(taskId);
-        clearValues();
-    }
-
-    private void createTask() throws IOException {
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(newUuid())
-                                    .build();
-        createTask(taskId);
-        updateTaskValuesIfNeeded(taskId);
-
-        final String userFriendlyDate = constructUserFriendlyDate(Timestamps.toMillis(dueDate));
-        final String idValue = taskId.getValue();
-        final String result = String.format(CREATED_TASK_MESSAGE, idValue, description, priority, userFriendlyDate);
-        sendMessageToUser(result);
-
-        clearValues();
-    }
-
-    private void updateTaskValuesIfNeeded(TaskId taskId) throws IOException {
-        updatePriorityIfNeeded(taskId);
-        //TODO
-        try {
-            updateDueDateIfNeeded(taskId);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void createTaskDraft(TaskId taskId) throws IOException {
-        final String description = obtainDescriptionValue(SET_DESCRIPTION_MESSAGE, true);
-
-        final CreateDraft createTask = CreateDraft.newBuilder()
-                                                  .setId(taskId)
-                                                  .build();
-        client.create(createTask);
-
-        final StringChange change = StringChange.newBuilder()
-                                                .setPreviousValue(EMPTY)
-                                                .setNewValue(description)
-                                                .build();
-        final UpdateTaskDescription updateTaskDescription = UpdateTaskDescription.newBuilder()
-                                                                                 .setId(taskId)
-                                                                                 .setDescriptionChange(change)
-                                                                                 .build();
-        client.update(updateTaskDescription);
-        this.description = description;
-    }
-
-    private void createTask(TaskId taskId) throws IOException {
-        final String description = obtainDescriptionValue(SET_DESCRIPTION_MESSAGE, true);
-
-        final CreateBasicTask createTask = CreateBasicTask.newBuilder()
-                                                          .setId(taskId)
-                                                          .setDescription(description)
-                                                          .build();
-        client.create(createTask);
-        this.description = description;
-    }
-
-    private void finalizeDraftIfNeeded(TaskId taskId) throws IOException {
-        final String approveValue = obtainApproveValue(NEED_TO_FINALIZE_MESSAGE);
-        if (approveValue.equals(NEGATIVE_ANSWER)) {
-            return;
-        }
-        final FinalizeDraft finalizeDraft = FinalizeDraft.newBuilder()
-                                                         .setId(taskId)
-                                                         .build();
-        client.finalize(finalizeDraft);
-        sendMessageToUser(DRAFT_FINALIZED_MESSAGE);
+        reader.setPrompt("todo>");
     }
 
     private void updateDueDateIfNeeded(TaskId taskId) throws IOException, ParseException {
@@ -232,6 +148,16 @@ public class CreateTaskMode extends Mode {
         this.priority = priority;
     }
 
+    private void updateTaskValuesIfNeeded(TaskId taskId) throws IOException {
+        updatePriorityIfNeeded(taskId);
+        //TODO
+        try {
+            updateDueDateIfNeeded(taskId);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void clearValues() {
         this.description = "";
         this.priority = TaskPriority.TP_UNDEFINED;
@@ -246,13 +172,8 @@ public class CreateTaskMode extends Mode {
 
         @Override
         void start() throws IOException {
-            sendMessageToUser(CREATE_TASK_TITLE);
-            reader.setPrompt(CREATE_TASK_PROMPT);
             String line = "";
-            while (line != null) {
-                if (line.equals("back")) {
-                    return;
-                }
+            while (!line.equals(BACK)) {
                 createTask();
                 final String approveValue = obtainApproveValue(CREATE_TASK_APPROVE_MESSAGE);
                 if (approveValue.equals(NEGATIVE_ANSWER)) {
@@ -261,23 +182,44 @@ public class CreateTaskMode extends Mode {
                 line = reader.readLine();
             }
         }
+
+        private void createTask() throws IOException {
+            final TaskId taskId = TaskId.newBuilder()
+                                        .setValue(newUuid())
+                                        .build();
+            createTask(taskId);
+            updateTaskValuesIfNeeded(taskId);
+
+            final String userFriendlyDate = constructUserFriendlyDate(Timestamps.toMillis(dueDate));
+            final String idValue = taskId.getValue();
+            final String result = String.format(CREATED_TASK_MESSAGE, idValue, description, priority, userFriendlyDate);
+            sendMessageToUser(result);
+
+            clearValues();
+        }
+
+        private void createTask(TaskId taskId) throws IOException {
+            final String description = obtainDescriptionValue(SET_DESCRIPTION_MESSAGE, true);
+
+            final CreateBasicTask createTask = CreateBasicTask.newBuilder()
+                                                              .setId(taskId)
+                                                              .setDescription(description)
+                                                              .build();
+            client.create(createTask);
+            CreateTaskMode.this.description = description;
+        }
     }
 
     class CreateDraftDM extends Mode {
 
-        CreateDraftDM(TodoClient client, ConsoleReader reader) {
+        private CreateDraftDM(TodoClient client, ConsoleReader reader) {
             super(client, reader);
         }
 
         @Override
         void start() throws IOException {
-            sendMessageToUser(CREATE_TASK_TITLE);
-            reader.setPrompt(CREATE_TASK_PROMPT);
             String line = "";
-            while (line != null) {
-                if (line.equals("back")) {
-                    return;
-                }
+            while (!line.equals(BACK)) {
                 createTaskDraft();
                 final String approveValue = obtainApproveValue(CREATE_TASK_APPROVE_MESSAGE);
                 if (approveValue.equals(NEGATIVE_ANSWER)) {
@@ -285,6 +227,54 @@ public class CreateTaskMode extends Mode {
                 }
                 line = reader.readLine();
             }
+        }
+
+        private void createTaskDraft() throws IOException {
+            final TaskId taskId = TaskId.newBuilder()
+                                        .setValue(newUuid())
+                                        .build();
+            createTaskDraft(taskId);
+            updateTaskValuesIfNeeded(taskId);
+
+            final String userFriendlyDate = constructUserFriendlyDate(Timestamps.toMillis(dueDate));
+            final String idValue = taskId.getValue();
+            final String result = String.format(CREATED_DRAFT_MESSAGE, idValue, description, priority, userFriendlyDate);
+            sendMessageToUser(result);
+
+            finalizeDraftIfNeeded(taskId);
+            clearValues();
+        }
+
+        private void createTaskDraft(TaskId taskId) throws IOException {
+            final String description = obtainDescriptionValue(SET_DESCRIPTION_MESSAGE, true);
+
+            final CreateDraft createTask = CreateDraft.newBuilder()
+                                                      .setId(taskId)
+                                                      .build();
+            client.create(createTask);
+
+            final StringChange change = StringChange.newBuilder()
+                                                    .setPreviousValue(EMPTY)
+                                                    .setNewValue(description)
+                                                    .build();
+            final UpdateTaskDescription updateTaskDescription = UpdateTaskDescription.newBuilder()
+                                                                                     .setId(taskId)
+                                                                                     .setDescriptionChange(change)
+                                                                                     .build();
+            client.update(updateTaskDescription);
+            CreateTaskMode.this.description = description;
+        }
+
+        private void finalizeDraftIfNeeded(TaskId taskId) throws IOException {
+            final String approveValue = obtainApproveValue(NEED_TO_FINALIZE_MESSAGE);
+            if (approveValue.equals(NEGATIVE_ANSWER)) {
+                return;
+            }
+            final FinalizeDraft finalizeDraft = FinalizeDraft.newBuilder()
+                                                             .setId(taskId)
+                                                             .build();
+            client.finalize(finalizeDraft);
+            sendMessageToUser(DRAFT_FINALIZED_MESSAGE);
         }
     }
 
@@ -311,5 +301,8 @@ public class CreateTaskMode extends Mode {
                 "\nid: %s\ndescription: %s\npriority: %s\ndue date: %s";
         static final String CREATED_TASK_MESSAGE = "Created task with parameters:" +
                 "\nid: %s\ndescription: %s\npriority: %s\ndue date: %s";
+
+        private CreateTaskModeConstants() {
+        }
     }
 }

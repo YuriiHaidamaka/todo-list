@@ -20,7 +20,6 @@
 
 package org.spine3.examples.todolist.modes;
 
-import asg.cliche.Command;
 import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.LabelColor;
 import org.spine3.examples.todolist.LabelDetails;
@@ -33,7 +32,9 @@ import org.spine3.examples.todolist.validators.CommonValidator;
 import org.spine3.examples.todolist.validators.Validator;
 
 import java.io.IOException;
+import java.util.Map;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static org.spine3.base.Identifiers.newUuid;
 import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.CHANGED_COLOR_MESSAGE;
 import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.CHANGED_TITLE_MESSAGE;
@@ -50,17 +51,25 @@ public class CreateLabelMode extends Mode {
 
     private String title;
     private LabelColor color = LabelColor.LC_UNDEFINED;
+    private final Map<String, Mode> modeMap = newHashMap();
 
     CreateLabelMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
     }
 
-    @Command(abbrev = "0")
+    @Override
+    void start() throws IOException {
+        String line = "";
+        while (!line.equals("n")) {
+            createLabel();
+            line = obtainApproveValue("Do you want to create one more label?(y/n)");
+        }
+    }
+
     public void help() {
         sendMessageToUser(HELP_MESSAGE);
     }
 
-    @Command(abbrev = "1")
     public void setTitle() throws IOException {
         final String title = obtainLabelTitle(SET_TITLE_MESSAGE);
         this.title = title;
@@ -68,7 +77,6 @@ public class CreateLabelMode extends Mode {
         sendMessageToUser(message);
     }
 
-    @Command(abbrev = "2")
     public void setColor() throws IOException {
         final String colorValue = obtainLabelColorValue(SET_COLOR_MESSAGE);
         final LabelColor color = LabelColor.valueOf(colorValue);
@@ -77,7 +85,6 @@ public class CreateLabelMode extends Mode {
         sendMessageToUser(message);
     }
 
-    @Command(abbrev = "3")
     public void createLabel() throws IOException {
         final TaskLabelId labelId = TaskLabelId.newBuilder()
                                                .setValue(newUuid())
@@ -95,36 +102,38 @@ public class CreateLabelMode extends Mode {
         client.create(createBasicLabel);
 
         updateLabelDetailsIfNeeded(labelId);
-        final String message = String.format("Created label with id: %s, title: %s, color: %s", labelId, title, color);
+        final String message = String.format("Created label with id: %s, title: %s, color: %s", labelId.getValue(),
+                                             title, color);
         sendMessageToUser(message);
         clearValues();
     }
 
-    private void updateLabelDetailsIfNeeded(TaskLabelId labelId) {
-        if (color != LabelColor.LC_UNDEFINED) {
-            final LabelDetails newLabelDetails = LabelDetails.newBuilder()
-                                                             .setColor(color)
-                                                             .setTitle(title)
-                                                             .build();
-            final LabelDetailsChange labelDetailsChange = LabelDetailsChange.newBuilder()
-                                                                            .setNewDetails(newLabelDetails)
-                                                                            .build();
-            final UpdateLabelDetails updateLabelDetails = UpdateLabelDetails.newBuilder()
-                                                                            .setLabelDetailsChange(labelDetailsChange)
-                                                                            .setId(labelId)
-                                                                            .build();
-            client.update(updateLabelDetails);
+    private void updateLabelDetailsIfNeeded(TaskLabelId labelId) throws IOException {
+        final String approveValue = obtainApproveValue("Do you want to set the label color?(y/n)");
+        if (approveValue.equals("n")) {
+            return;
         }
+
+        final String colorValue = obtainLabelColorValue(SET_COLOR_MESSAGE);
+        final LabelColor color = LabelColor.valueOf(colorValue);
+        final LabelDetails newLabelDetails = LabelDetails.newBuilder()
+                                                         .setColor(color)
+                                                         .setTitle(title)
+                                                         .build();
+        final LabelDetailsChange labelDetailsChange = LabelDetailsChange.newBuilder()
+                                                                        .setNewDetails(newLabelDetails)
+                                                                        .build();
+        final UpdateLabelDetails updateLabelDetails = UpdateLabelDetails.newBuilder()
+                                                                        .setLabelDetailsChange(labelDetailsChange)
+                                                                        .setId(labelId)
+                                                                        .build();
+        client.update(updateLabelDetails);
+        this.color = color;
     }
 
     private void clearValues() {
         color = LabelColor.LC_UNDEFINED;
         title = "";
-    }
-
-    @Override
-    void start() {
-
     }
 
     static class CreateLabelModeConstants {
@@ -137,5 +146,8 @@ public class CreateLabelMode extends Mode {
                 "2:    Set the label color.\n" +
                 "3:    Create the label [title is required].\n" +
                 "exit: Exit from the mode.";
+
+        private CreateLabelModeConstants() {
+        }
     }
 }

@@ -20,12 +20,11 @@
 
 package org.spine3.examples.todolist.modes;
 
-import asg.cliche.Command;
 import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.q.projections.MyListView;
 
-import java.io.BufferedReader;
+import java.io.IOException;
 
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyMyList;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
@@ -42,19 +41,41 @@ public class MyTasksMode extends CommonMode {
         super(client, reader);
     }
 
-    @Command(abbrev = "0")
-    public void help() {
+    @Override
+    void start() throws IOException {
+        final ShowMyTasksMode showMyTasksMode = new ShowMyTasksMode(client, reader);
+        modeMap.put("1", showMyTasksMode);
+        showMyTasksMode.start();
         sendMessageToUser(HELP_MESSAGE);
+        String line = reader.readLine();
+        while (line != null) {
+            if (line.equals("back")) {
+                return;
+            }
+            final Mode mode = modeMap.get(line);
+            if (mode != null) {
+                mode.start();
+            }
+            line = reader.readLine();
+        }
     }
 
-    @Command(abbrev = "1")
-    public void obtainMyListView() {
-        final MyListView myListView = client.getMyListView();
-        final int itemsCount = myListView.getMyList()
-                                         .getItemsCount();
-        final boolean isEmpty = itemsCount == 0;
-        final String message = isEmpty ? EMPTY_MY_LIST_TASKS : constructUserFriendlyMyList(myListView);
-        sendMessageToUser(message);
+    private static class ShowMyTasksMode extends Mode {
+
+        private ShowMyTasksMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
+
+        @Override
+        void start() throws IOException {
+            final MyListView myListView = client.getMyListView();
+            final int itemsCount = myListView.getMyList()
+                                             .getItemsCount();
+            final boolean isEmpty = itemsCount == 0;
+            final String message = isEmpty ? EMPTY_MY_LIST_TASKS : constructUserFriendlyMyList(myListView);
+            sendMessageToUser(message);
+
+        }
     }
 
     static class MyTasksModeConstants {
@@ -63,5 +84,8 @@ public class MyTasksMode extends CommonMode {
                 "1:    Show all my tasks.\n" +
                 CommonMode.CommonModeConstants.HELP_MESSAGE +
                 "exit: Exit";
+
+        private MyTasksModeConstants() {
+        }
     }
 }

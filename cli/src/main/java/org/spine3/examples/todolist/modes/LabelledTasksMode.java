@@ -25,11 +25,13 @@ import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.q.projections.LabelledTasksView;
 
-import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.List;
 
 import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.EMPTY_LABELLED_TASKS;
 import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_COMMAND;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyLabelledTasks;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
@@ -43,17 +45,43 @@ public class LabelledTasksMode extends CommonMode {
         super(client, reader);
     }
 
+    @Override
+    void start() throws IOException {
+        final ShowLabelledTasksMode showLabelledTasksMode = new ShowLabelledTasksMode(client, reader);
+        modeMap.put("1", showLabelledTasksMode);
+        showLabelledTasksMode.start();
+        sendMessageToUser(HELP_MESSAGE);
+        String line = "";
+        while (!line.equals(BACK)) {
+            line = reader.readLine();
+            final Mode mode = modeMap.get(line);
+            if (mode != null) {
+                mode.start();
+            }
+            if(mode == null){
+                sendMessageToUser(INCORRECT_COMMAND);
+            }
+        }
+    }
+
     @Command
     public void help() {
         sendMessageToUser(HELP_MESSAGE);
     }
 
-    @Command(abbrev = "1")
-    public void obtainLabelledTasksView() {
-        final List<LabelledTasksView> labelledTasks = client.getLabelledTasksView();
-        final String message = labelledTasks.isEmpty() ? EMPTY_LABELLED_TASKS :
-                               constructUserFriendlyLabelledTasks(labelledTasks);
-        sendMessageToUser(message);
+    private static class ShowLabelledTasksMode extends Mode {
+
+        ShowLabelledTasksMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
+
+        @Override
+        void start() throws IOException {
+            final List<LabelledTasksView> labelledTasks = client.getLabelledTasksView();
+            final String message = labelledTasks.isEmpty() ? EMPTY_LABELLED_TASKS :
+                                   constructUserFriendlyLabelledTasks(labelledTasks);
+            sendMessageToUser(message);
+        }
     }
 
     static class LabelledTasksModeConstants {
@@ -62,5 +90,8 @@ public class LabelledTasksMode extends CommonMode {
                 "1:    Show the labelled tasks.\n" +
                 CommonMode.CommonModeConstants.HELP_MESSAGE +
                 "exit: Exit from the mode.";
+
+        private LabelledTasksModeConstants() {
+        }
     }
 }

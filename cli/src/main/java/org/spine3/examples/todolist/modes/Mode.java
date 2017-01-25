@@ -50,9 +50,9 @@ abstract class Mode {
     private Validator dueDateValidator;
     private Validator colorValidator;
     private Validator commonValidator;
-    Validator idValidator;
-    Validator descriptionValidator;
-    Validator approveValidator;
+    private Validator idValidator;
+    private Validator descriptionValidator;
+    private Validator approveValidator;
     final TodoClient client;
     final ConsoleReader reader;
 
@@ -181,7 +181,7 @@ abstract class Mode {
         return approveValue;
     }
 
-    private void initValidators() {
+    void initValidators() {
         descriptionValidator = new DescriptionValidator();
         dueDateValidator = new DueDateValidator();
         idValidator = new IdValidator();
@@ -189,5 +189,13 @@ abstract class Mode {
         commonValidator = new CommonValidator();
         colorValidator = new LabelColorValidator();
         approveValidator = new ApproveValidator();
+    }
+
+    static class ModeConstants {
+        static final String BACK = "back";
+        static final String INCORRECT_COMMAND = "Incorrect command.";
+
+        private ModeConstants() {
+        }
     }
 }

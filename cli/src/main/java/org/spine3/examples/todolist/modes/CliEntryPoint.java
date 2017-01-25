@@ -40,6 +40,9 @@ public class CliEntryPoint {
 
     private static final String TODO_PROMPT = "todo";
 
+    private CliEntryPoint() {
+    }
+
     public static void main(String[] args) throws Exception {
         final InMemoryStorageFactory storageFactory = InMemoryStorageFactory.getInstance();
         final Server server = new Server(storageFactory);

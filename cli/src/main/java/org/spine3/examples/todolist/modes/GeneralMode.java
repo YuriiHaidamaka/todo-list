@@ -27,7 +27,9 @@ import org.spine3.examples.todolist.client.TodoClient;
 import java.io.IOException;
 import java.util.Map;
 
+import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.EXIT;
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_COMMAND;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
@@ -35,7 +37,7 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
  */
 public class GeneralMode extends Mode {
 
-    private Map<String, Mode> modeMap = Maps.newHashMap();
+    private final Map<String, Mode> modeMap = Maps.newHashMap();
 
     public GeneralMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
@@ -50,17 +52,14 @@ public class GeneralMode extends Mode {
     @Override
     void start() throws IOException {
         sendMessageToUser(HELP_MESSAGE);
-        String line;
-        while ((line = reader.readLine()) != null) {
-
-            if (line.equals("exit")) {
-                return;
-            }
+        String line = "";
+        while (!line.equals(EXIT)) {
+            line = reader.readLine();
 
             final Mode mode = modeMap.get(line);
 
             if (mode == null) {
-                sendMessageToUser("Incorrect command.");
+                sendMessageToUser(INCORRECT_COMMAND);
                 continue;
             }
 
@@ -70,6 +69,7 @@ public class GeneralMode extends Mode {
     }
 
     public static class MainModeConstants {
+        static final String EXIT = "exit";
         public static final String HELP_ADVICE = "Enter 'help' or '0' to view all commands.\n";
         static final String CREATE_LABEL_MODE = "********************Create label menu*******************\n";
         static final String CREATE_LABEL_TITLE = CREATE_LABEL_MODE + HELP_ADVICE +
@@ -96,5 +96,8 @@ public class GeneralMode extends Mode {
                 "4:    Show the labelled tasks.\n" +
                 "5:    Show my tasks.\n" +
                 "exit: Exit from the application.";
+
+        private MainModeConstants() {
+        }
     }
 }

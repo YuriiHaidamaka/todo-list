@@ -20,20 +20,18 @@
 
 package org.spine3.examples.todolist.modes;
 
-import asg.cliche.Command;
 import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.c.commands.FinalizeDraft;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.q.projections.DraftTasksView;
-import org.spine3.examples.todolist.validators.IdValidator;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 
 import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.DRAFT_FINALIZED_MESSAGE;
 import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.EMPTY_DRAFT_TASKS;
 import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDraftTasks;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
@@ -45,40 +43,59 @@ public class DraftTasksMode extends CommonMode {
 
     DraftTasksMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
-        initValidators();
+        modeMap.put("1", new ShowDraftTasksMode(client, reader));
     }
 
-    @Command(abbrev = "0")
-    public void help() {
+    @Override
+    void start() throws IOException {
+        modeMap.get("1")
+               .start();
         sendMessageToUser(HELP_MESSAGE);
+        String line = reader.readLine();
+        while (!line.equals(BACK)) {
+            line = reader.readLine();
+            final Mode mode = modeMap.get(line);
+            if (mode != null) {
+                mode.start();
+            }
+        }
     }
 
-    @Command(abbrev = "1")
-    public void showDraftTasks() {
-        final DraftTasksView draftTasksView = client.getDraftTasksView();
-        final int itemsCount = draftTasksView.getDraftTasks()
-                                             .getItemsCount();
-        final boolean isEmpty = itemsCount == 0;
-        final String message = isEmpty ? EMPTY_DRAFT_TASKS : constructUserFriendlyDraftTasks(draftTasksView);
-        sendMessageToUser(message);
+    private static class ShowDraftTasksMode extends Mode {
+
+        private ShowDraftTasksMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
+
+        @Override
+        void start() throws IOException {
+            final DraftTasksView draftTasksView = client.getDraftTasksView();
+            final int itemsCount = draftTasksView.getDraftTasks()
+                                                 .getItemsCount();
+            final boolean isEmpty = itemsCount == 0;
+            final String message = isEmpty ? EMPTY_DRAFT_TASKS : constructUserFriendlyDraftTasks(draftTasksView);
+            sendMessageToUser(message);
+        }
     }
 
-    @Command(abbrev = "12")
-    public void finalizeDraft() throws IOException {
-        final String idValue = obtainTaskIdValue();
-        final TaskId taskId = TaskId.newBuilder()
-                                    .setValue(idValue)
-                                    .build();
-        final FinalizeDraft finalizeDraft = FinalizeDraft.newBuilder()
-                                                         .setId(taskId)
-                                                         .build();
-        client.finalize(finalizeDraft);
-        final String message = String.format(DRAFT_FINALIZED_MESSAGE, idValue);
-        sendMessageToUser(message);
-    }
+    private static class FinalizeDraftMode extends Mode {
+        private FinalizeDraftMode(TodoClient client, ConsoleReader reader) {
+            super(client, reader);
+        }
 
-    private void initValidators() {
-        idValidator = new IdValidator();
+        @Override
+        void start() throws IOException {
+            final String idValue = obtainTaskIdValue();
+            final TaskId taskId = TaskId.newBuilder()
+                                        .setValue(idValue)
+                                        .build();
+            final FinalizeDraft finalizeDraft = FinalizeDraft.newBuilder()
+                                                             .setId(taskId)
+                                                             .build();
+            client.finalize(finalizeDraft);
+            final String message = String.format(DRAFT_FINALIZED_MESSAGE, idValue);
+            sendMessageToUser(message);
+        }
     }
 
     static class DraftTasksModeConstants {
@@ -89,5 +106,8 @@ public class DraftTasksMode extends CommonMode {
                 CommonMode.CommonModeConstants.HELP_MESSAGE +
                 "12:   Finalize the draft.\n" +
                 "exit: Exit from the mode.";
+
+        private DraftTasksModeConstants() {
+        }
     }
 }
