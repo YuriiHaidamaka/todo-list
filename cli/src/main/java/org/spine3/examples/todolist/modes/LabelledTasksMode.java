@@ -31,6 +31,7 @@ import java.util.List;
 import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.EMPTY_LABELLED_TASKS;
 import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.HELP_MESSAGE;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_COMMAND;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyLabelledTasks;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
@@ -58,7 +59,7 @@ public class LabelledTasksMode extends CommonMode {
             if (mode != null) {
                 mode.start();
             }
-            if(mode == null){
+            if (mode == null) {
                 sendMessageToUser(INCORRECT_COMMAND);
             }
         }
@@ -71,7 +72,7 @@ public class LabelledTasksMode extends CommonMode {
 
     private static class ShowLabelledTasksMode extends Mode {
 
-        ShowLabelledTasksMode(TodoClient client, ConsoleReader reader) {
+        private ShowLabelledTasksMode(TodoClient client, ConsoleReader reader) {
             super(client, reader);
         }
 
@@ -89,7 +90,7 @@ public class LabelledTasksMode extends CommonMode {
         static final String HELP_MESSAGE = "0:    Help.\n" +
                 "1:    Show the labelled tasks.\n" +
                 CommonMode.CommonModeConstants.HELP_MESSAGE +
-                "exit: Exit from the mode.";
+                BACK_TO_THE_MENU_MESSAGE;
 
         private LabelledTasksModeConstants() {
         }

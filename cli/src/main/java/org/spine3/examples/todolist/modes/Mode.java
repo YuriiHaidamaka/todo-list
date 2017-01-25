@@ -23,6 +23,8 @@ package org.spine3.examples.todolist.modes;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import jline.console.ConsoleReader;
+import org.spine3.examples.todolist.LabelColor;
+import org.spine3.examples.todolist.TaskPriority;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.validators.ApproveValidator;
 import org.spine3.examples.todolist.validators.CommonValidator;
@@ -36,7 +38,9 @@ import org.spine3.examples.todolist.validators.Validator;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_ID_MESSAGE;
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.ENTER_LABEL_ID_MESSAGE;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
@@ -55,11 +59,32 @@ abstract class Mode {
     private Validator approveValidator;
     final TodoClient client;
     final ConsoleReader reader;
+    private final Map<String, TaskPriority> priorityMap;
+    private final Map<String, LabelColor> colorMap;
 
     Mode(TodoClient client, ConsoleReader reader) {
         this.client = client;
         this.reader = reader;
+        priorityMap = initPriorityMap();
+        colorMap = initColorMap();
         initValidators();
+    }
+
+    private static Map<String, LabelColor> initColorMap() {
+        final Map<String, LabelColor> colorMap = newHashMap();
+        colorMap.put("1", LabelColor.GRAY);
+        colorMap.put("2", LabelColor.RED);
+        colorMap.put("3", LabelColor.GREEN);
+        colorMap.put("4", LabelColor.BLUE);
+        return colorMap;
+    }
+
+    private static Map<String, TaskPriority> initPriorityMap() {
+        final Map<String, TaskPriority> priorityMap = newHashMap();
+        priorityMap.put("1", TaskPriority.LOW);
+        priorityMap.put("2", TaskPriority.NORMAL);
+        priorityMap.put("3", TaskPriority.HIGH);
+        return priorityMap;
     }
 
     abstract void start() throws IOException;
@@ -181,7 +206,7 @@ abstract class Mode {
         return approveValue;
     }
 
-    void initValidators() {
+    private void initValidators() {
         descriptionValidator = new DescriptionValidator();
         dueDateValidator = new DueDateValidator();
         idValidator = new IdValidator();
@@ -192,7 +217,10 @@ abstract class Mode {
     }
 
     static class ModeConstants {
+        static final String BACK_TO_THE_MENU_MESSAGE = "back: Back to the previous menu.";
         static final String BACK = "back";
+        static final String POSITIVE_ANSWER = "y";
+        static final String NEGATIVE_ANSWER = "n";
         static final String INCORRECT_COMMAND = "Incorrect command.";
 
         private ModeConstants() {

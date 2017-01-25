@@ -43,9 +43,12 @@ import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import static org.spine3.base.Identifiers.newUuid;
+import static org.spine3.examples.todolist.DateHelper.DATE_FORMAT;
 import static org.spine3.examples.todolist.DateHelper.getDateFormat;
+import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.BACK_TO_THE_PREVIOUS_MENU_QUESTION;
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CREATED_DRAFT_MESSAGE;
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CREATED_TASK_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CREATE_ONE_MORE_TASK_QUESTION;
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CREATE_TASK_PROMPT;
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CREATE_TASK_TITLE;
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.DRAFT_FINALIZED_MESSAGE;
@@ -54,22 +57,22 @@ import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeCo
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.NEED_TO_FINALIZE_MESSAGE;
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_DESCRIPTION_MESSAGE;
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_DUE_DATE_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_DUE_DATE_QUESTION;
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_MESSAGE;
+import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_QUESTION;
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.HELP_ADVICE;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_COMMAND;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.POSITIVE_ANSWER;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDate;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
  * @author Illia Shepilov
  */
-public class CreateTaskMode extends Mode {
+class CreateTaskMode extends Mode {
 
-    private static final String SET_PRIORITY_APPROVE_MESSAGE = "Do you want to set the task priority?(y/n)";
-    private static final String SET_DUE_DATE_APPROVE_MESSAGE = "Do you want to set the task due date?(y/n)";
-    private static final String CREATE_TASK_APPROVE_MESSAGE = "Do you want to create one more task?(y/n)";
-    private static final String BACK_TO_THE_PREVIOUS_MENU_MESSAGE = "Do you want go back to the main menu?";
     private static final String NEGATIVE_ANSWER = "n";
     private Timestamp dueDate = Timestamp.getDefaultInstance();
     private TaskPriority priority = TaskPriority.TP_UNDEFINED;
@@ -97,8 +100,8 @@ public class CreateTaskMode extends Mode {
                 continue;
             }
             mode.start();
-            final String approve = obtainApproveValue(BACK_TO_THE_PREVIOUS_MENU_MESSAGE);
-            if (approve.equals("y")) {
+            final String approve = obtainApproveValue(BACK_TO_THE_PREVIOUS_MENU_QUESTION);
+            if (approve.equals(POSITIVE_ANSWER)) {
                 line = BACK;
             }
         }
@@ -106,7 +109,7 @@ public class CreateTaskMode extends Mode {
     }
 
     private void updateDueDateIfNeeded(TaskId taskId) throws IOException, ParseException {
-        final String approveValue = obtainApproveValue(SET_DUE_DATE_APPROVE_MESSAGE);
+        final String approveValue = obtainApproveValue(SET_DUE_DATE_QUESTION);
         if (approveValue.equals(NEGATIVE_ANSWER)) {
             return;
         }
@@ -129,7 +132,7 @@ public class CreateTaskMode extends Mode {
     }
 
     private void updatePriorityIfNeeded(TaskId taskId) throws IOException {
-        final String approveValue = obtainApproveValue(SET_PRIORITY_APPROVE_MESSAGE);
+        final String approveValue = obtainApproveValue(SET_PRIORITY_QUESTION);
         if (approveValue.equals(NEGATIVE_ANSWER)) {
             return;
         }
@@ -149,12 +152,11 @@ public class CreateTaskMode extends Mode {
     }
 
     private void updateTaskValuesIfNeeded(TaskId taskId) throws IOException {
-        updatePriorityIfNeeded(taskId);
-        //TODO
         try {
+            updatePriorityIfNeeded(taskId);
             updateDueDateIfNeeded(taskId);
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new ParseDateException(e);
         }
     }
 
@@ -166,7 +168,7 @@ public class CreateTaskMode extends Mode {
 
     class CreateTaskFM extends Mode {
 
-        CreateTaskFM(TodoClient client, ConsoleReader reader) {
+        private CreateTaskFM(TodoClient client, ConsoleReader reader) {
             super(client, reader);
         }
 
@@ -175,7 +177,7 @@ public class CreateTaskMode extends Mode {
             String line = "";
             while (!line.equals(BACK)) {
                 createTask();
-                final String approveValue = obtainApproveValue(CREATE_TASK_APPROVE_MESSAGE);
+                final String approveValue = obtainApproveValue(CREATE_ONE_MORE_TASK_QUESTION);
                 if (approveValue.equals(NEGATIVE_ANSWER)) {
                     return;
                 }
@@ -221,7 +223,7 @@ public class CreateTaskMode extends Mode {
             String line = "";
             while (!line.equals(BACK)) {
                 createTaskDraft();
-                final String approveValue = obtainApproveValue(CREATE_TASK_APPROVE_MESSAGE);
+                final String approveValue = obtainApproveValue(CREATE_ONE_MORE_TASK_QUESTION);
                 if (approveValue.equals(NEGATIVE_ANSWER)) {
                     return;
                 }
@@ -279,6 +281,10 @@ public class CreateTaskMode extends Mode {
     }
 
     static class CreateTaskModeConstants {
+        static final String SET_PRIORITY_QUESTION = "Do you want to set the task priority?(y/n)";
+        static final String SET_DUE_DATE_QUESTION = "Do you want to set the task due date?(y/n)";
+        static final String CREATE_ONE_MORE_TASK_QUESTION = "Do you want to create one more task?(y/n)";
+        static final String BACK_TO_THE_PREVIOUS_MENU_QUESTION = "Do you want go back to the main menu?";
         static final String CREATE_TASK_PROMPT = "create-task>";
         static final String CREATE_TASK_MODE = "******************** Create task menu ********************\n";
         static final String CREATE_TASK_TITLE = CREATE_TASK_MODE + HELP_ADVICE +
@@ -286,17 +292,18 @@ public class CreateTaskMode extends Mode {
         static final String EMPTY = "";
         static final String NEED_TO_FINALIZE_MESSAGE = "Do you want to finalize the created task draft?(y/n)";
         static final String DRAFT_FINALIZED_MESSAGE = "Task draft finalized.";
-        static final String POSITIVE_ANSWER = "y";
         static final String CHANGED_PRIORITY_MESSAGE = "Set the task priority. Value: ";
         static final String CHANGED_DUE_DATE_MESSAGE = "Set the task due date. Value: ";
         static final String CHANGED_DESCRIPTION_MESSAGE = "Set the task description. Value: ";
         static final String SET_DESCRIPTION_MESSAGE = "Please enter the task description: ";
-        static final String SET_DUE_DATE_MESSAGE = "Please enter the task due date: ";
-        static final String SET_PRIORITY_MESSAGE = "Please enter the task priority";
+        static final String SET_DUE_DATE_MESSAGE = "Please enter the task due date.\n" +
+                "The correct format is: " + DATE_FORMAT;
+        static final String SET_PRIORITY_MESSAGE = "Please enter the task priority.\n" +
+                "Valid task priority:\nLOW;\nNORMAL;\nHIGH.";
         static final String HELP_MESSAGE = "0:    Help.\n" +
                 "1:    Create the task with specified parameters[description is required].\n" +
                 "2:    Create the task with specified parameters[description is required][FAST MODE].\n" +
-                "back: Back to the previous menu.";
+                BACK_TO_THE_MENU_MESSAGE;
         static final String CREATED_DRAFT_MESSAGE = "Created task draft with parameters:" +
                 "\nid: %s\ndescription: %s\npriority: %s\ndue date: %s";
         static final String CREATED_TASK_MESSAGE = "Created task with parameters:" +

@@ -32,6 +32,7 @@ import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeCo
 import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.EMPTY_DRAFT_TASKS;
 import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.HELP_MESSAGE;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDraftTasks;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
@@ -39,17 +40,20 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
  * @author Illia Shepilov
  */
 @SuppressWarnings("unused")
-public class DraftTasksMode extends CommonMode {
+class DraftTasksMode extends CommonMode {
 
     DraftTasksMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
-        modeMap.put("1", new ShowDraftTasksMode(client, reader));
     }
 
     @Override
     void start() throws IOException {
-        modeMap.get("1")
-               .start();
+        final ShowDraftTasksMode draftTasksMode = new ShowDraftTasksMode(client, reader);
+        final FinalizeDraftMode finalizeDraftMode = new FinalizeDraftMode(client, reader);
+        modeMap.put("1", draftTasksMode);
+        modeMap.put("12", finalizeDraftMode);
+
+        draftTasksMode.start();
         sendMessageToUser(HELP_MESSAGE);
         String line = reader.readLine();
         while (!line.equals(BACK)) {
@@ -105,7 +109,7 @@ public class DraftTasksMode extends CommonMode {
                 "1:    Show the tasks in the draft state.\n" +
                 CommonMode.CommonModeConstants.HELP_MESSAGE +
                 "12:   Finalize the draft.\n" +
-                "exit: Exit from the mode.";
+                BACK_TO_THE_MENU_MESSAGE;
 
         private DraftTasksModeConstants() {
         }

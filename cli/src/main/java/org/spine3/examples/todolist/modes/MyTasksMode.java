@@ -26,6 +26,7 @@ import org.spine3.examples.todolist.q.projections.MyListView;
 
 import java.io.IOException;
 
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyMyList;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 import static org.spine3.examples.todolist.modes.MyTasksMode.MyTasksModeConstants.EMPTY_MY_LIST_TASKS;
@@ -48,14 +49,12 @@ public class MyTasksMode extends CommonMode {
         showMyTasksMode.start();
         sendMessageToUser(HELP_MESSAGE);
         String line = reader.readLine();
-        while (line != null) {
-            if (line.equals("back")) {
-                return;
-            }
+        while (!line.equals(BACK)) {
             final Mode mode = modeMap.get(line);
             if (mode != null) {
                 mode.start();
             }
+
             line = reader.readLine();
         }
     }
