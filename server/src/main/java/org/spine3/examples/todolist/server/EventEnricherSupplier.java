@@ -46,7 +46,7 @@ import java.util.function.Supplier;
 class EventEnricherSupplier implements Supplier<EventEnricher> {
 
     private static final String REPOSITORY_IS_NOT_INITIALIZED = "Repository is not initialized.";
-    private TodoListRepositoryProvider repositoryProvider;
+    private final TodoListRepositoryProvider repositoryProvider;
 
     private EventEnricherSupplier(Builder builder) {
         this.repositoryProvider = builder.repositoryProvider;
@@ -151,7 +151,7 @@ class EventEnricherSupplier implements Supplier<EventEnricher> {
     }
 
     /**
-     * Creates a new builder for (@code EventEnricherSupplier).
+     * Creates a new builder for the {@code EventEnricherSupplier}.
      *
      * @return new builder instance
      */

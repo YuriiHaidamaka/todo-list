@@ -27,6 +27,8 @@ package org.spine3.examples.todolist.server;
  */
 class RepositoryNotInitializedException extends RuntimeException {
 
+    private static final long serialVersionUID = -8299417235104193575L;
+
     RepositoryNotInitializedException(String message) {
         super(message);
     }
