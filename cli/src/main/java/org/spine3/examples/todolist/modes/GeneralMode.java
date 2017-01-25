@@ -83,7 +83,6 @@ public class GeneralMode extends Mode {
         static final String MY_TASKS_MODE = "***********************My tasks menu*********************\n";
         static final String MY_TASKS_TITLE = MY_TASKS_MODE + HELP_ADVICE +
                 MyTasksMode.MyTasksModeConstants.HELP_MESSAGE;
-        static final String ENTER_TASK_ID_MESSAGE = "Please enter the task id: ";
         static final String ENTER_LABEL_ID_MESSAGE = "Please enter the label id: ";
         static final String CREATE_LABEL_PROMPT = "create-label";
         static final String DRAFT_TASKS_PROMPT = "draft-tasks";
