@@ -22,11 +22,9 @@ package org.spine3.examples.todolist.validators;
 
 import org.spine3.examples.todolist.LabelColor;
 
-import java.util.List;
+import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.spine3.examples.todolist.validators.ValidatorHelper.isEmpty;
-import static org.spine3.examples.todolist.validators.ValidatorHelper.isNull;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * @author Illia Shepilov
@@ -38,39 +36,25 @@ public class LabelColorValidator implements Validator {
     private static final String INCORRECT_LABEL_COLOR = "Please enter the correct label color.\n" +
             "Valid label colors:\n BLUE;\nGRAY;\nGREEN;\nRED.";
     private String message;
+    private final Map<String, LabelColor> colorMap;
+
+    public LabelColorValidator() {
+        colorMap = initColorMap();
+    }
+
+    private static Map<String, LabelColor> initColorMap() {
+        final Map<String, LabelColor> colorMap = newHashMap();
+        colorMap.put("1", LabelColor.GRAY);
+        colorMap.put("2", LabelColor.RED);
+        colorMap.put("3", LabelColor.GREEN);
+        colorMap.put("4", LabelColor.BLUE);
+        return colorMap;
+    }
 
     @Override
     public boolean validate(String input) {
-        final boolean isNull = isNull(input);
-
-        if (isNull) {
-            message = COLOR_IS_NULL;
-            return false;
-        }
-
-        final boolean isEmpty = isEmpty(input);
-
-        if (isEmpty) {
-            message = COLOR_IS_EMPTY;
-            return false;
-        }
-
-        final List<LabelColor> colors = newArrayList(LabelColor.BLUE,
-                                                     LabelColor.GRAY,
-                                                     LabelColor.GREEN,
-                                                     LabelColor.RED,
-                                                     LabelColor.LC_UNDEFINED);
-
-        boolean isValid = false;
-        for (LabelColor currentColor : colors) {
-            final String inputColor = input.toUpperCase();
-            if (currentColor.name()
-                            .equals(inputColor)) {
-                isValid = true;
-            }
-        }
-
-        if (!isValid) {
+        final LabelColor labelColor = colorMap.get(input);
+        if (labelColor == null) {
             message = INCORRECT_LABEL_COLOR;
             return false;
         }

@@ -20,13 +20,11 @@
 
 package org.spine3.examples.todolist.validators;
 
-import com.google.common.collect.Lists;
 import org.spine3.examples.todolist.TaskPriority;
 
-import java.util.List;
+import java.util.Map;
 
-import static org.spine3.examples.todolist.validators.ValidatorHelper.isEmpty;
-import static org.spine3.examples.todolist.validators.ValidatorHelper.isNull;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * @author Illia Shepilov
@@ -37,40 +35,29 @@ public class TaskPriorityValidator implements Validator {
     private static final String PRIORITY_IS_EMPTY = "The task priority cannot be empty.";
     private static final String INCORRECT_PRIORITY = "Please enter the correct task priority.\n" +
             "Valid task priority:\nLOW;\nNORMAL;\nHIGH.";
+    private final Map<String, TaskPriority> priorityMap;
     private String message;
+
+    public TaskPriorityValidator() {
+        priorityMap = initPriorityMap();
+    }
+
+    private static Map<String, TaskPriority> initPriorityMap() {
+        final Map<String, TaskPriority> priorityMap = newHashMap();
+        priorityMap.put("1", TaskPriority.LOW);
+        priorityMap.put("2", TaskPriority.NORMAL);
+        priorityMap.put("3", TaskPriority.HIGH);
+        return priorityMap;
+    }
 
     @Override
     public boolean validate(String input) {
-        boolean isNull = isNull(input);
-
-        if (isNull) {
-            message = PRIORITY_IS_NULL;
-            return false;
-        }
-
-        boolean isEmpty = isEmpty(input);
-
-        if (isEmpty) {
-            message = PRIORITY_IS_EMPTY;
-            return false;
-        }
-
-        final List<TaskPriority> validPriorities = Lists.newArrayList(TaskPriority.LOW,
-                                                                      TaskPriority.NORMAL,
-                                                                      TaskPriority.HIGH,
-                                                                      TaskPriority.TP_UNDEFINED);
-        boolean isValid = false;
-        for (TaskPriority currentPriority : validPriorities) {
-            final String inputPriority = input.toUpperCase();
-            if (currentPriority.name()
-                               .equals(inputPriority)) {
-                isValid = true;
-            }
-        }
-        if (!isValid) {
+        final TaskPriority taskPriority = priorityMap.get(input);
+        if (taskPriority == null) {
             message = INCORRECT_PRIORITY;
             return false;
         }
+
         return true;
     }
 
