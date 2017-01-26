@@ -27,6 +27,7 @@ import org.spine3.examples.todolist.q.projections.MyListView;
 import java.io.IOException;
 
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyMyList;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 import static org.spine3.examples.todolist.modes.MyTasksMode.MyTasksModeConstants.EMPTY_MY_LIST_TASKS;
@@ -82,7 +83,7 @@ public class MyTasksMode extends CommonMode {
         static final String HELP_MESSAGE = "0:    Help.\n" +
                 "1:    Show all my tasks.\n" +
                 CommonMode.CommonModeConstants.HELP_MESSAGE +
-                "exit: Exit";
+                BACK_TO_THE_MENU_MESSAGE;
 
         private MyTasksModeConstants() {
         }

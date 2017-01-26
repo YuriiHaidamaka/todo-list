@@ -59,32 +59,11 @@ abstract class Mode {
     private Validator approveValidator;
     final TodoClient client;
     final ConsoleReader reader;
-    private final Map<String, TaskPriority> priorityMap;
-    private final Map<String, LabelColor> colorMap;
 
     Mode(TodoClient client, ConsoleReader reader) {
         this.client = client;
         this.reader = reader;
-        priorityMap = initPriorityMap();
-        colorMap = initColorMap();
         initValidators();
-    }
-
-    private static Map<String, LabelColor> initColorMap() {
-        final Map<String, LabelColor> colorMap = newHashMap();
-        colorMap.put("1", LabelColor.GRAY);
-        colorMap.put("2", LabelColor.RED);
-        colorMap.put("3", LabelColor.GREEN);
-        colorMap.put("4", LabelColor.BLUE);
-        return colorMap;
-    }
-
-    private static Map<String, TaskPriority> initPriorityMap() {
-        final Map<String, TaskPriority> priorityMap = newHashMap();
-        priorityMap.put("1", TaskPriority.LOW);
-        priorityMap.put("2", TaskPriority.NORMAL);
-        priorityMap.put("3", TaskPriority.HIGH);
-        return priorityMap;
     }
 
     abstract void start() throws IOException;
@@ -143,7 +122,7 @@ abstract class Mode {
     }
 
     String obtainPriorityValue(String message) throws IOException {
-        sendMessageToUser(message);
+        sendMessageToUser("Choice the task priority:");
         String priority = reader.readLine();
         priority = priority == null ? null : priority.toUpperCase();
         final boolean isValid = priorityValidator.validate(priority);

@@ -101,6 +101,9 @@ class CreateTaskMode extends Mode {
             }
             mode.start();
             final String approve = obtainApproveValue(BACK_TO_THE_PREVIOUS_MENU_QUESTION);
+            if (approve.equals(NEGATIVE_ANSWER)) {
+                sendMessageToUser(HELP_MESSAGE);
+            }
             if (approve.equals(POSITIVE_ANSWER)) {
                 line = BACK;
             }
@@ -284,7 +287,7 @@ class CreateTaskMode extends Mode {
         static final String SET_PRIORITY_QUESTION = "Do you want to set the task priority?(y/n)";
         static final String SET_DUE_DATE_QUESTION = "Do you want to set the task due date?(y/n)";
         static final String CREATE_ONE_MORE_TASK_QUESTION = "Do you want to create one more task?(y/n)";
-        static final String BACK_TO_THE_PREVIOUS_MENU_QUESTION = "Do you want go back to the main menu?";
+        static final String BACK_TO_THE_PREVIOUS_MENU_QUESTION = "Do you want go back to the main menu?(y/n)";
         static final String CREATE_TASK_PROMPT = "create-task>";
         static final String CREATE_TASK_MODE = "******************** Create task menu ********************\n";
         static final String CREATE_TASK_TITLE = CREATE_TASK_MODE + HELP_ADVICE +
