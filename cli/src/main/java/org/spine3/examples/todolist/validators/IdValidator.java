@@ -40,9 +40,9 @@ public class IdValidator implements Validator {
             message = ID_IS_NULL;
             return false;
         }
-        final boolean isEmpty = isEmpty(input);
+        final boolean empty = isEmpty(input);
 
-        if (isEmpty) {
+        if (empty) {
             message = ID_IS_EMPTY;
             return false;
         }

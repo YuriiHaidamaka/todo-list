@@ -40,8 +40,8 @@ public class CommonValidator implements Validator {
             return false;
         }
 
-        final boolean isEmpty = isEmpty(input);
-        if (isEmpty) {
+        final boolean empty = isEmpty(input);
+        if (empty) {
             message = EMPTY_VALUE;
             return false;
         }

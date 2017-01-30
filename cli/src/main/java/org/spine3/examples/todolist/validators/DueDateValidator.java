@@ -47,8 +47,8 @@ public class DueDateValidator implements Validator {
             return false;
         }
 
-        final boolean isEmpty = isEmpty(input);
-        if (isEmpty) {
+        final boolean empty = isEmpty(input);
+        if (empty) {
             message = DUE_DATE_IS_EMPTY;
             return false;
         }
