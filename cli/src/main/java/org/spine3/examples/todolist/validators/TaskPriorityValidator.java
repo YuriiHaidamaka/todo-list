@@ -31,23 +31,13 @@ import static com.google.common.collect.Maps.newHashMap;
  */
 public class TaskPriorityValidator implements Validator {
 
-    private static final String PRIORITY_IS_NULL = "The task priority cannot be null.";
-    private static final String PRIORITY_IS_EMPTY = "The task priority cannot be empty.";
     private static final String INCORRECT_PRIORITY = "Please enter the correct task priority.\n" +
-            "Valid task priority:\nLOW;\nNORMAL;\nHIGH.";
+            "Valid task priority:\n1: LOW;\n2: NORMAL;\n3: HIGH.";
     private final Map<String, TaskPriority> priorityMap;
     private String message;
 
-    public TaskPriorityValidator() {
-        priorityMap = initPriorityMap();
-    }
-
-    private static Map<String, TaskPriority> initPriorityMap() {
-        final Map<String, TaskPriority> priorityMap = newHashMap();
-        priorityMap.put("1", TaskPriority.LOW);
-        priorityMap.put("2", TaskPriority.NORMAL);
-        priorityMap.put("3", TaskPriority.HIGH);
-        return priorityMap;
+    public TaskPriorityValidator(Map<String, TaskPriority> priorityMap) {
+        this.priorityMap = priorityMap;
     }
 
     @Override

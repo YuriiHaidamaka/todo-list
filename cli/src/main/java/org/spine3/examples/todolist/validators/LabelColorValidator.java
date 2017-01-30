@@ -31,24 +31,13 @@ import static com.google.common.collect.Maps.newHashMap;
  */
 public class LabelColorValidator implements Validator {
 
-    private static final String COLOR_IS_NULL = "Label color cannot be null.";
-    private static final String COLOR_IS_EMPTY = "Label color cannot be empty.";
     private static final String INCORRECT_LABEL_COLOR = "Please enter the correct label color.\n" +
             "Valid label colors:\n BLUE;\nGRAY;\nGREEN;\nRED.";
     private String message;
     private final Map<String, LabelColor> colorMap;
 
-    public LabelColorValidator() {
-        colorMap = initColorMap();
-    }
-
-    private static Map<String, LabelColor> initColorMap() {
-        final Map<String, LabelColor> colorMap = newHashMap();
-        colorMap.put("1", LabelColor.GRAY);
-        colorMap.put("2", LabelColor.RED);
-        colorMap.put("3", LabelColor.GREEN);
-        colorMap.put("4", LabelColor.BLUE);
-        return colorMap;
+    public LabelColorValidator(Map<String, LabelColor> colorMap) {
+        this.colorMap = colorMap;
     }
 
     @Override
