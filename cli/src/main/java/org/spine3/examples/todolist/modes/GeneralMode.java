@@ -29,6 +29,7 @@ import java.util.Map;
 
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.EXIT;
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_COMMAND;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
@@ -39,8 +40,12 @@ public class GeneralMode extends Mode {
 
     private final Map<String, Mode> modeMap = Maps.newHashMap();
 
-    public GeneralMode(TodoClient client, ConsoleReader reader) {
+    GeneralMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
+        initModeMap();
+    }
+
+    private void initModeMap() {
         modeMap.put("0", new HelpMode(client, reader, HELP_MESSAGE));
         modeMap.put("1", new CreateTaskMode(client, reader));
         modeMap.put("2", new CreateLabelMode(client, reader));
@@ -52,6 +57,7 @@ public class GeneralMode extends Mode {
     @Override
     void start() throws IOException {
         sendMessageToUser(HELP_MESSAGE);
+        reader.setPrompt(TODO_PROMPT);
         String line = "";
         while (!line.equals(EXIT)) {
             line = reader.readLine();
@@ -70,25 +76,10 @@ public class GeneralMode extends Mode {
 
     public static class MainModeConstants {
         static final String EXIT = "exit";
-        public static final String HELP_ADVICE = "Enter 'help' or '0' to view all commands.\n";
-        static final String CREATE_LABEL_MODE = "********************Create label menu*******************\n";
-        static final String CREATE_LABEL_TITLE = CREATE_LABEL_MODE + HELP_ADVICE +
-                CreateLabelMode.CreateLabelModeConstants.HELP_MESSAGE;
-        static final String LABELLED_TASKS_MODE = "*******************Labelled tasks menu*******************\n";
-        static final String LABELLED_TASKS_TITLE = LABELLED_TASKS_MODE + HELP_ADVICE +
-                LabelledTasksMode.LabelledTasksModeConstants.HELP_MESSAGE;
-        static final String DRAFT_TASKS_MODE = "*********************Draft tasks menu********************\n";
-        static final String DRAFT_TASKS_TITLE = DRAFT_TASKS_MODE + HELP_ADVICE +
-                DraftTasksMode.DraftTasksModeConstants.HELP_MESSAGE;
-        static final String MY_TASKS_MODE = "***********************My tasks menu*********************\n";
-        static final String MY_TASKS_TITLE = MY_TASKS_MODE + HELP_ADVICE +
-                MyTasksMode.MyTasksModeConstants.HELP_MESSAGE;
+        static final String TODO_PROMPT = "todo>";
+        static final String HELP_ADVICE = "Enter 'help' or '0' to view all commands.\n";
         static final String ENTER_LABEL_ID_MESSAGE = "Please enter the label id: ";
-        static final String CREATE_LABEL_PROMPT = "create-label";
-        static final String DRAFT_TASKS_PROMPT = "draft-tasks";
-        static final String LABELLED_TASKS_PROMPT = "labelled-tasks";
-        static final String MY_TASKS_PROMPT = "my-tasks";
-        public static final String HELP_MESSAGE = "0:    Help.\n" +
+        static final String HELP_MESSAGE = "0:    Help.\n" +
                 "1:    Create the task.\n" +
                 "2:    Create the label.\n" +
                 "3:    Show the tasks in the draft state.\n" +

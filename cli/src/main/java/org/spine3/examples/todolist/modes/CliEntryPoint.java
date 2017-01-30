@@ -38,8 +38,6 @@ import static org.spine3.client.ConnectionConstants.DEFAULT_CLIENT_SERVICE_PORT;
  */
 public class CliEntryPoint {
 
-    private static final String TODO_PROMPT = "todo";
-
     private CliEntryPoint() {
     }
 
