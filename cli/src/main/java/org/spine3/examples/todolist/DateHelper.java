@@ -21,6 +21,7 @@
 package org.spine3.examples.todolist;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 /**
  * @author Illia Shepilov
@@ -28,7 +29,10 @@ import java.text.SimpleDateFormat;
 public class DateHelper {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd";
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT);
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT, Locale.getDefault());
+
+    private DateHelper() {
+    }
 
     public static SimpleDateFormat getDateFormat() {
         return SIMPLE_DATE_FORMAT;
