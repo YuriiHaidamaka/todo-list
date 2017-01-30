@@ -211,7 +211,7 @@ public class TaskAggregate extends Aggregate<TaskId, Task, Task.Builder> {
         final TaskPriority actualPriority = state.getPriority();
         final TaskPriority expectedPriority = priorityChange.getPreviousValue();
 
-        boolean isEquals = actualPriority.equals(expectedPriority);
+        boolean isEquals = actualPriority == expectedPriority;
 
         if (!isEquals) {
             final TaskPriority newPriority = priorityChange.getNewValue();
@@ -510,7 +510,7 @@ public class TaskAggregate extends Aggregate<TaskId, Task, Task.Builder> {
         }
     }
 
-    private String generateExceptionMessage(TaskStatus currentStatus, TaskStatus newStatus) {
+    private static String generateExceptionMessage(TaskStatus currentStatus, TaskStatus newStatus) {
         final String result = String.format("Cannot make transition from: %s to: %s state",
                                             currentStatus, newStatus);
         return result;
