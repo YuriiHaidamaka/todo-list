@@ -43,6 +43,7 @@ import java.util.Map;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_ID_MESSAGE;
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.ENTER_LABEL_ID_MESSAGE;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.TASK_PRIORITY_VALUE;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
@@ -57,18 +58,28 @@ abstract class Mode {
     private Validator idValidator;
     private Validator descriptionValidator;
     private Validator approveValidator;
+    private final Map<String, TaskPriority> priorityMap;
+    private final Map<String, LabelColor> colorMap;
     final TodoClient client;
     final ConsoleReader reader;
 
     Mode(TodoClient client, ConsoleReader reader) {
         this.client = client;
         this.reader = reader;
+        priorityMap = initPriorityMap();
+        colorMap = initColorMap();
         initValidators();
     }
 
     abstract void start() throws IOException;
 
-    String obtainLabelColorValue(String message) throws IOException {
+    LabelColor obtainLabelColor(String message) throws IOException {
+        final String labelColorValue = obtainLabelColorValue(message);
+        final LabelColor result = colorMap.get(labelColorValue);
+        return result;
+    }
+
+    private String obtainLabelColorValue(String message) throws IOException {
         sendMessageToUser(message);
         String color = reader.readLine();
         color = color == null ? null : color.toUpperCase();
@@ -121,17 +132,23 @@ abstract class Mode {
         return description;
     }
 
-    String obtainPriorityValue(String message) throws IOException {
-        sendMessageToUser("Choice the task priority:");
-        String priority = reader.readLine();
-        priority = priority == null ? null : priority.toUpperCase();
-        final boolean isValid = priorityValidator.validate(priority);
+    TaskPriority obtainTaskPriority(String message) throws IOException {
+        final String priorityValue = obtainPriorityValue(message + TASK_PRIORITY_VALUE);
+        final TaskPriority result = priorityMap.get(priorityValue);
+        return result;
+    }
+
+    private String obtainPriorityValue(String message) throws IOException {
+        sendMessageToUser(message);
+        String priorityNumber = reader.readLine();
+        priorityNumber = priorityNumber == null ? null : priorityNumber.toUpperCase();
+        final boolean isValid = priorityValidator.validate(priorityNumber);
 
         if (!isValid) {
             sendMessageToUser(priorityValidator.getMessage());
-            priority = obtainPriorityValue(message);
+            priorityNumber = obtainPriorityValue(message);
         }
-        return priority;
+        return priorityNumber;
     }
 
     String obtainDueDateValue(String message, boolean isNew) throws IOException, ParseException {
@@ -189,13 +206,35 @@ abstract class Mode {
         descriptionValidator = new DescriptionValidator();
         dueDateValidator = new DueDateValidator();
         idValidator = new IdValidator();
-        priorityValidator = new TaskPriorityValidator();
+        priorityValidator = new TaskPriorityValidator(priorityMap);
         commonValidator = new CommonValidator();
-        colorValidator = new LabelColorValidator();
+        colorValidator = new LabelColorValidator(colorMap);
         approveValidator = new ApproveValidator();
     }
 
+    private static Map<String, TaskPriority> initPriorityMap() {
+        final Map<String, TaskPriority> priorityMap = newHashMap();
+        priorityMap.put("0", TaskPriority.TP_UNDEFINED);
+        priorityMap.put("1", TaskPriority.LOW);
+        priorityMap.put("2", TaskPriority.NORMAL);
+        priorityMap.put("3", TaskPriority.HIGH);
+        return priorityMap;
+    }
+
+    private static Map<String, LabelColor> initColorMap() {
+        final Map<String, LabelColor> colorMap = newHashMap();
+        colorMap.put("0", LabelColor.LC_UNDEFINED);
+        colorMap.put("1", LabelColor.GRAY);
+        colorMap.put("2", LabelColor.RED);
+        colorMap.put("3", LabelColor.GREEN);
+        colorMap.put("4", LabelColor.BLUE);
+        return colorMap;
+    }
+
     static class ModeConstants {
+        static final String TASK_PRIORITY_VALUE = "\n1: LOW;\n" +
+                "2: NORMAL;\n" +
+                "3: HIGH.";
         static final String BACK_TO_THE_MENU_MESSAGE = "back: Back to the previous menu.";
         static final String BACK = "back";
         static final String POSITIVE_ANSWER = "y";

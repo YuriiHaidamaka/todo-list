@@ -30,15 +30,15 @@ import org.spine3.examples.todolist.c.commands.UpdateLabelDetails;
 import org.spine3.examples.todolist.client.TodoClient;
 
 import java.io.IOException;
-import java.util.Map;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.spine3.base.Identifiers.newUuid;
+import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.CREATE_LABEL_PROMPT;
 import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.CREATE_ONE_MORE_LABEL_QUESTION;
 import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.LABEL_CREATED_MESSAGE;
 import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.SET_COLOR_MESSAGE;
 import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.SET_LABEL_COLOR_QUESTION;
 import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.SET_TITLE_MESSAGE;
+import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.NEGATIVE_ANSWER;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
@@ -46,12 +46,10 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 /**
  * @author Illia Shepilov
  */
-@SuppressWarnings("unused")
 class CreateLabelMode extends Mode {
 
     private String title;
     private LabelColor color = LabelColor.LC_UNDEFINED;
-    private final Map<String, Mode> modeMap = newHashMap();
 
     CreateLabelMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
@@ -59,11 +57,13 @@ class CreateLabelMode extends Mode {
 
     @Override
     void start() throws IOException {
+        reader.setPrompt(CREATE_LABEL_PROMPT);
         String line = "";
         while (!line.equals(NEGATIVE_ANSWER)) {
             createLabel();
             line = obtainApproveValue(CREATE_ONE_MORE_LABEL_QUESTION);
         }
+        reader.setPrompt(TODO_PROMPT);
     }
 
     private void createLabel() throws IOException {
@@ -89,10 +89,9 @@ class CreateLabelMode extends Mode {
             return;
         }
 
-        final String colorValue = obtainLabelColorValue(SET_COLOR_MESSAGE);
-        final LabelColor color = LabelColor.valueOf(colorValue);
+        final LabelColor labelColor = obtainLabelColor(SET_COLOR_MESSAGE);
         final LabelDetails newLabelDetails = LabelDetails.newBuilder()
-                                                         .setColor(color)
+                                                         .setColor(labelColor)
                                                          .setTitle(title)
                                                          .build();
         final LabelDetailsChange labelDetailsChange = LabelDetailsChange.newBuilder()
@@ -103,7 +102,7 @@ class CreateLabelMode extends Mode {
                                                                         .setId(labelId)
                                                                         .build();
         client.update(updateLabelDetails);
-        this.color = color;
+        this.color = labelColor;
     }
 
     private void clearValues() {
@@ -112,11 +111,10 @@ class CreateLabelMode extends Mode {
     }
 
     static class CreateLabelModeConstants {
+        static final String CREATE_LABEL_PROMPT = "create-label>";
         static final String CREATE_ONE_MORE_LABEL_QUESTION = "Do you want to create one more label?(y/n)";
         static final String SET_LABEL_COLOR_QUESTION = "Do you want to set the label color?(y/n)";
         static final String LABEL_CREATED_MESSAGE = "Created label with id: %s, title: %s, color: %s";
-        static final String CHANGED_COLOR_MESSAGE = "Set the label color. Value: ";
-        static final String CHANGED_TITLE_MESSAGE = "Set the label title. Value: ";
         static final String SET_COLOR_MESSAGE = "Please enter the label color.\n" +
                 "Valid label colors:\nBLUE;\nGRAY;\nGREEN;\nRED.";
         static final String SET_TITLE_MESSAGE = "Please enter the label title: ";

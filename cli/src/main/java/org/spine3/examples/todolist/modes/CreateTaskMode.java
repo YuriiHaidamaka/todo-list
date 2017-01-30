@@ -61,6 +61,7 @@ import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeCo
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_MESSAGE;
 import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_QUESTION;
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.HELP_ADVICE;
+import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_COMMAND;
@@ -81,6 +82,10 @@ class CreateTaskMode extends Mode {
 
     CreateTaskMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
+        initModeMap();
+    }
+
+    private void initModeMap() {
         map.put("0", new HelpMode(client, reader, HELP_MESSAGE));
         map.put("1", new CreateDraftDM(client, reader));
         map.put("2", new CreateTaskFM(client, reader));
@@ -91,6 +96,7 @@ class CreateTaskMode extends Mode {
         sendMessageToUser(CREATE_TASK_TITLE);
         reader.setPrompt(CREATE_TASK_PROMPT);
         String line = "";
+
         while (!line.equals(BACK)) {
             line = reader.readLine();
             final Mode mode = map.get(line);
@@ -99,16 +105,19 @@ class CreateTaskMode extends Mode {
                 sendMessageToUser(INCORRECT_COMMAND);
                 continue;
             }
+
             mode.start();
             final String approve = obtainApproveValue(BACK_TO_THE_PREVIOUS_MENU_QUESTION);
             if (approve.equals(NEGATIVE_ANSWER)) {
                 sendMessageToUser(HELP_MESSAGE);
             }
+
             if (approve.equals(POSITIVE_ANSWER)) {
                 line = BACK;
             }
         }
-        reader.setPrompt("todo>");
+
+        reader.setPrompt(TODO_PROMPT);
     }
 
     private void updateDueDateIfNeeded(TaskId taskId) throws IOException, ParseException {
@@ -140,9 +149,7 @@ class CreateTaskMode extends Mode {
             return;
         }
 
-        final String priorityValue = obtainPriorityValue(SET_PRIORITY_MESSAGE);
-        final TaskPriority priority = TaskPriority.valueOf(priorityValue);
-
+        final TaskPriority priority = obtainTaskPriority(SET_PRIORITY_MESSAGE);
         final PriorityChange change = PriorityChange.newBuilder()
                                                     .setNewValue(priority)
                                                     .build();
@@ -295,9 +302,6 @@ class CreateTaskMode extends Mode {
         static final String EMPTY = "";
         static final String NEED_TO_FINALIZE_MESSAGE = "Do you want to finalize the created task draft?(y/n)";
         static final String DRAFT_FINALIZED_MESSAGE = "Task draft finalized.";
-        static final String CHANGED_PRIORITY_MESSAGE = "Set the task priority. Value: ";
-        static final String CHANGED_DUE_DATE_MESSAGE = "Set the task due date. Value: ";
-        static final String CHANGED_DESCRIPTION_MESSAGE = "Set the task description. Value: ";
         static final String SET_DESCRIPTION_MESSAGE = "Please enter the task description: ";
         static final String SET_DUE_DATE_MESSAGE = "Please enter the task due date.\n" +
                 "The correct format is: " + DATE_FORMAT;

@@ -26,17 +26,19 @@ import org.spine3.examples.todolist.q.projections.MyListView;
 
 import java.io.IOException;
 
+import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyMyList;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 import static org.spine3.examples.todolist.modes.MyTasksMode.MyTasksModeConstants.EMPTY_MY_LIST_TASKS;
 import static org.spine3.examples.todolist.modes.MyTasksMode.MyTasksModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.MyTasksMode.MyTasksModeConstants.MY_TASKS_MENU;
+import static org.spine3.examples.todolist.modes.MyTasksMode.MyTasksModeConstants.MY_TASKS_PROMPT;
 
 /**
  * @author Illia Shepilov
  */
-@SuppressWarnings("unused")
 public class MyTasksMode extends CommonMode {
 
     MyTasksMode(TodoClient client, ConsoleReader reader) {
@@ -45,8 +47,12 @@ public class MyTasksMode extends CommonMode {
 
     @Override
     void start() throws IOException {
+        reader.setPrompt(MY_TASKS_PROMPT);
+        sendMessageToUser(MY_TASKS_MENU);
+
         final ShowMyTasksMode showMyTasksMode = new ShowMyTasksMode(client, reader);
-        modeMap.put("1", showMyTasksMode);
+        initModeMap(showMyTasksMode);
+
         showMyTasksMode.start();
         sendMessageToUser(HELP_MESSAGE);
         String line = reader.readLine();
@@ -58,6 +64,12 @@ public class MyTasksMode extends CommonMode {
 
             line = reader.readLine();
         }
+
+        reader.setPrompt(TODO_PROMPT);
+    }
+
+    private void initModeMap(ShowMyTasksMode showMyTasksMode) {
+        modeMap.put("1", showMyTasksMode);
     }
 
     private static class ShowMyTasksMode extends Mode {
@@ -79,6 +91,9 @@ public class MyTasksMode extends CommonMode {
     }
 
     static class MyTasksModeConstants {
+
+        static final String MY_TASKS_MENU = "******************** My tasks menu *******************\n";
+        static final String MY_TASKS_PROMPT = "my-tasks>";
         static final String EMPTY_MY_LIST_TASKS = "No tasks in the my list.";
         static final String HELP_MESSAGE = "0:    Help.\n" +
                 "1:    Show all my tasks.\n" +

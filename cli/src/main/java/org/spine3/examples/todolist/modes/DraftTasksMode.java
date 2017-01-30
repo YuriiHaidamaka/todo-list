@@ -29,8 +29,11 @@ import org.spine3.examples.todolist.q.projections.DraftTasksView;
 import java.io.IOException;
 
 import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.DRAFT_FINALIZED_MESSAGE;
+import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.DRAFT_TASKS_MENU;
+import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.DRAFT_TASKS_PROMPT;
 import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.EMPTY_DRAFT_TASKS;
 import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDraftTasks;
@@ -48,10 +51,11 @@ class DraftTasksMode extends CommonMode {
 
     @Override
     void start() throws IOException {
+        reader.setPrompt(DRAFT_TASKS_PROMPT);
+        sendMessageToUser(DRAFT_TASKS_MENU);
         final ShowDraftTasksMode draftTasksMode = new ShowDraftTasksMode(client, reader);
         final FinalizeDraftMode finalizeDraftMode = new FinalizeDraftMode(client, reader);
-        modeMap.put("1", draftTasksMode);
-        modeMap.put("12", finalizeDraftMode);
+        initModeMap(draftTasksMode, finalizeDraftMode);
 
         draftTasksMode.start();
         sendMessageToUser(HELP_MESSAGE);
@@ -63,6 +67,12 @@ class DraftTasksMode extends CommonMode {
                 mode.start();
             }
         }
+        reader.setPrompt(TODO_PROMPT);
+    }
+
+    private void initModeMap(ShowDraftTasksMode draftTasksMode, FinalizeDraftMode finalizeDraftMode) {
+        modeMap.put("1", draftTasksMode);
+        modeMap.put("12", finalizeDraftMode);
     }
 
     private static class ShowDraftTasksMode extends Mode {
@@ -103,6 +113,8 @@ class DraftTasksMode extends CommonMode {
     }
 
     static class DraftTasksModeConstants {
+        static final String DRAFT_TASKS_MENU = "****************** Draft tasks menu ******************\n";
+        static final String DRAFT_TASKS_PROMPT = "draft-tasks>";
         static final String EMPTY_DRAFT_TASKS = "No draft tasks.";
         static final String DRAFT_FINALIZED_MESSAGE = "Task with id value: %s finalized.";
         static final String HELP_MESSAGE = "0:    Help.\n" +

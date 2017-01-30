@@ -28,11 +28,13 @@ import org.spine3.examples.todolist.q.projections.LabelledTasksView;
 import java.io.IOException;
 import java.util.List;
 
+import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.EMPTY_LABELLED_TASKS;
 import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.LABELLED_TASKS_MENU;
+import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.LABELLED_TASKS_PROMPT;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_COMMAND;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyLabelledTasks;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
@@ -48,21 +50,28 @@ public class LabelledTasksMode extends CommonMode {
 
     @Override
     void start() throws IOException {
+        reader.setPrompt(LABELLED_TASKS_PROMPT);
+        sendMessageToUser(LABELLED_TASKS_MENU);
+
         final ShowLabelledTasksMode showLabelledTasksMode = new ShowLabelledTasksMode(client, reader);
-        modeMap.put("1", showLabelledTasksMode);
+        initModeMap(showLabelledTasksMode);
+
         showLabelledTasksMode.start();
         sendMessageToUser(HELP_MESSAGE);
         String line = "";
+
         while (!line.equals(BACK)) {
             line = reader.readLine();
             final Mode mode = modeMap.get(line);
             if (mode != null) {
                 mode.start();
             }
-            if (mode == null) {
-                sendMessageToUser(INCORRECT_COMMAND);
-            }
         }
+        reader.setPrompt(TODO_PROMPT);
+    }
+
+    private void initModeMap(ShowLabelledTasksMode labelledTasksMode) {
+        modeMap.put("1", labelledTasksMode);
     }
 
     @Command
@@ -86,6 +95,8 @@ public class LabelledTasksMode extends CommonMode {
     }
 
     static class LabelledTasksModeConstants {
+        static final String LABELLED_TASKS_MENU = "***************** Labelled tasks menu ****************\n";
+        static final String LABELLED_TASKS_PROMPT = "labelled-tasks>";
         static final String EMPTY_LABELLED_TASKS = "No labelled tasks.";
         static final String HELP_MESSAGE = "0:    Help.\n" +
                 "1:    Show the labelled tasks.\n" +

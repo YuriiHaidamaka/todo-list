@@ -74,10 +74,14 @@ import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
  */
 abstract class CommonMode extends Mode {
 
-    final Map<String, Mode> modeMap;
+    Map<String, Mode> modeMap;
 
     CommonMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
+        initModeMap(client, reader);
+    }
+
+    private void initModeMap(TodoClient client, ConsoleReader reader) {
         modeMap = newHashMap();
         modeMap.put("2", new UpdateTaskDescriptionMode(client, reader));
         modeMap.put("3", new UpdateTaskPriorityMode(client, reader));
@@ -134,10 +138,8 @@ abstract class CommonMode extends Mode {
             final TaskId taskId = TaskId.newBuilder()
                                         .setValue(taskIdValue)
                                         .build();
-            final String priorityValue = obtainPriorityValue(ENTER_NEW_PRIORITY_MESSAGE);
-            final TaskPriority newTaskPriority = TaskPriority.valueOf(priorityValue);
-            final String previousPriorityValue = obtainPriorityValue(ENTER_PREVIOUS_PRIORITY_MESSAGE);
-            final TaskPriority previousTaskPriority = TaskPriority.valueOf(previousPriorityValue);
+            final TaskPriority newTaskPriority = obtainTaskPriority(ENTER_NEW_PRIORITY_MESSAGE);
+            final TaskPriority previousTaskPriority = obtainTaskPriority(ENTER_PREVIOUS_PRIORITY_MESSAGE);
             final PriorityChange change = PriorityChange.newBuilder()
                                                         .setPreviousValue(previousTaskPriority)
                                                         .setNewValue(newTaskPriority)
@@ -147,7 +149,7 @@ abstract class CommonMode extends Mode {
                                                                             .setId(taskId)
                                                                             .build();
             client.update(updateTaskPriority);
-            final String message = String.format(UPDATED_PRIORITY_MESSAGE, previousPriorityValue, newTaskPriority);
+            final String message = String.format(UPDATED_PRIORITY_MESSAGE, previousTaskPriority, newTaskPriority);
             sendMessageToUser(message);
         }
     }
@@ -205,10 +207,8 @@ abstract class CommonMode extends Mode {
                                                    .build();
             final String newTitle = obtainLabelTitle(ENTER_NEW_TITLE_MESSAGE);
             final String previousTitle = obtainLabelTitle(ENTER_PREVIOUS_TITLE_MESSAGE);
-            final String labelColorValue = obtainLabelColorValue(ENTER_NEW_COLOR_MESSAGE);
-            final LabelColor newColor = LabelColor.valueOf(labelColorValue);
-            final String previousColorValue = obtainLabelColorValue(ENTER_PREVIOUS_COLOR_MESSAGE);
-            final LabelColor previousColor = LabelColor.valueOf(previousColorValue);
+            final LabelColor newColor = obtainLabelColor(ENTER_NEW_COLOR_MESSAGE);
+            final LabelColor previousColor = obtainLabelColor(ENTER_PREVIOUS_COLOR_MESSAGE);
 
             final LabelDetails newLabelDetails = LabelDetails.newBuilder()
                                                              .setTitle(newTitle)
