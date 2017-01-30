@@ -36,6 +36,7 @@ import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeCo
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDraftTasks;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
@@ -113,14 +114,15 @@ class DraftTasksMode extends CommonMode {
     }
 
     static class DraftTasksModeConstants {
-        static final String DRAFT_TASKS_MENU = "****************** Draft tasks menu ******************\n";
+        static final String DRAFT_TASKS_MENU = "****************** Draft tasks menu ******************" +
+                LINE_SEPARATOR;
         static final String DRAFT_TASKS_PROMPT = "draft-tasks>";
         static final String EMPTY_DRAFT_TASKS = "No draft tasks.";
         static final String DRAFT_FINALIZED_MESSAGE = "Task with id value: %s finalized.";
-        static final String HELP_MESSAGE = "0:    Help.\n" +
-                "1:    Show the tasks in the draft state.\n" +
+        static final String HELP_MESSAGE = "0:    Help." + LINE_SEPARATOR +
+                "1:    Show the tasks in the draft state." + LINE_SEPARATOR +
                 CommonMode.CommonModeConstants.HELP_MESSAGE +
-                "12:   Finalize the draft.\n" +
+                "12:   Finalize the draft." + LINE_SEPARATOR +
                 BACK_TO_THE_MENU_MESSAGE;
 
         private DraftTasksModeConstants() {

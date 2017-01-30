@@ -65,8 +65,9 @@ import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.
 import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_PREVIOUS_TITLE_MESSAGE;
 import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.UPDATED_DESCRIPTION_MESSAGE;
 import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.UPDATED_DUE_DATE_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.UPDATED_LABLE_DETAILS_MESSAGE;
+import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.UPDATED_LABEL_DETAILS_MESSAGE;
 import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.UPDATED_PRIORITY_MESSAGE;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
 /**
@@ -119,8 +120,8 @@ abstract class CommonMode extends Mode {
                                                                                      .setId(taskId)
                                                                                      .build();
             client.update(updateTaskDescription);
-            final String userFriendlyPrevDescr = previousDescription.isEmpty() ? DEFAULT_VALUE : previousDescription;
-            final String message = String.format(UPDATED_DESCRIPTION_MESSAGE, userFriendlyPrevDescr, newDescription);
+            final String previousDescriptionValue = previousDescription.isEmpty() ? DEFAULT_VALUE : previousDescription;
+            final String message = String.format(UPDATED_DESCRIPTION_MESSAGE, previousDescriptionValue, newDescription);
             sendMessageToUser(message);
 
         }
@@ -228,7 +229,7 @@ abstract class CommonMode extends Mode {
                                                                             .setId(labelId)
                                                                             .build();
             client.update(updateLabelDetails);
-            final String message = String.format(UPDATED_LABLE_DETAILS_MESSAGE,
+            final String message = String.format(UPDATED_LABEL_DETAILS_MESSAGE,
                                                  previousColor, newColor, previousTitle, newTitle);
             sendMessageToUser(message);
         }
@@ -372,22 +373,23 @@ abstract class CommonMode extends Mode {
         static final String ENTER_PREVIOUS_PRIORITY_MESSAGE = "Please enter the previous task priority: ";
         static final String ENTER_NEW_DATE_MESSAGE = "Please enter the new task due date: ";
         static final String ENTER_PREVIOUS_DATE_MESSAGE = "Please enter the previous task due date: ";
-        static final String UPDATED_LABLE_DETAILS_MESSAGE = "The label details updated.\n" +
-                "The label color: %s --> %s.\nThe label title: %s --> %s";
+        static final String UPDATED_LABEL_DETAILS_MESSAGE = "The label details updated." + LINE_SEPARATOR +
+                "The label color: %s --> %s." + LINE_SEPARATOR +
+                "The label title: %s --> %s";
         static final String ENTER_NEW_TITLE_MESSAGE = "Please enter the new label title: ";
         static final String ENTER_PREVIOUS_TITLE_MESSAGE = "Please enter the previous label title: ";
         static final String ENTER_NEW_COLOR_MESSAGE = "Please enter the new label color: ";
         static final String ENTER_PREVIOUS_COLOR_MESSAGE = "Please enter the previous label color: ";
-        static final String HELP_MESSAGE = "2:    Update the task description.\n" +
-                "3:    Update the task priority.\n" +
-                "4:    Update the task due date.\n" +
-                "5:    Update the label details.\n" +
-                "6:    Delete the task.\n" +
-                "7:    Reopen the task.\n" +
-                "8:    Restore the task.\n" +
-                "9:    Complete the task.\n" +
-                "10:   Assign the label to task.\n" +
-                "11:   Remove the lable from task.\n";
+        static final String HELP_MESSAGE = "2:    Update the task description." + LINE_SEPARATOR +
+                "3:    Update the task priority." + LINE_SEPARATOR +
+                "4:    Update the task due date." + LINE_SEPARATOR+
+                "5:    Update the label details." + LINE_SEPARATOR +
+                "6:    Delete the task." + LINE_SEPARATOR +
+                "7:    Reopen the task." + LINE_SEPARATOR +
+                "8:    Restore the task." + LINE_SEPARATOR +
+                "9:    Complete the task." + LINE_SEPARATOR +
+                "10:   Assign the label to task." + LINE_SEPARATOR +
+                "11:   Remove the label from task.";
 
         private CommonModeConstants() {
         }

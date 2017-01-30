@@ -31,14 +31,14 @@ import java.util.Date;
 import java.util.List;
 
 import static org.spine3.examples.todolist.DateHelper.getDateFormat;
+import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.DEFAULT_VALUE;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
 
 /**
  * @author Illia Shepilov
  */
 class ModeHelper {
 
-    private static final String NEW_LINE = "\n";
-    private static final String DEFAULT_VALUE = "default";
     private static final String MY_LIST_TASKS = "My list tasks";
     private static final String DRAFT_TASKS = "Draft tasks";
     private static final String LABELLED_TASKS = "Labelled tasks";
@@ -69,7 +69,7 @@ class ModeHelper {
         final List<TaskView> viewList = myListView.getMyList()
                                                   .getItemsList();
         builder.append(MY_LIST_TASKS);
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
         for (TaskView view : viewList) {
             constructUserFriendlyTaskView(builder, view);
         }
@@ -81,7 +81,7 @@ class ModeHelper {
         final List<TaskView> viewList = draftTasksView.getDraftTasks()
                                                       .getItemsList();
         builder.append(DRAFT_TASKS);
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
         for (TaskView view : viewList) {
             constructUserFriendlyTaskView(builder, view);
         }
@@ -91,7 +91,7 @@ class ModeHelper {
     static String constructUserFriendlyLabelledTasks(List<LabelledTasksView> labelledTasksView) {
         final StringBuilder builder = new StringBuilder();
         builder.append(LABELLED_TASKS);
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
         for (LabelledTasksView labelledView : labelledTasksView) {
             constructLabelledView(builder, labelledView);
         }
@@ -101,13 +101,13 @@ class ModeHelper {
 
     private static void constructLabelledView(StringBuilder builder, LabelledTasksView labelledView) {
         builder.append(LABEL_ID_VALUE);
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
         builder.append(LABEL_TITLE_VALUE);
         builder.append(labelledView.getLabelTitle());
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
         builder.append(LABEL_COLOR_VALUE);
         builder.append(labelledView.getLabelColor());
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
         final List<TaskView> viewList = labelledView.getLabelledTasks()
                                                     .getItemsList();
         for (TaskView view : viewList) {
@@ -117,24 +117,24 @@ class ModeHelper {
 
     private static void constructUserFriendlyTaskView(StringBuilder builder, TaskView view) {
         builder.append(TASK);
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
         builder.append(TASK_ID_VALUE);
         final String taskIdValue = view.getId()
                                        .getValue();
         builder.append(taskIdValue);
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
         builder.append(DESCRIPTION_VALUE);
         builder.append(view.getDescription());
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
         builder.append(PRIORITY_VALUE);
         builder.append(view.getPriority());
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
         builder.append(DUE_DATE_VALUE);
         final String date = constructUserFriendlyDate(Timestamps.toMillis(view.getDueDate()));
         builder.append(date);
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
         builder.append(LABEL_ID_VALUE);
         builder.append(view.getLabelId());
-        builder.append(NEW_LINE);
+        builder.append(LINE_SEPARATOR);
     }
 }

@@ -65,6 +65,7 @@ import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.T
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_COMMAND;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.POSITIVE_ANSWER;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDate;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
@@ -296,25 +297,28 @@ class CreateTaskMode extends Mode {
         static final String CREATE_ONE_MORE_TASK_QUESTION = "Do you want to create one more task?(y/n)";
         static final String BACK_TO_THE_PREVIOUS_MENU_QUESTION = "Do you want go back to the main menu?(y/n)";
         static final String CREATE_TASK_PROMPT = "create-task>";
-        static final String CREATE_TASK_MODE = "******************** Create task menu ********************\n";
-        static final String CREATE_TASK_TITLE = CREATE_TASK_MODE + HELP_ADVICE +
-                CreateTaskMode.CreateTaskModeConstants.HELP_MESSAGE;
+        private static final String CREATE_TASK_MODE = "******************** Create task menu ********************" +
+                LINE_SEPARATOR;
         static final String EMPTY = "";
         static final String NEED_TO_FINALIZE_MESSAGE = "Do you want to finalize the created task draft?(y/n)";
         static final String DRAFT_FINALIZED_MESSAGE = "Task draft finalized.";
         static final String SET_DESCRIPTION_MESSAGE = "Please enter the task description: ";
-        static final String SET_DUE_DATE_MESSAGE = "Please enter the task due date.\n" +
+        static final String SET_DUE_DATE_MESSAGE = "Please enter the task due date." + LINE_SEPARATOR +
                 "The correct format is: " + DATE_FORMAT;
-        static final String SET_PRIORITY_MESSAGE = "Please enter the task priority.\n" +
-                "Valid task priority:\nLOW;\nNORMAL;\nHIGH.";
-        static final String HELP_MESSAGE = "0:    Help.\n" +
-                "1:    Create the task with specified parameters[description is required].\n" +
-                "2:    Create the task with specified parameters[description is required][FAST MODE].\n" +
-                BACK_TO_THE_MENU_MESSAGE;
-        static final String CREATED_DRAFT_MESSAGE = "Created task draft with parameters:" +
-                "\nid: %s\ndescription: %s\npriority: %s\ndue date: %s";
-        static final String CREATED_TASK_MESSAGE = "Created task with parameters:" +
-                "\nid: %s\ndescription: %s\npriority: %s\ndue date: %s";
+        static final String SET_PRIORITY_MESSAGE = "Please enter the task priority.";
+        static final String HELP_MESSAGE = "0:    Help." + LINE_SEPARATOR +
+                "1:    Create the task with specified parameters[description is required]." + LINE_SEPARATOR +
+                "2:    Create the task with specified parameters[description is required][FAST MODE]." +
+                LINE_SEPARATOR + BACK_TO_THE_MENU_MESSAGE;
+        static final String TASK_PARAMS_DESCRIPTION = "id: %s" + LINE_SEPARATOR +
+                "description: %s" + LINE_SEPARATOR +
+                "priority: %s" + LINE_SEPARATOR +
+                "due date: %s";
+        static final String CREATED_DRAFT_MESSAGE = "Created task draft with parameters:" + LINE_SEPARATOR +
+                TASK_PARAMS_DESCRIPTION;
+        static final String CREATED_TASK_MESSAGE = "Created task with parameters:" + LINE_SEPARATOR +
+                TASK_PARAMS_DESCRIPTION;
+        static final String CREATE_TASK_TITLE = CREATE_TASK_MODE + HELP_ADVICE + HELP_MESSAGE;
 
         private CreateTaskModeConstants() {
         }

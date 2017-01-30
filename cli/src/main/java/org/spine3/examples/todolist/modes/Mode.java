@@ -43,6 +43,8 @@ import java.util.Map;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_ID_MESSAGE;
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.ENTER_LABEL_ID_MESSAGE;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_INPUT;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LABEL_COLOR_VALUE;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.TASK_PRIORITY_VALUE;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
@@ -80,13 +82,13 @@ abstract class Mode {
     }
 
     private String obtainLabelColorValue(String message) throws IOException {
-        sendMessageToUser(message);
+        sendMessageToUser(message + LABEL_COLOR_VALUE);
         String color = reader.readLine();
         color = color == null ? null : color.toUpperCase();
         final boolean isValid = colorValidator.validate(color);
 
         if (!isValid) {
-            sendMessageToUser(colorValidator.getMessage());
+            sendMessageToUser(INCORRECT_INPUT);
             color = obtainLabelColorValue(message);
         }
         return color;
@@ -145,7 +147,7 @@ abstract class Mode {
         final boolean isValid = priorityValidator.validate(priorityNumber);
 
         if (!isValid) {
-            sendMessageToUser(priorityValidator.getMessage());
+            sendMessageToUser(INCORRECT_INPUT);
             priorityNumber = obtainPriorityValue(message);
         }
         return priorityNumber;
@@ -231,10 +233,20 @@ abstract class Mode {
         return colorMap;
     }
 
-    static class ModeConstants {
-        static final String TASK_PRIORITY_VALUE = "\n1: LOW;\n" +
-                "2: NORMAL;\n" +
+    public static class ModeConstants {
+        static final String LINE_SEPARATOR = System.lineSeparator();
+        static final String INCORRECT_INPUT = "Incorrect input.";
+        static final String TASK_PRIORITY_VALUE = LINE_SEPARATOR +
+                "Valid task priority:" + LINE_SEPARATOR +
+                "1: LOW;" + LINE_SEPARATOR +
+                "2: NORMAL;" + LINE_SEPARATOR +
                 "3: HIGH.";
+        static final String LABEL_COLOR_VALUE = LINE_SEPARATOR +
+                "Valid label colors:" + LINE_SEPARATOR +
+                "1: GRAY;" + LINE_SEPARATOR +
+                "2: RED;" + LINE_SEPARATOR +
+                "3: GREEN;" + LINE_SEPARATOR +
+                "4: BLUE.";
         static final String BACK_TO_THE_MENU_MESSAGE = "back: Back to the previous menu.";
         static final String BACK = "back";
         static final String POSITIVE_ANSWER = "y";

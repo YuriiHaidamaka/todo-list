@@ -35,6 +35,7 @@ import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasks
 import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.LABELLED_TASKS_PROMPT;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyLabelledTasks;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 
@@ -95,11 +96,12 @@ public class LabelledTasksMode extends CommonMode {
     }
 
     static class LabelledTasksModeConstants {
-        static final String LABELLED_TASKS_MENU = "***************** Labelled tasks menu ****************\n";
+        static final String LABELLED_TASKS_MENU = "***************** Labelled tasks menu ****************" +
+                LINE_SEPARATOR;
         static final String LABELLED_TASKS_PROMPT = "labelled-tasks>";
         static final String EMPTY_LABELLED_TASKS = "No labelled tasks.";
-        static final String HELP_MESSAGE = "0:    Help.\n" +
-                "1:    Show the labelled tasks.\n" +
+        static final String HELP_MESSAGE = "0:    Help." + LINE_SEPARATOR +
+                "1:    Show the labelled tasks." + LINE_SEPARATOR +
                 CommonMode.CommonModeConstants.HELP_MESSAGE +
                 BACK_TO_THE_MENU_MESSAGE;
 

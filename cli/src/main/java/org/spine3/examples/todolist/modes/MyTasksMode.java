@@ -29,6 +29,7 @@ import java.io.IOException;
 import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
+import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyMyList;
 import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
 import static org.spine3.examples.todolist.modes.MyTasksMode.MyTasksModeConstants.EMPTY_MY_LIST_TASKS;
@@ -92,11 +93,11 @@ public class MyTasksMode extends CommonMode {
 
     static class MyTasksModeConstants {
 
-        static final String MY_TASKS_MENU = "******************** My tasks menu *******************\n";
+        static final String MY_TASKS_MENU = "******************** My tasks menu *******************" + LINE_SEPARATOR;
         static final String MY_TASKS_PROMPT = "my-tasks>";
         static final String EMPTY_MY_LIST_TASKS = "No tasks in the my list.";
-        static final String HELP_MESSAGE = "0:    Help.\n" +
-                "1:    Show all my tasks.\n" +
+        static final String HELP_MESSAGE = "0:    Help." + LINE_SEPARATOR +
+                "1:    Show all my tasks." + LINE_SEPARATOR +
                 CommonMode.CommonModeConstants.HELP_MESSAGE +
                 BACK_TO_THE_MENU_MESSAGE;
 
