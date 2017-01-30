@@ -31,6 +31,7 @@ public class DescriptionValidator implements Validator {
     private static final String DESCRIPTION_IS_NULL = "Description cannot be null.";
     private static final String DESCRIPTION_IS_EMPTY = "Description cannot be empty.";
     private static final String INCORRECT_DESCRIPTION = "Description should contains at least 3 symbols.";
+    private static final int MINIMAL_DESCRIPTION_LENGTH = 3;
     private String message;
 
     @Override
@@ -41,13 +42,13 @@ public class DescriptionValidator implements Validator {
             return false;
         }
 
-        final boolean isEmpty = isEmpty(input);
-        if (isEmpty) {
+        final boolean empty = isEmpty(input);
+        if (empty) {
             message = DESCRIPTION_IS_EMPTY;
             return false;
         }
 
-        if (input.length() < 3) {
+        if (input.length() < MINIMAL_DESCRIPTION_LENGTH) {
             message = INCORRECT_DESCRIPTION;
             return false;
         }

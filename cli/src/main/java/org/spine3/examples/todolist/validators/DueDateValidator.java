@@ -35,7 +35,7 @@ public class DueDateValidator implements Validator {
 
     private static final String DUE_DATE_IS_NULL = "The due date cannot be null.";
     private static final String DUE_DATE_IS_EMPTY = "The due date cannot be empty.";
-    private static final String INCORRECT_DUE_DATE = "Incorrect due date format. Correct format: " + DATE_FORMAT + ".";
+    private static final String INCORRECT_DUE_DATE = "Incorrect due date format. Correct format: " + DATE_FORMAT + '.';
     private String message;
 
     @Override
@@ -61,7 +61,7 @@ public class DueDateValidator implements Validator {
         try {
             final SimpleDateFormat simpleDateFormat = getDateFormat();
             simpleDateFormat.parse(input);
-        } catch (ParseException e) {
+        } catch (ParseException ignored) {
             message = INCORRECT_DUE_DATE;
             return false;
         }

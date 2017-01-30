@@ -24,15 +24,11 @@ import org.spine3.examples.todolist.TaskPriority;
 
 import java.util.Map;
 
-import static com.google.common.collect.Maps.newHashMap;
-
 /**
  * @author Illia Shepilov
  */
 public class TaskPriorityValidator implements Validator {
 
-    private static final String INCORRECT_PRIORITY = "Please enter the correct task priority.\n" +
-            "Valid task priority:\n1: LOW;\n2: NORMAL;\n3: HIGH.";
     private final Map<String, TaskPriority> priorityMap;
     private String message;
 
@@ -43,12 +39,8 @@ public class TaskPriorityValidator implements Validator {
     @Override
     public boolean validate(String input) {
         final TaskPriority taskPriority = priorityMap.get(input);
-        if (taskPriority == null) {
-            message = INCORRECT_PRIORITY;
-            return false;
-        }
-
-        return true;
+        final boolean result = taskPriority != null;
+        return result;
     }
 
     @Override

@@ -24,15 +24,11 @@ import org.spine3.examples.todolist.LabelColor;
 
 import java.util.Map;
 
-import static com.google.common.collect.Maps.newHashMap;
-
 /**
  * @author Illia Shepilov
  */
 public class LabelColorValidator implements Validator {
 
-    private static final String INCORRECT_LABEL_COLOR = "Please enter the correct label color.\n" +
-            "Valid label colors:\n BLUE;\nGRAY;\nGREEN;\nRED.";
     private String message;
     private final Map<String, LabelColor> colorMap;
 
@@ -43,12 +39,8 @@ public class LabelColorValidator implements Validator {
     @Override
     public boolean validate(String input) {
         final LabelColor labelColor = colorMap.get(input);
-        if (labelColor == null) {
-            message = INCORRECT_LABEL_COLOR;
-            return false;
-        }
-
-        return true;
+        final boolean result = labelColor != null;
+        return result;
     }
 
     @Override

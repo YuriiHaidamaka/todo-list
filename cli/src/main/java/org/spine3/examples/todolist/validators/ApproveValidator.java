@@ -26,15 +26,17 @@ package org.spine3.examples.todolist.validators;
 public class ApproveValidator implements Validator {
 
     private static final String INCORRECT_INPUT = "Incorrect input. Valid values: 'y' or 'n'";
+    private static final String NEGATIVE_ANSWER = "n";
+    private static final String POSITIVE_ANSWER = "y";
     private String message;
 
     @Override
     public boolean validate(String input) {
 
-        final boolean isNegativeOrPositiveAns = input.equals("n") || input.equals("y");
-        final boolean isInvalidInput = input.isEmpty() || !isNegativeOrPositiveAns;
+        final boolean isNegativeOrPositiveAns = input.equals(NEGATIVE_ANSWER) || input.equals(POSITIVE_ANSWER);
+        final boolean invalidInput = input.isEmpty() || !isNegativeOrPositiveAns;
 
-        if (isInvalidInput) {
+        if (invalidInput) {
             this.message = INCORRECT_INPUT;
             return false;
         }
