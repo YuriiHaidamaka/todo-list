@@ -368,7 +368,7 @@ abstract class CommonMode extends Mode {
         static final String UPDATED_DUE_DATE_MESSAGE = "The task due date updated. %s --> %s";
         static final String ENTER_NEW_DESCRIPTION_MESSAGE = "Please enter the new task description: ";
         static final String ENTER_PREVIOUS_DESCRIPTION_MESSAGE = "Please enter the previous task description: ";
-        static final String ENTER_ID_MESSAGE = "Please enter the task id: ";
+        static final String ENTER_ID_MESSAGE = "Please enter the task ID: ";
         static final String ENTER_NEW_PRIORITY_MESSAGE = "Please enter the new task priority: ";
         static final String ENTER_PREVIOUS_PRIORITY_MESSAGE = "Please enter the previous task priority: ";
         static final String ENTER_NEW_DATE_MESSAGE = "Please enter the new task due date: ";
@@ -382,7 +382,7 @@ abstract class CommonMode extends Mode {
         static final String ENTER_PREVIOUS_COLOR_MESSAGE = "Please enter the previous label color: ";
         static final String HELP_MESSAGE = "2:    Update the task description." + LINE_SEPARATOR +
                 "3:    Update the task priority." + LINE_SEPARATOR +
-                "4:    Update the task due date." + LINE_SEPARATOR+
+                "4:    Update the task due date." + LINE_SEPARATOR +
                 "5:    Update the label details." + LINE_SEPARATOR +
                 "6:    Delete the task." + LINE_SEPARATOR +
                 "7:    Reopen the task." + LINE_SEPARATOR +
