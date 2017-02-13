@@ -88,7 +88,7 @@ class CreateTaskMode extends Mode {
 
     private void initModeMap() {
         map.put("0", new HelpMode(client, reader, HELP_MESSAGE));
-        map.put("1", new CreateDraftDM(client, reader));
+        map.put("1", new CreateTaskDM(client, reader));
         map.put("2", new CreateTaskFM(client, reader));
     }
 
@@ -223,9 +223,9 @@ class CreateTaskMode extends Mode {
         }
     }
 
-    class CreateDraftDM extends Mode {
+    class CreateTaskDM extends Mode {
 
-        private CreateDraftDM(TodoClient client, ConsoleReader reader) {
+        private CreateTaskDM(TodoClient client, ConsoleReader reader) {
             super(client, reader);
         }
 
@@ -302,7 +302,8 @@ class CreateTaskMode extends Mode {
         static final String EMPTY = "";
         static final String NEED_TO_FINALIZE_MESSAGE = "Do you want to finalize the created task draft?(y/n)";
         static final String DRAFT_FINALIZED_MESSAGE = "Task draft finalized.";
-        static final String SET_DESCRIPTION_MESSAGE = "Please enter the task description: ";
+        static final String SET_DESCRIPTION_MESSAGE = "Please enter the task description " +
+                "(should contain at least 3 symbols): ";
         static final String SET_DUE_DATE_MESSAGE = "Please enter the task due date." + LINE_SEPARATOR +
                 "The correct format is: " + DATE_FORMAT;
         static final String SET_PRIORITY_MESSAGE = "Please enter the task priority.";
