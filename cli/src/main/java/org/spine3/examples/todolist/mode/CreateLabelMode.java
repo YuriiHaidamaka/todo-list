@@ -66,7 +66,12 @@ class CreateLabelMode extends Mode {
         final TaskLabelId labelId = TaskLabelId.newBuilder()
                                                .setValue(newUuid())
                                                .build();
-        final String title = obtainLabelTitle(SET_TITLE_MESSAGE);
+        final String title;
+        try {
+            title = obtainLabelTitle(SET_TITLE_MESSAGE);
+        } catch (InputCancelledException ignored) {
+            return;
+        }
         final CreateBasicLabel createBasicLabel = CreateBasicLabel.newBuilder()
                                                                   .setLabelTitle(title)
                                                                   .setLabelId(labelId)
@@ -84,7 +89,13 @@ class CreateLabelMode extends Mode {
             return LabelDetails.getDefaultInstance();
         }
 
-        final LabelColor labelColor = obtainLabelColor(SET_COLOR_MESSAGE);
+        final LabelColor labelColor;
+        try {
+            labelColor = obtainLabelColor(SET_COLOR_MESSAGE);
+        } catch (InputCancelledException ignored) {
+            return LabelDetails.getDefaultInstance();
+        }
+
         final LabelDetails newLabelDetails = LabelDetails.newBuilder()
                                                          .setColor(labelColor)
                                                          .setTitle(title)

@@ -24,6 +24,7 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.LabelColor;
+import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.TaskPriority;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.validator.ApproveValidator;
@@ -52,6 +53,8 @@ import static org.spine3.examples.todolist.mode.Mode.ModeConstants.TASK_PRIORITY
  */
 abstract class Mode {
 
+    private static final String CANCELED_INPUT = "canceled";
+    private static final String INPUT_IS_CANCELED = "Input is canceled";
     private Validator priorityValidator;
     private Validator dueDateValidator;
     private Validator colorValidator;
@@ -74,15 +77,20 @@ abstract class Mode {
 
     abstract void start() throws IOException;
 
-    LabelColor obtainLabelColor(String message) throws IOException {
+    LabelColor obtainLabelColor(String message) throws IOException, InputCancelledException {
         final String labelColorValue = obtainLabelColorValue(message);
         final LabelColor result = colorMap.get(labelColorValue);
         return result;
     }
 
-    private String obtainLabelColorValue(String message) throws IOException {
+    private String obtainLabelColorValue(String message) throws IOException, InputCancelledException {
         sendMessageToUser(message + LABEL_COLOR_VALUE);
         String color = reader.readLine();
+
+        if (CANCELED_INPUT.equals(color)) {
+            throw new InputCancelledException(INPUT_IS_CANCELED);
+        }
+
         color = color == null ? null : color.toUpperCase();
         final boolean isValid = colorValidator.validate(color);
 
@@ -90,12 +98,18 @@ abstract class Mode {
             sendMessageToUser(INCORRECT_INPUT);
             color = obtainLabelColorValue(message);
         }
+
         return color;
     }
 
-    String obtainLabelTitle(String message) throws IOException {
+    String obtainLabelTitle(String message) throws IOException, InputCancelledException {
         sendMessageToUser(message);
         String title = reader.readLine();
+
+        if (CANCELED_INPUT.equals(title)) {
+            throw new InputCancelledException(INPUT_IS_CANCELED);
+        }
+
         boolean isValid = commonValidator.validate(title);
 
         if (!isValid) {
@@ -105,7 +119,7 @@ abstract class Mode {
         return title;
     }
 
-    Timestamp constructPreviousPriority(SimpleDateFormat simpleDateFormat, String previousDueDateValue)
+    Timestamp constructPreviousDueDate(SimpleDateFormat simpleDateFormat, String previousDueDateValue)
             throws ParseException {
         Timestamp previousDueDate = Timestamp.getDefaultInstance();
         if (!previousDueDateValue.isEmpty()) {
@@ -201,6 +215,12 @@ abstract class Mode {
             approveValue = obtainApproveValue(message);
         }
         return approveValue;
+    }
+
+    static TaskId createTaskId(String taskIdValue) {
+        return TaskId.newBuilder()
+                     .setValue(taskIdValue)
+                     .build();
     }
 
     private void initValidators() {

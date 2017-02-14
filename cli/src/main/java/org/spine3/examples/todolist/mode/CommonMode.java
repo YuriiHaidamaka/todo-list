@@ -95,6 +95,27 @@ abstract class CommonMode extends Mode {
         modeMap.put("11", new RemoveLabelFromTaskMode(client, reader));
     }
 
+    private static LabelDetailsChange constructLabelDetailsChange(LabelDetails newLabelDetails,
+                                                                  LabelDetails previousLabelDetails) {
+        return LabelDetailsChange.newBuilder()
+                                 .setNewDetails(newLabelDetails)
+                                 .setPreviousDetails(previousLabelDetails)
+                                 .build();
+    }
+
+    private static LabelDetails constructLabelDetails(String newTitle, LabelColor newColor) {
+        return LabelDetails.newBuilder()
+                           .setTitle(newTitle)
+                           .setColor(newColor)
+                           .build();
+    }
+
+    private static TaskLabelId constructLabelId(String labelIdValue) {
+        return TaskLabelId.newBuilder()
+                          .setValue(labelIdValue)
+                          .build();
+    }
+
     private static class UpdateTaskDescriptionMode extends Mode {
 
         private UpdateTaskDescriptionMode(TodoClient client, ConsoleReader reader) {
@@ -104,9 +125,7 @@ abstract class CommonMode extends Mode {
         @Override
         void start() throws IOException {
             final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = TaskId.newBuilder()
-                                        .setValue(taskIdValue)
-                                        .build();
+            final TaskId taskId = createTaskId(taskIdValue);
 
             final String newDescription = obtainDescriptionValue(ENTER_NEW_DESCRIPTION_MESSAGE, true);
             final String previousDescription = obtainDescriptionValue(ENTER_PREVIOUS_DESCRIPTION_MESSAGE, false);
@@ -135,9 +154,7 @@ abstract class CommonMode extends Mode {
         @Override
         void start() throws IOException {
             final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = TaskId.newBuilder()
-                                        .setValue(taskIdValue)
-                                        .build();
+            final TaskId taskId = createTaskId(taskIdValue);
             final TaskPriority newTaskPriority = obtainTaskPriority(ENTER_NEW_PRIORITY_MESSAGE);
             final TaskPriority previousTaskPriority = obtainTaskPriority(ENTER_PREVIOUS_PRIORITY_MESSAGE);
             final PriorityChange change = PriorityChange.newBuilder()
@@ -163,9 +180,7 @@ abstract class CommonMode extends Mode {
         void start() throws IOException {
             try {
                 final String taskIdValue = obtainTaskIdValue();
-                final TaskId taskId = TaskId.newBuilder()
-                                            .setValue(taskIdValue)
-                                            .build();
+                final TaskId taskId = createTaskId(taskIdValue);
                 final SimpleDateFormat simpleDateFormat = getDateFormat();
                 final String newDueDateValue = obtainDueDateValue(ENTER_NEW_DATE_MESSAGE, true);
                 final long newDueDateInMS = simpleDateFormat.parse(newDueDateValue)
@@ -173,7 +188,7 @@ abstract class CommonMode extends Mode {
                 final Timestamp newDueDate = Timestamps.fromMillis(newDueDateInMS);
                 final String previousDueDateValue;
                 previousDueDateValue = obtainDueDateValue(ENTER_PREVIOUS_DATE_MESSAGE, false);
-                Timestamp previousDueDate = constructPreviousPriority(simpleDateFormat, previousDueDateValue);
+                Timestamp previousDueDate = constructPreviousDueDate(simpleDateFormat, previousDueDateValue);
                 final TimestampChange change = TimestampChange.newBuilder()
                                                               .setPreviousValue(previousDueDate)
                                                               .setNewValue(newDueDate)
@@ -202,36 +217,37 @@ abstract class CommonMode extends Mode {
         @Override
         void start() throws IOException {
             final String labelIdValue = obtainLabelIdValue();
-            final TaskLabelId labelId = TaskLabelId.newBuilder()
-                                                   .setValue(labelIdValue)
-                                                   .build();
-            final String newTitle = obtainLabelTitle(ENTER_NEW_TITLE_MESSAGE);
-            final String previousTitle = obtainLabelTitle(ENTER_PREVIOUS_TITLE_MESSAGE);
-            final LabelColor newColor = obtainLabelColor(ENTER_NEW_COLOR_MESSAGE);
-            final LabelColor previousColor = obtainLabelColor(ENTER_PREVIOUS_COLOR_MESSAGE);
-
-            final LabelDetails newLabelDetails = LabelDetails.newBuilder()
-                                                             .setTitle(newTitle)
-                                                             .setColor(newColor)
-                                                             .build();
-            final LabelDetails previousLabelDetails = LabelDetails.newBuilder()
-                                                                  .setTitle(previousTitle)
-                                                                  .setColor(previousColor)
-                                                                  .build();
-            final LabelDetailsChange change = LabelDetailsChange.newBuilder()
-                                                                .setNewDetails(newLabelDetails)
-                                                                .setPreviousDetails(previousLabelDetails)
-                                                                .build();
-            final UpdateLabelDetails updateLabelDetails = UpdateLabelDetails.newBuilder()
-                                                                            .setId(labelId)
-                                                                            .setLabelDetailsChange(change)
-                                                                            .setId(labelId)
-                                                                            .build();
+            final TaskLabelId labelId = constructLabelId(labelIdValue);
+            final String newTitle;
+            final String previousTitle;
+            final LabelColor newColor;
+            final LabelColor previousColor;
+            try {
+                newTitle = obtainLabelTitle(ENTER_NEW_TITLE_MESSAGE);
+                previousTitle = obtainLabelTitle(ENTER_PREVIOUS_TITLE_MESSAGE);
+                newColor = obtainLabelColor(ENTER_NEW_COLOR_MESSAGE);
+                previousColor = obtainLabelColor(ENTER_PREVIOUS_COLOR_MESSAGE);
+            } catch (InputCancelledException ignored) {
+                return;
+            }
+            final LabelDetails newLabelDetails = constructLabelDetails(newTitle, newColor);
+            final LabelDetails previousLabelDetails = constructLabelDetails(previousTitle, previousColor);
+            final LabelDetailsChange change = constructLabelDetailsChange(newLabelDetails, previousLabelDetails);
+            final UpdateLabelDetails updateLabelDetails = constructUpdateLabelDetailsCommand(labelId, change);
             client.update(updateLabelDetails);
             final String message = String.format(UPDATED_LABEL_DETAILS_MESSAGE,
                                                  previousColor, newColor, previousTitle, newTitle);
             sendMessageToUser(message);
         }
+    }
+
+    private static UpdateLabelDetails constructUpdateLabelDetailsCommand(TaskLabelId labelId,
+                                                                         LabelDetailsChange change) {
+        return UpdateLabelDetails.newBuilder()
+                                 .setId(labelId)
+                                 .setLabelDetailsChange(change)
+                                 .setId(labelId)
+                                 .build();
     }
 
     private static class DeleteTaskMode extends Mode {
@@ -243,9 +259,7 @@ abstract class CommonMode extends Mode {
         @Override
         void start() throws IOException {
             final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = TaskId.newBuilder()
-                                        .setValue(taskIdValue)
-                                        .build();
+            final TaskId taskId = createTaskId(taskIdValue);
             final DeleteTask deleteTask = DeleteTask.newBuilder()
                                                     .setId(taskId)
                                                     .build();
@@ -262,9 +276,7 @@ abstract class CommonMode extends Mode {
         @Override
         void start() throws IOException {
             final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = TaskId.newBuilder()
-                                        .setValue(taskIdValue)
-                                        .build();
+            final TaskId taskId = createTaskId(taskIdValue);
             final ReopenTask reopenTask = ReopenTask.newBuilder()
                                                     .setId(taskId)
                                                     .build();
@@ -282,9 +294,7 @@ abstract class CommonMode extends Mode {
         @Override
         void start() throws IOException {
             final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = TaskId.newBuilder()
-                                        .setValue(taskIdValue)
-                                        .build();
+            final TaskId taskId = createTaskId(taskIdValue);
             final RestoreDeletedTask restoreDeletedTask = RestoreDeletedTask.newBuilder()
                                                                             .setId(taskId)
                                                                             .build();
@@ -301,9 +311,7 @@ abstract class CommonMode extends Mode {
         @Override
         void start() throws IOException {
             final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = TaskId.newBuilder()
-                                        .setValue(taskIdValue)
-                                        .build();
+            final TaskId taskId = createTaskId(taskIdValue);
             final CompleteTask completeTask = CompleteTask.newBuilder()
                                                           .setId(taskId)
                                                           .build();
@@ -320,13 +328,9 @@ abstract class CommonMode extends Mode {
         @Override
         void start() throws IOException {
             final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = TaskId.newBuilder()
-                                        .setValue(taskIdValue)
-                                        .build();
+            final TaskId taskId = createTaskId(taskIdValue);
             final String labelIdValue = obtainLabelIdValue();
-            final TaskLabelId labelId = TaskLabelId.newBuilder()
-                                                   .setValue(labelIdValue)
-                                                   .build();
+            final TaskLabelId labelId = constructLabelId(labelIdValue);
             final AssignLabelToTask assignLabelToTask = AssignLabelToTask.newBuilder()
                                                                          .setId(taskId)
                                                                          .setLabelId(labelId)
@@ -344,13 +348,9 @@ abstract class CommonMode extends Mode {
         @Override
         void start() throws IOException {
             final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = TaskId.newBuilder()
-                                        .setValue(taskIdValue)
-                                        .build();
+            final TaskId taskId = createTaskId(taskIdValue);
             final String labelIdValue = obtainLabelIdValue();
-            final TaskLabelId labelId = TaskLabelId.newBuilder()
-                                                   .setValue(labelIdValue)
-                                                   .build();
+            final TaskLabelId labelId = constructLabelId(labelIdValue);
             final RemoveLabelFromTask removeLabelFromTask = RemoveLabelFromTask.newBuilder()
                                                                                .setId(taskId)
                                                                                .setLabelId(labelId)
