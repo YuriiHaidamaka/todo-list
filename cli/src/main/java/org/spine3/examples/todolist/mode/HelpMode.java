@@ -18,33 +18,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.validators;
+package org.spine3.examples.todolist.mode;
 
-import org.spine3.examples.todolist.TaskPriority;
+import jline.console.ConsoleReader;
+import org.spine3.examples.todolist.client.TodoClient;
 
-import java.util.Map;
+import java.io.IOException;
 
 /**
  * @author Illia Shepilov
  */
-public class TaskPriorityValidator implements Validator {
+public class HelpMode extends Mode {
 
-    private final Map<String, TaskPriority> priorityMap;
-    private String message;
+    private final String helpMessage;
 
-    public TaskPriorityValidator(Map<String, TaskPriority> priorityMap) {
-        this.priorityMap = priorityMap;
+    HelpMode(TodoClient client, ConsoleReader reader, String helpMessage) {
+        super(client, reader);
+        this.helpMessage = helpMessage;
     }
 
     @Override
-    public boolean validate(String input) {
-        final TaskPriority taskPriority = priorityMap.get(input);
-        final boolean result = taskPriority != null;
-        return result;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
+    void start() throws IOException {
+        sendMessageToUser(helpMessage);
     }
 }

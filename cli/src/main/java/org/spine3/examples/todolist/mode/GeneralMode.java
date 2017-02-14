@@ -18,7 +18,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.modes;
+package org.spine3.examples.todolist.mode;
 
 import com.google.common.collect.Maps;
 import jline.console.ConsoleReader;
@@ -27,12 +27,11 @@ import org.spine3.examples.todolist.client.TodoClient;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.EXIT;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.HELP_MESSAGE;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_COMMAND;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
-import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.EXIT;
+import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.INCORRECT_COMMAND;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 
 /**
  * @author Illia Shepilov

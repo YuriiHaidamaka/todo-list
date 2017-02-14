@@ -18,7 +18,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.modes;
+package org.spine3.examples.todolist.mode;
 
 import com.google.common.collect.Maps;
 import com.google.protobuf.Timestamp;
@@ -45,30 +45,29 @@ import java.util.Map;
 import static org.spine3.base.Identifiers.newUuid;
 import static org.spine3.examples.todolist.DateHelper.DATE_FORMAT;
 import static org.spine3.examples.todolist.DateHelper.getDateFormat;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.BACK_TO_THE_PREVIOUS_MENU_QUESTION;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CREATED_DRAFT_MESSAGE;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CREATED_TASK_MESSAGE;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CREATE_ONE_MORE_TASK_QUESTION;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CREATE_TASK_PROMPT;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.CREATE_TASK_TITLE;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.DRAFT_FINALIZED_MESSAGE;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.EMPTY;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.HELP_MESSAGE;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.NEED_TO_FINALIZE_MESSAGE;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_DESCRIPTION_MESSAGE;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_DUE_DATE_MESSAGE;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_DUE_DATE_QUESTION;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_MESSAGE;
-import static org.spine3.examples.todolist.modes.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_QUESTION;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.HELP_ADVICE;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_COMMAND;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.POSITIVE_ANSWER;
-import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDate;
-import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.BACK_TO_THE_PREVIOUS_MENU_QUESTION;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.CREATED_DRAFT_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.CREATED_TASK_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.CREATE_ONE_MORE_TASK_QUESTION;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.CREATE_TASK_PROMPT;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.CREATE_TASK_TITLE;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.DRAFT_FINALIZED_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.EMPTY;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.NEED_TO_FINALIZE_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.SET_DESCRIPTION_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.SET_DUE_DATE_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.SET_DUE_DATE_QUESTION;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_QUESTION;
+import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.HELP_ADVICE;
+import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.INCORRECT_COMMAND;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.POSITIVE_ANSWER;
+import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendlyDate;
 
 /**
  * @author Illia Shepilov

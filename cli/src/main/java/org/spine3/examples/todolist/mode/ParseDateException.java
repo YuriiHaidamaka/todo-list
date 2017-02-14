@@ -18,29 +18,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.modes;
-
-import jline.console.ConsoleReader;
-import org.spine3.examples.todolist.client.TodoClient;
-
-import java.io.IOException;
-
-import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+package org.spine3.examples.todolist.mode;
 
 /**
  * @author Illia Shepilov
  */
-public class HelpMode extends Mode {
+public class ParseDateException extends RuntimeException {
 
-    private final String helpMessage;
+    private static final long serialVersionUID = -2961575559409443180L;
 
-    HelpMode(TodoClient client, ConsoleReader reader, String helpMessage) {
-        super(client, reader);
-        this.helpMessage = helpMessage;
-    }
-
-    @Override
-    void start() throws IOException {
-        sendMessageToUser(helpMessage);
+    ParseDateException(Throwable cause) {
+        super(cause);
     }
 }

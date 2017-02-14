@@ -18,7 +18,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.modes;
+package org.spine3.examples.todolist.mode;
 
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
@@ -51,24 +51,23 @@ import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.spine3.examples.todolist.DateHelper.getDateFormat;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.DEFAULT_VALUE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.EMPTY;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_NEW_COLOR_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_NEW_DATE_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_NEW_DESCRIPTION_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_NEW_PRIORITY_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_NEW_TITLE_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_PREVIOUS_COLOR_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_PREVIOUS_DATE_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_PREVIOUS_DESCRIPTION_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_PREVIOUS_PRIORITY_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_PREVIOUS_TITLE_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.UPDATED_DESCRIPTION_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.UPDATED_DUE_DATE_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.UPDATED_LABEL_DETAILS_MESSAGE;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.UPDATED_PRIORITY_MESSAGE;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
-import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.DEFAULT_VALUE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.EMPTY;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_NEW_COLOR_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_NEW_DATE_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_NEW_DESCRIPTION_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_NEW_PRIORITY_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_NEW_TITLE_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_PREVIOUS_COLOR_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_PREVIOUS_DATE_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_PREVIOUS_DESCRIPTION_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_PREVIOUS_PRIORITY_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_PREVIOUS_TITLE_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.UPDATED_DESCRIPTION_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.UPDATED_DUE_DATE_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.UPDATED_LABEL_DETAILS_MESSAGE;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.UPDATED_PRIORITY_MESSAGE;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 
 /**
  * @author Illia Shepilov

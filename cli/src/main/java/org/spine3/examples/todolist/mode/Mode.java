@@ -18,7 +18,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.modes;
+package org.spine3.examples.todolist.mode;
 
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
@@ -26,14 +26,14 @@ import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.LabelColor;
 import org.spine3.examples.todolist.TaskPriority;
 import org.spine3.examples.todolist.client.TodoClient;
-import org.spine3.examples.todolist.validators.ApproveValidator;
-import org.spine3.examples.todolist.validators.CommonValidator;
-import org.spine3.examples.todolist.validators.DescriptionValidator;
-import org.spine3.examples.todolist.validators.DueDateValidator;
-import org.spine3.examples.todolist.validators.IdValidator;
-import org.spine3.examples.todolist.validators.LabelColorValidator;
-import org.spine3.examples.todolist.validators.TaskPriorityValidator;
-import org.spine3.examples.todolist.validators.Validator;
+import org.spine3.examples.todolist.validator.ApproveValidator;
+import org.spine3.examples.todolist.validator.CommonValidator;
+import org.spine3.examples.todolist.validator.DescriptionValidator;
+import org.spine3.examples.todolist.validator.DueDateValidator;
+import org.spine3.examples.todolist.validator.IdValidator;
+import org.spine3.examples.todolist.validator.LabelColorValidator;
+import org.spine3.examples.todolist.validator.TaskPriorityValidator;
+import org.spine3.examples.todolist.validator.Validator;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -41,12 +41,11 @@ import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.ENTER_ID_MESSAGE;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.ENTER_LABEL_ID_MESSAGE;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.INCORRECT_INPUT;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LABEL_COLOR_VALUE;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.TASK_PRIORITY_VALUE;
-import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_ID_MESSAGE;
+import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.ENTER_LABEL_ID_MESSAGE;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.INCORRECT_INPUT;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LABEL_COLOR_VALUE;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.TASK_PRIORITY_VALUE;
 
 /**
  * @author Illia Shepilov
@@ -233,7 +232,11 @@ abstract class Mode {
         return colorMap;
     }
 
-    public static class ModeConstants {
+    void sendMessageToUser(String message) throws IOException {
+        System.out.println(message);
+    }
+
+    static class ModeConstants {
         static final String LINE_SEPARATOR = System.lineSeparator();
         static final String INCORRECT_INPUT = "Incorrect input.";
         static final String TASK_PRIORITY_VALUE = LINE_SEPARATOR +

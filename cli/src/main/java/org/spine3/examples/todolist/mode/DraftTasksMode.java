@@ -18,7 +18,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.modes;
+package org.spine3.examples.todolist.mode;
 
 import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.TaskId;
@@ -28,17 +28,16 @@ import org.spine3.examples.todolist.q.projections.DraftTasksView;
 
 import java.io.IOException;
 
-import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.DRAFT_FINALIZED_MESSAGE;
-import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.DRAFT_TASKS_MENU;
-import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.DRAFT_TASKS_PROMPT;
-import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.EMPTY_DRAFT_TASKS;
-import static org.spine3.examples.todolist.modes.DraftTasksMode.DraftTasksModeConstants.HELP_MESSAGE;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
-import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyDraftTasks;
-import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+import static org.spine3.examples.todolist.mode.DraftTasksMode.DraftTasksModeConstants.DRAFT_FINALIZED_MESSAGE;
+import static org.spine3.examples.todolist.mode.DraftTasksMode.DraftTasksModeConstants.DRAFT_TASKS_MENU;
+import static org.spine3.examples.todolist.mode.DraftTasksMode.DraftTasksModeConstants.DRAFT_TASKS_PROMPT;
+import static org.spine3.examples.todolist.mode.DraftTasksMode.DraftTasksModeConstants.EMPTY_DRAFT_TASKS;
+import static org.spine3.examples.todolist.mode.DraftTasksMode.DraftTasksModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
+import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendlyDraftTasks;
 
 /**
  * @author Illia Shepilov

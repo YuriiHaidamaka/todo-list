@@ -18,28 +18,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.validators;
+package org.spine3.examples.todolist.validator;
 
-import org.spine3.examples.todolist.LabelColor;
+import org.spine3.examples.todolist.TaskPriority;
 
 import java.util.Map;
 
 /**
  * @author Illia Shepilov
  */
-public class LabelColorValidator implements Validator {
+public class TaskPriorityValidator implements Validator {
 
+    private final Map<String, TaskPriority> priorityMap;
     private String message;
-    private final Map<String, LabelColor> colorMap;
 
-    public LabelColorValidator(Map<String, LabelColor> colorMap) {
-        this.colorMap = colorMap;
+    public TaskPriorityValidator(Map<String, TaskPriority> priorityMap) {
+        this.priorityMap = priorityMap;
     }
 
     @Override
     public boolean validate(String input) {
-        final LabelColor labelColor = colorMap.get(input);
-        final boolean result = labelColor != null;
+        final TaskPriority taskPriority = priorityMap.get(input);
+        final boolean result = taskPriority != null;
         return result;
     }
 

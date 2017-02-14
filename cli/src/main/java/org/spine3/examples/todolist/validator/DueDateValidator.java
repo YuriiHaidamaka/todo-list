@@ -18,15 +18,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.validators;
+package org.spine3.examples.todolist.validator;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import static org.spine3.examples.todolist.DateHelper.DATE_FORMAT;
 import static org.spine3.examples.todolist.DateHelper.getDateFormat;
-import static org.spine3.examples.todolist.validators.ValidatorHelper.isEmpty;
-import static org.spine3.examples.todolist.validators.ValidatorHelper.isNull;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
 
 /**
  * @author Illia Shepilov

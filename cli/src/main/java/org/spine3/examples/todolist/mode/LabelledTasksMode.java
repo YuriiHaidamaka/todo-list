@@ -18,9 +18,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.modes;
+package org.spine3.examples.todolist.mode;
 
-import asg.cliche.Command;
 import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.q.projections.LabelledTasksView;
@@ -28,16 +27,15 @@ import org.spine3.examples.todolist.q.projections.LabelledTasksView;
 import java.io.IOException;
 import java.util.List;
 
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
-import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.EMPTY_LABELLED_TASKS;
-import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.HELP_MESSAGE;
-import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.LABELLED_TASKS_MENU;
-import static org.spine3.examples.todolist.modes.LabelledTasksMode.LabelledTasksModeConstants.LABELLED_TASKS_PROMPT;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
-import static org.spine3.examples.todolist.modes.ModeHelper.constructUserFriendlyLabelledTasks;
-import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
+import static org.spine3.examples.todolist.mode.LabelledTasksMode.LabelledTasksModeConstants.EMPTY_LABELLED_TASKS;
+import static org.spine3.examples.todolist.mode.LabelledTasksMode.LabelledTasksModeConstants.HELP_MESSAGE;
+import static org.spine3.examples.todolist.mode.LabelledTasksMode.LabelledTasksModeConstants.LABELLED_TASKS_MENU;
+import static org.spine3.examples.todolist.mode.LabelledTasksMode.LabelledTasksModeConstants.LABELLED_TASKS_PROMPT;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
+import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendlyLabelledTasks;
 
 /**
  * @author Illia Shepilov
@@ -73,11 +71,6 @@ public class LabelledTasksMode extends CommonMode {
 
     private void initModeMap(ShowLabelledTasksMode labelledTasksMode) {
         modeMap.put("1", labelledTasksMode);
-    }
-
-    @Command
-    public void help() {
-        sendMessageToUser(HELP_MESSAGE);
     }
 
     private static class ShowLabelledTasksMode extends Mode {

@@ -18,34 +18,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.validators;
-
-import static org.spine3.examples.todolist.validators.ValidatorHelper.isEmpty;
-import static org.spine3.examples.todolist.validators.ValidatorHelper.isNull;
+package org.spine3.examples.todolist.validator;
 
 /**
  * @author Illia Shepilov
  */
-public class CommonValidator implements Validator {
+public class ApproveValidator implements Validator {
 
-    private static final String EMPTY_VALUE = "Inserted value cannot be empty.";
-    private static final String VALUE_IS_NULL = "Inserted value cannot be null";
+    private static final String INCORRECT_INPUT = "Incorrect input. Valid values: 'y' or 'n'";
+    private static final String NEGATIVE_ANSWER = "n";
+    private static final String POSITIVE_ANSWER = "y";
     private String message;
 
     @Override
     public boolean validate(String input) {
-        final boolean isNull = isNull(input);
-        if (isNull) {
-            message = VALUE_IS_NULL;
+
+        final boolean isNegativeOrPositiveAns = input.equals(NEGATIVE_ANSWER) || input.equals(POSITIVE_ANSWER);
+        final boolean invalidInput = input.isEmpty() || !isNegativeOrPositiveAns;
+
+        if (invalidInput) {
+            this.message = INCORRECT_INPUT;
             return false;
         }
-
-        final boolean empty = isEmpty(input);
-        if (empty) {
-            message = EMPTY_VALUE;
-            return false;
-        }
-
         return true;
     }
 

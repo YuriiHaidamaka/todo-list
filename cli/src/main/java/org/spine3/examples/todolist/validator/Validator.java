@@ -18,33 +18,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.validators;
+package org.spine3.examples.todolist.validator;
 
 /**
  * @author Illia Shepilov
  */
-public class ApproveValidator implements Validator {
+public interface Validator {
 
-    private static final String INCORRECT_INPUT = "Incorrect input. Valid values: 'y' or 'n'";
-    private static final String NEGATIVE_ANSWER = "n";
-    private static final String POSITIVE_ANSWER = "y";
-    private String message;
+    boolean validate(String input);
 
-    @Override
-    public boolean validate(String input) {
-
-        final boolean isNegativeOrPositiveAns = input.equals(NEGATIVE_ANSWER) || input.equals(POSITIVE_ANSWER);
-        final boolean invalidInput = input.isEmpty() || !isNegativeOrPositiveAns;
-
-        if (invalidInput) {
-            this.message = INCORRECT_INPUT;
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
+    String getMessage();
 }

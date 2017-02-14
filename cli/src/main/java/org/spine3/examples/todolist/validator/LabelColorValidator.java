@@ -18,35 +18,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.validators;
+package org.spine3.examples.todolist.validator;
 
-import static org.spine3.examples.todolist.validators.ValidatorHelper.isEmpty;
-import static org.spine3.examples.todolist.validators.ValidatorHelper.isNull;
+import org.spine3.examples.todolist.LabelColor;
+
+import java.util.Map;
 
 /**
  * @author Illia Shepilov
  */
-public class IdValidator implements Validator {
+public class LabelColorValidator implements Validator {
 
-    private static final String ID_IS_NULL = "Id cannot be null.";
-    private static final String ID_IS_EMPTY = "Id cannot be empty.";
     private String message;
+    private final Map<String, LabelColor> colorMap;
+
+    public LabelColorValidator(Map<String, LabelColor> colorMap) {
+        this.colorMap = colorMap;
+    }
 
     @Override
     public boolean validate(String input) {
-        final boolean isNull = isNull(input);
-
-        if (isNull) {
-            message = ID_IS_NULL;
-            return false;
-        }
-        final boolean empty = isEmpty(input);
-
-        if (empty) {
-            message = ID_IS_EMPTY;
-            return false;
-        }
-        return true;
+        final LabelColor labelColor = colorMap.get(input);
+        final boolean result = labelColor != null;
+        return result;
     }
 
     @Override

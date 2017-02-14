@@ -18,16 +18,39 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.modes;
+package org.spine3.examples.todolist.validator;
+
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isEmpty;
+import static org.spine3.examples.todolist.validator.ValidatorHelper.isNull;
 
 /**
  * @author Illia Shepilov
  */
-public class ParseDateException extends RuntimeException {
+public class IdValidator implements Validator {
 
-    private static final long serialVersionUID = -2961575559409443180L;
+    private static final String ID_IS_NULL = "Id cannot be null.";
+    private static final String ID_IS_EMPTY = "Id cannot be empty.";
+    private String message;
 
-    ParseDateException(Throwable cause) {
-        super(cause);
+    @Override
+    public boolean validate(String input) {
+        final boolean isNull = isNull(input);
+
+        if (isNull) {
+            message = ID_IS_NULL;
+            return false;
+        }
+        final boolean empty = isEmpty(input);
+
+        if (empty) {
+            message = ID_IS_EMPTY;
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 }

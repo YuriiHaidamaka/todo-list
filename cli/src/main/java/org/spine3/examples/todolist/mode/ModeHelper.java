@@ -18,7 +18,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.modes;
+package org.spine3.examples.todolist.mode;
 
 import com.google.protobuf.util.Timestamps;
 import org.spine3.examples.todolist.q.projections.DraftTasksView;
@@ -31,8 +31,8 @@ import java.util.Date;
 import java.util.List;
 
 import static org.spine3.examples.todolist.DateHelper.getDateFormat;
-import static org.spine3.examples.todolist.modes.CommonMode.CommonModeConstants.DEFAULT_VALUE;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
+import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.DEFAULT_VALUE;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 
 /**
  * @author Illia Shepilov
@@ -52,10 +52,6 @@ class ModeHelper {
     private static final String DUE_DATE_VALUE = "Due date: ";
 
     private ModeHelper() {
-    }
-
-    static void sendMessageToUser(String message) {
-        System.out.println(message);
     }
 
     static String constructUserFriendlyDate(long millis) {

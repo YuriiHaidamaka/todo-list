@@ -18,14 +18,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.validators;
+package org.spine3.examples.todolist.validator;
 
 /**
  * @author Illia Shepilov
  */
-public interface Validator {
+class ValidatorHelper {
 
-    boolean validate(String input);
+    private ValidatorHelper() {
+    }
 
-    String getMessage();
+    static boolean isNull(String input) {
+        return input == null;
+    }
+
+    static boolean isEmpty(String input) {
+        return input.isEmpty();
+    }
 }

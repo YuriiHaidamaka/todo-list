@@ -18,7 +18,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.spine3.examples.todolist.modes;
+package org.spine3.examples.todolist.mode;
 
 import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.LabelColor;
@@ -32,16 +32,15 @@ import org.spine3.examples.todolist.client.TodoClient;
 import java.io.IOException;
 
 import static org.spine3.base.Identifiers.newUuid;
-import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.CREATE_LABEL_PROMPT;
-import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.CREATE_ONE_MORE_LABEL_QUESTION;
-import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.LABEL_CREATED_MESSAGE;
-import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.SET_COLOR_MESSAGE;
-import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.SET_LABEL_COLOR_QUESTION;
-import static org.spine3.examples.todolist.modes.CreateLabelMode.CreateLabelModeConstants.SET_TITLE_MESSAGE;
-import static org.spine3.examples.todolist.modes.GeneralMode.MainModeConstants.TODO_PROMPT;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.LINE_SEPARATOR;
-import static org.spine3.examples.todolist.modes.Mode.ModeConstants.NEGATIVE_ANSWER;
-import static org.spine3.examples.todolist.modes.ModeHelper.sendMessageToUser;
+import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.CREATE_LABEL_PROMPT;
+import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.CREATE_ONE_MORE_LABEL_QUESTION;
+import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.LABEL_CREATED_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.SET_COLOR_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.SET_LABEL_COLOR_QUESTION;
+import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.SET_TITLE_MESSAGE;
+import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.NEGATIVE_ANSWER;
 
 /**
  * @author Illia Shepilov
