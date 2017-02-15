@@ -27,7 +27,6 @@ import org.spine3.examples.todolist.LabelColor;
 import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.TaskPriority;
-import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.validator.ApproveValidator;
 import org.spine3.examples.todolist.validator.CommonValidator;
 import org.spine3.examples.todolist.validator.DescriptionValidator;
@@ -77,7 +76,7 @@ abstract class Mode {
 
     abstract void start() throws IOException;
 
-    LabelColor obtainLabelColor(String message) throws IOException, InputCancelledException {
+    protected LabelColor obtainLabelColor(String message) throws IOException, InputCancelledException {
         final String labelColorValue = obtainLabelColorValue(message);
         final LabelColor result = colorMap.get(labelColorValue);
         return result;
@@ -102,7 +101,7 @@ abstract class Mode {
         return color;
     }
 
-    String obtainLabelTitle(String message) throws IOException, InputCancelledException {
+    protected String obtainLabelTitle(String message) throws IOException, InputCancelledException {
         sendMessageToUser(message);
         String title = reader.readLine();
 
@@ -119,7 +118,7 @@ abstract class Mode {
         return title;
     }
 
-    String obtainDescriptionValue(String message, boolean isNew) throws IOException, InputCancelledException {
+    protected String obtainDescription(String message, boolean isNew) throws IOException, InputCancelledException {
         sendMessageToUser(message);
         String description = reader.readLine();
 
@@ -135,12 +134,12 @@ abstract class Mode {
 
         if (!isValid) {
             sendMessageToUser(descriptionValidator.getMessage());
-            description = obtainDescriptionValue(message, isNew);
+            description = obtainDescription(message, isNew);
         }
         return description;
     }
 
-    Timestamp obtainDueDate(String message, boolean isNew) throws ParseException, IOException, InputCancelledException {
+    protected Timestamp obtainDueDate(String message, boolean isNew) throws ParseException, IOException, InputCancelledException {
         final String dueDateValue = obtainDueDateValue(message, isNew);
         final SimpleDateFormat simpleDateFormat = getDateFormat();
         final long dueDateInMillis = simpleDateFormat.parse(dueDateValue)
@@ -149,7 +148,7 @@ abstract class Mode {
         return result;
     }
 
-    String obtainDueDateValue(String message, boolean isNew) throws IOException, ParseException, InputCancelledException {
+    private String obtainDueDateValue(String message, boolean isNew) throws IOException, ParseException, InputCancelledException {
         sendMessageToUser(message);
         String dueDate = reader.readLine();
 
@@ -171,7 +170,7 @@ abstract class Mode {
     }
 
     //TODO:2017-02-15:illiashepilov: is it needed?
-    Timestamp constructPreviousDueDate(SimpleDateFormat simpleDateFormat, String previousDueDateValue)
+    private Timestamp constructPreviousDueDate(SimpleDateFormat simpleDateFormat, String previousDueDateValue)
             throws ParseException {
         Timestamp previousDueDate = Timestamp.getDefaultInstance();
         if (!previousDueDateValue.isEmpty()) {
@@ -182,7 +181,7 @@ abstract class Mode {
         return previousDueDate;
     }
 
-    TaskPriority obtainTaskPriority(String message) throws IOException, InputCancelledException {
+    protected TaskPriority obtainTaskPriority(String message) throws IOException, InputCancelledException {
         final String priorityValue = obtainPriorityValue(message + TASK_PRIORITY_VALUE);
         final TaskPriority result = priorityMap.get(priorityValue);
         return result;
@@ -206,13 +205,13 @@ abstract class Mode {
         return priority;
     }
 
-    TaskLabelId obtainLabelId() throws IOException, InputCancelledException {
+    protected TaskLabelId obtainLabelId() throws IOException, InputCancelledException {
         final String idValue = obtainIdValue(ENTER_LABEL_ID_MESSAGE);
         final TaskLabelId result = createLabelId(idValue);
         return result;
     }
 
-    TaskId obtainTaskId() throws IOException, InputCancelledException {
+    protected TaskId obtainTaskId() throws IOException, InputCancelledException {
         final String idValue = obtainIdValue(ENTER_ID_MESSAGE);
         final TaskId result = createTaskId(idValue);
         return result;
@@ -234,7 +233,7 @@ abstract class Mode {
         return taskIdValue;
     }
 
-    String obtainApproveValue(String message) throws IOException {
+    protected String obtainApproveValue(String message) throws IOException {
         sendMessageToUser(message);
         String approveValue = reader.readLine();
         final boolean isValid = approveValidator.validate(approveValue);
@@ -245,18 +244,22 @@ abstract class Mode {
         return approveValue;
     }
 
-    static TaskLabelId createLabelId(String labelIdValue) {
+    protected static TaskLabelId createLabelId(String labelIdValue) {
         final TaskLabelId result = TaskLabelId.newBuilder()
                                               .setValue(labelIdValue)
                                               .build();
         return result;
     }
 
-    static TaskId createTaskId(String taskIdValue) {
+    protected static TaskId createTaskId(String taskIdValue) {
         final TaskId result = TaskId.newBuilder()
                                     .setValue(taskIdValue)
                                     .build();
         return result;
+    }
+
+    protected void sendMessageToUser(String message) throws IOException {
+        System.out.println(message);
     }
 
     private void initValidators() {
@@ -286,10 +289,6 @@ abstract class Mode {
         colorMap.put("3", LabelColor.GREEN);
         colorMap.put("4", LabelColor.BLUE);
         return colorMap;
-    }
-
-    void sendMessageToUser(String message) throws IOException {
-        System.out.println(message);
     }
 
     static class ModeConstants {
