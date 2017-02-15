@@ -80,7 +80,7 @@ import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskPrior
  */
 abstract class CommonMode extends Mode {
 
-    Map<String, Mode> modeMap;
+    private Map<String, Mode> modeMap;
     private final TodoClient client;
 
     CommonMode(TodoClient client, ConsoleReader reader) {
@@ -101,6 +101,10 @@ abstract class CommonMode extends Mode {
         modeMap.put("9", new CompleteTaskMode(reader));
         modeMap.put("10", new AssignLabelToTaskMode(reader));
         modeMap.put("11", new RemoveLabelFromTaskMode(reader));
+    }
+
+    Map<String, Mode> getModeMap() {
+        return newHashMap(modeMap);
     }
 
     private class UpdateTaskDescriptionMode extends Mode {

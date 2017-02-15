@@ -26,6 +26,7 @@ import org.spine3.examples.todolist.q.projections.LabelledTasksView;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.mode.LabelledTasksMode.LabelledTasksModeConstants.EMPTY_LABELLED_TASKS;
@@ -45,6 +46,7 @@ public class LabelledTasksMode extends CommonMode {
 
     private final TodoClient client;
     private final ConsoleReader reader;
+    private final Map<String, Mode> modeMap = getModeMap();
 
     LabelledTasksMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);

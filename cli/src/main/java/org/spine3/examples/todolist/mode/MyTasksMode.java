@@ -25,6 +25,7 @@ import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.q.projections.MyListView;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK;
@@ -43,6 +44,7 @@ public class MyTasksMode extends CommonMode {
 
     private final TodoClient client;
     private final ConsoleReader reader;
+    private final Map<String, Mode> modeMap = getModeMap();
 
     MyTasksMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);

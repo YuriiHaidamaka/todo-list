@@ -27,6 +27,7 @@ import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.q.projections.DraftTasksView;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static org.spine3.examples.todolist.mode.DraftTasksMode.DraftTasksModeConstants.DRAFT_FINALIZED_MESSAGE;
 import static org.spine3.examples.todolist.mode.DraftTasksMode.DraftTasksModeConstants.DRAFT_TASKS_MENU;
@@ -48,6 +49,7 @@ class DraftTasksMode extends CommonMode {
 
     private final TodoClient client;
     private final ConsoleReader reader;
+    private final Map<String, Mode> modeMap = getModeMap();
 
     DraftTasksMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);

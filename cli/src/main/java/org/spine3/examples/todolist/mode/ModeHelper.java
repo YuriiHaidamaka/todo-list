@@ -54,6 +54,7 @@ import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATO
 /**
  * @author Illia Shepilov
  */
+//TODO:2017-02-15:illiashepilov: fix warnings
 class ModeHelper {
 
     private static final String MY_LIST_TASKS = "My list tasks";
