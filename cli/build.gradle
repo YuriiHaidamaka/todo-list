@@ -28,6 +28,6 @@ dependencies {
 
 task runTodoList(dependsOn: jar, type: JavaExec) {
     standardInput = System.in
-    main = 'org.spine3.examples.todolist.EntryPoint'
+    main = 'org.spine3.examples.todolist.CliEntryPoint'
     classpath = sourceSets.main.runtimeClasspath
 }
