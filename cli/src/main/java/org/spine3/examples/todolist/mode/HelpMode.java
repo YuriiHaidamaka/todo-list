@@ -21,7 +21,6 @@
 package org.spine3.examples.todolist.mode;
 
 import jline.console.ConsoleReader;
-import org.spine3.examples.todolist.client.TodoClient;
 
 import java.io.IOException;
 
