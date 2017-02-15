@@ -39,12 +39,10 @@ import org.spine3.examples.todolist.client.TodoClient;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import static org.spine3.base.Identifiers.newUuid;
 import static org.spine3.examples.todolist.DateHelper.DATE_FORMAT;
-import static org.spine3.examples.todolist.DateHelper.getDateFormat;
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.BACK_TO_THE_PREVIOUS_MENU_QUESTION;
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.CREATED_DRAFT_MESSAGE;
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.CREATED_TASK_MESSAGE;
@@ -137,16 +135,12 @@ class CreateTaskMode extends Mode {
             return;
         }
 
-        final String dueDateValue;
+        final Timestamp dueDate;
         try {
-            dueDateValue = obtainDueDateValue(SET_DUE_DATE_MESSAGE, true);
+            dueDate = obtainDueDate(SET_DUE_DATE_MESSAGE, true);
         } catch (InputCancelledException ignored) {
             return;
         }
-        final SimpleDateFormat simpleDateFormat = getDateFormat();
-        final long newDueDateInMS = simpleDateFormat.parse(dueDateValue)
-                                                    .getTime();
-        final Timestamp dueDate = Timestamps.fromMillis(newDueDateInMS);
         final TimestampChange change = createTimestampChange(dueDate);
         final UpdateTaskDueDate updateTaskDueDate = createUpdateTaskDueDateCmd(taskId, change);
         client.update(updateTaskDueDate);
@@ -226,7 +220,7 @@ class CreateTaskMode extends Mode {
         }
 
         private void createTask(TaskId taskId) throws IOException, InputCancelledException {
-            final String description = obtainDescriptionValue(SET_DESCRIPTION_MESSAGE, true);
+            final String description = obtainDescription(SET_DESCRIPTION_MESSAGE, true);
             final CreateBasicTask createTask = createTaskCmd(taskId, description);
             client.create(createTask);
             CreateTaskMode.this.description = description;
@@ -281,7 +275,7 @@ class CreateTaskMode extends Mode {
         }
 
         private void createTaskDraft(TaskId taskId) throws IOException, InputCancelledException {
-            final String description = obtainDescriptionValue(SET_DESCRIPTION_MESSAGE, true);
+            final String description = obtainDescription(SET_DESCRIPTION_MESSAGE, true);
 
             final CreateDraft createTask = createDraftCmdInstance(taskId);
             client.create(createTask);
