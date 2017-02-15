@@ -120,8 +120,8 @@ abstract class CommonMode extends Mode {
             final TaskId taskId;
             try {
                 taskId = obtainTaskId();
-                newDescription = obtainDescriptionValue(ENTER_NEW_DESCRIPTION_MESSAGE, true);
-                previousDescription = obtainDescriptionValue(ENTER_PREVIOUS_DESCRIPTION_MESSAGE, false);
+                newDescription = obtainDescription(ENTER_NEW_DESCRIPTION_MESSAGE, true);
+                previousDescription = obtainDescription(ENTER_PREVIOUS_DESCRIPTION_MESSAGE, false);
             } catch (InputCancelledException ignored) {
                 return;
             }
