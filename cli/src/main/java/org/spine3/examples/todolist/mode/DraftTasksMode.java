@@ -38,6 +38,7 @@ import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendlyDraftTasks;
+import static org.spine3.examples.todolist.mode.ModeHelper.createFinalizeDraftCmd;
 
 /**
  * @author Illia Shepilov
@@ -45,8 +46,13 @@ import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendly
 @SuppressWarnings("unused")
 class DraftTasksMode extends CommonMode {
 
+    private final TodoClient client;
+    private final ConsoleReader reader;
+
     DraftTasksMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
+        this.client = client;
+        this.reader = reader;
     }
 
     @Override
@@ -75,10 +81,10 @@ class DraftTasksMode extends CommonMode {
         modeMap.put("12", finalizeDraftMode);
     }
 
-    private static class ShowDraftTasksMode extends Mode {
+    private class ShowDraftTasksMode extends Mode {
 
         private ShowDraftTasksMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+            super(reader);
         }
 
         @Override
@@ -92,22 +98,22 @@ class DraftTasksMode extends CommonMode {
         }
     }
 
-    private static class FinalizeDraftMode extends Mode {
+    private class FinalizeDraftMode extends Mode {
         private FinalizeDraftMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+            super(reader);
         }
 
         @Override
         void start() throws IOException {
-            final String idValue = obtainTaskIdValue();
-            final TaskId taskId = TaskId.newBuilder()
-                                        .setValue(idValue)
-                                        .build();
-            final FinalizeDraft finalizeDraft = FinalizeDraft.newBuilder()
-                                                             .setId(taskId)
-                                                             .build();
+            final TaskId taskId;
+            try {
+                taskId = obtainTaskId();
+            } catch (InputCancelledException ignored) {
+                return;
+            }
+            final FinalizeDraft finalizeDraft = createFinalizeDraftCmd(taskId);
             client.finalize(finalizeDraft);
-            final String message = String.format(DRAFT_FINALIZED_MESSAGE, idValue);
+            final String message = String.format(DRAFT_FINALIZED_MESSAGE, taskId.getValue());
             sendMessageToUser(message);
         }
     }

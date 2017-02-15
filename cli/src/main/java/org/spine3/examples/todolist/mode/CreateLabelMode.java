@@ -41,14 +41,23 @@ import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeC
 import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.NEGATIVE_ANSWER;
+import static org.spine3.examples.todolist.mode.ModeHelper.createBasicLabelCmd;
+import static org.spine3.examples.todolist.mode.ModeHelper.createLabelDetails;
+import static org.spine3.examples.todolist.mode.ModeHelper.createLabelDetailsChange;
+import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateLabelDetailsCmd;
 
 /**
  * @author Illia Shepilov
  */
 class CreateLabelMode extends Mode {
 
+    private final TodoClient client;
+    private final ConsoleReader reader;
+
     CreateLabelMode(TodoClient client, ConsoleReader reader) {
-        super(client, reader);
+        super(reader);
+        this.reader = reader;
+        this.client = client;
     }
 
     @Override
@@ -63,19 +72,15 @@ class CreateLabelMode extends Mode {
     }
 
     private void createLabel() throws IOException {
-        final TaskLabelId labelId = TaskLabelId.newBuilder()
-                                               .setValue(newUuid())
-                                               .build();
+        final TaskLabelId labelId = createLabelId(newUuid());
         final String title;
         try {
             title = obtainLabelTitle(SET_TITLE_MESSAGE);
         } catch (InputCancelledException ignored) {
             return;
         }
-        final CreateBasicLabel createBasicLabel = CreateBasicLabel.newBuilder()
-                                                                  .setLabelTitle(title)
-                                                                  .setLabelId(labelId)
-                                                                  .build();
+
+        final CreateBasicLabel createBasicLabel = createBasicLabelCmd(labelId, title);
         client.create(createBasicLabel);
 
         final LabelDetails labelDetails = updateLabelDetailsIfNeeded(labelId, title);
@@ -85,28 +90,21 @@ class CreateLabelMode extends Mode {
 
     private LabelDetails updateLabelDetailsIfNeeded(TaskLabelId labelId, String title) throws IOException {
         final String approveValue = obtainApproveValue(SET_LABEL_COLOR_QUESTION);
+        final LabelDetails defaultInstance = LabelDetails.getDefaultInstance();
         if (approveValue.equals(NEGATIVE_ANSWER)) {
-            return LabelDetails.getDefaultInstance();
+            return defaultInstance;
         }
 
         final LabelColor labelColor;
         try {
             labelColor = obtainLabelColor(SET_COLOR_MESSAGE);
         } catch (InputCancelledException ignored) {
-            return LabelDetails.getDefaultInstance();
+            return defaultInstance;
         }
 
-        final LabelDetails newLabelDetails = LabelDetails.newBuilder()
-                                                         .setColor(labelColor)
-                                                         .setTitle(title)
-                                                         .build();
-        final LabelDetailsChange labelDetailsChange = LabelDetailsChange.newBuilder()
-                                                                        .setNewDetails(newLabelDetails)
-                                                                        .build();
-        final UpdateLabelDetails updateLabelDetails = UpdateLabelDetails.newBuilder()
-                                                                        .setLabelDetailsChange(labelDetailsChange)
-                                                                        .setId(labelId)
-                                                                        .build();
+        final LabelDetails newLabelDetails = createLabelDetails(title, labelColor);
+        final LabelDetailsChange labelDetailsChange = createLabelDetailsChange(newLabelDetails);
+        final UpdateLabelDetails updateLabelDetails = createUpdateLabelDetailsCmd(labelId, labelDetailsChange);
         client.update(updateLabelDetails);
         return newLabelDetails;
     }

@@ -40,13 +40,18 @@ public class GeneralMode extends Mode {
 
     private final Map<String, Mode> modeMap = Maps.newHashMap();
 
+    private final TodoClient client;
+    private final ConsoleReader reader;
+
     GeneralMode(TodoClient client, ConsoleReader reader) {
-        super(client, reader);
+        super(reader);
+        this.client = client;
+        this.reader = reader;
         initModeMap();
     }
 
     private void initModeMap() {
-        modeMap.put("0", new HelpMode(client, reader, HELP_MESSAGE));
+        modeMap.put("0", new HelpMode(reader, HELP_MESSAGE));
         modeMap.put("1", new CreateTaskMode(client, reader));
         modeMap.put("2", new CreateLabelMode(client, reader));
         modeMap.put("3", new DraftTasksMode(client, reader));

@@ -20,7 +20,23 @@
 
 package org.spine3.examples.todolist.mode;
 
+import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
+import org.spine3.change.StringChange;
+import org.spine3.change.TimestampChange;
+import org.spine3.examples.todolist.LabelColor;
+import org.spine3.examples.todolist.LabelDetails;
+import org.spine3.examples.todolist.LabelDetailsChange;
+import org.spine3.examples.todolist.PriorityChange;
+import org.spine3.examples.todolist.TaskId;
+import org.spine3.examples.todolist.TaskLabelId;
+import org.spine3.examples.todolist.TaskPriority;
+import org.spine3.examples.todolist.c.commands.CreateBasicLabel;
+import org.spine3.examples.todolist.c.commands.FinalizeDraft;
+import org.spine3.examples.todolist.c.commands.UpdateLabelDetails;
+import org.spine3.examples.todolist.c.commands.UpdateTaskDescription;
+import org.spine3.examples.todolist.c.commands.UpdateTaskDueDate;
+import org.spine3.examples.todolist.c.commands.UpdateTaskPriority;
 import org.spine3.examples.todolist.q.projections.DraftTasksView;
 import org.spine3.examples.todolist.q.projections.LabelledTasksView;
 import org.spine3.examples.todolist.q.projections.MyListView;
@@ -32,6 +48,7 @@ import java.util.List;
 
 import static org.spine3.examples.todolist.DateHelper.getDateFormat;
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.DEFAULT_VALUE;
+import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.EMPTY;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 
 /**
@@ -52,6 +69,124 @@ class ModeHelper {
     private static final String DUE_DATE_VALUE = "Due date: ";
 
     private ModeHelper() {
+    }
+
+    static LabelDetailsChange createLabelDetailsChange(LabelDetails newLabelDetails,
+                                                       LabelDetails previousLabelDetails) {
+        final LabelDetailsChange result = LabelDetailsChange.newBuilder()
+                                                            .setNewDetails(newLabelDetails)
+                                                            .setPreviousDetails(previousLabelDetails)
+                                                            .build();
+        return result;
+    }
+
+    static LabelDetailsChange createLabelDetailsChange(LabelDetails newLabelDetails) {
+        final LabelDetailsChange result = LabelDetailsChange.newBuilder()
+                                                            .setNewDetails(newLabelDetails)
+                                                            .build();
+        return result;
+    }
+
+    static LabelDetails createLabelDetails(String title, LabelColor labelColor) {
+        final LabelDetails result = LabelDetails.newBuilder()
+                                                .setColor(labelColor)
+                                                .setTitle(title)
+                                                .build();
+        return result;
+    }
+
+    static CreateBasicLabel createBasicLabelCmd(TaskLabelId labelId, String title) {
+        final CreateBasicLabel result = CreateBasicLabel.newBuilder()
+                                                        .setLabelTitle(title)
+                                                        .setLabelId(labelId)
+                                                        .build();
+        return result;
+    }
+
+    static UpdateLabelDetails createUpdateLabelDetailsCmd(TaskLabelId labelId,
+                                                          LabelDetailsChange labelDetailsChange) {
+        final UpdateLabelDetails result = UpdateLabelDetails.newBuilder()
+                                                            .setLabelDetailsChange(labelDetailsChange)
+                                                            .setId(labelId)
+                                                            .build();
+        return result;
+    }
+
+    static UpdateTaskDescription createUpdateTaskDescriptionCmd(TaskId taskId, StringChange change) {
+        final UpdateTaskDescription result = UpdateTaskDescription.newBuilder()
+                                                                  .setId(taskId)
+                                                                  .setDescriptionChange(change)
+                                                                  .build();
+        return result;
+    }
+
+    static StringChange createStringChange(String newDescription, String previousDescription) {
+        final StringChange result = StringChange.newBuilder()
+                                                .setNewValue(newDescription)
+                                                .setPreviousValue(previousDescription)
+                                                .build();
+        return result;
+    }
+
+    static StringChange createStringChange(String description) {
+        final StringChange result = StringChange.newBuilder()
+                                                .setPreviousValue(EMPTY)
+                                                .setNewValue(description)
+                                                .build();
+        return result;
+    }
+
+    static FinalizeDraft createFinalizeDraftCmd(TaskId taskId) {
+        final FinalizeDraft result = FinalizeDraft.newBuilder()
+                                                  .setId(taskId)
+                                                  .build();
+        return result;
+    }
+
+    static UpdateTaskDueDate createUpdateTaskDueDateCmd(TaskId taskId, TimestampChange change) {
+        final UpdateTaskDueDate result = UpdateTaskDueDate.newBuilder()
+                                                          .setId(taskId)
+                                                          .setDueDateChange(change)
+                                                          .build();
+        return result;
+    }
+
+    static TimestampChange createTimestampChange(Timestamp dueDate) {
+        final TimestampChange result = TimestampChange.newBuilder()
+                                                      .setNewValue(dueDate)
+                                                      .build();
+        return result;
+    }
+
+    static TimestampChange createTimestampChangeMode(Timestamp newDueDate, Timestamp previousDueDate) {
+        final TimestampChange result = TimestampChange.newBuilder()
+                                                      .setPreviousValue(previousDueDate)
+                                                      .setNewValue(newDueDate)
+                                                      .build();
+        return result;
+    }
+
+    static UpdateTaskPriority createUpdateTaskPriorityCmd(TaskId taskId, PriorityChange change) {
+        final UpdateTaskPriority result = UpdateTaskPriority.newBuilder()
+                                                            .setId(taskId)
+                                                            .setPriorityChange(change)
+                                                            .build();
+        return result;
+    }
+
+    static PriorityChange createPriorityChange(TaskPriority priority) {
+        final PriorityChange result = PriorityChange.newBuilder()
+                                                    .setNewValue(priority)
+                                                    .build();
+        return result;
+    }
+
+    static PriorityChange createPriorityChange(TaskPriority newTaskPriority, TaskPriority previousTaskPriority) {
+        final PriorityChange result = PriorityChange.newBuilder()
+                                                    .setPreviousValue(previousTaskPriority)
+                                                    .setNewValue(newTaskPriority)
+                                                    .build();
+        return result;
     }
 
     static String constructUserFriendlyDate(long millis) {

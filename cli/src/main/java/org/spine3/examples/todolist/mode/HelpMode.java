@@ -32,8 +32,8 @@ public class HelpMode extends Mode {
 
     private final String helpMessage;
 
-    HelpMode(TodoClient client, ConsoleReader reader, String helpMessage) {
-        super(client, reader);
+    HelpMode(ConsoleReader reader, String helpMessage) {
+        super(reader);
         this.helpMessage = helpMessage;
     }
 

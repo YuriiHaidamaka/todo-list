@@ -52,7 +52,6 @@ import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeCon
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.CREATE_TASK_PROMPT;
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.CREATE_TASK_TITLE;
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.DRAFT_FINALIZED_MESSAGE;
-import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.EMPTY;
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.HELP_MESSAGE;
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.NEED_TO_FINALIZE_MESSAGE;
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.SET_DESCRIPTION_MESSAGE;
@@ -68,6 +67,13 @@ import static org.spine3.examples.todolist.mode.Mode.ModeConstants.INCORRECT_COM
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.POSITIVE_ANSWER;
 import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendlyDate;
+import static org.spine3.examples.todolist.mode.ModeHelper.createFinalizeDraftCmd;
+import static org.spine3.examples.todolist.mode.ModeHelper.createPriorityChange;
+import static org.spine3.examples.todolist.mode.ModeHelper.createStringChange;
+import static org.spine3.examples.todolist.mode.ModeHelper.createTimestampChange;
+import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskDescriptionCmd;
+import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskDueDateCmd;
+import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskPriorityCmd;
 
 /**
  * @author Illia Shepilov
@@ -80,15 +86,20 @@ class CreateTaskMode extends Mode {
     private String description;
     private final Map<String, Mode> map = Maps.newHashMap();
 
+    private final TodoClient client;
+    private final ConsoleReader reader;
+
     CreateTaskMode(TodoClient client, ConsoleReader reader) {
-        super(client, reader);
+        super(reader);
+        this.reader = reader;
+        this.client = client;
         initModeMap();
     }
 
     private void initModeMap() {
-        map.put("0", new HelpMode(client, reader, HELP_MESSAGE));
-        map.put("1", new CreateTaskDM(client, reader));
-        map.put("2", new CreateTaskFM(client, reader));
+        map.put("0", new HelpMode(reader, HELP_MESSAGE));
+        map.put("1", new CreateTaskDM(reader));
+        map.put("2", new CreateTaskFM(reader));
     }
 
     @Override
@@ -126,39 +137,20 @@ class CreateTaskMode extends Mode {
             return;
         }
 
-        final String dueDateValue = obtainDueDateValue(SET_DUE_DATE_MESSAGE, true);
+        final String dueDateValue;
+        try {
+            dueDateValue = obtainDueDateValue(SET_DUE_DATE_MESSAGE, true);
+        } catch (InputCancelledException ignored) {
+            return;
+        }
         final SimpleDateFormat simpleDateFormat = getDateFormat();
         final long newDueDateInMS = simpleDateFormat.parse(dueDateValue)
                                                     .getTime();
         final Timestamp dueDate = Timestamps.fromMillis(newDueDateInMS);
-
-        final TimestampChange change = TimestampChange.newBuilder()
-                                                      .setNewValue(dueDate)
-                                                      .build();
-        final UpdateTaskDueDate updateTaskDueDate = UpdateTaskDueDate.newBuilder()
-                                                                     .setId(taskId)
-                                                                     .setDueDateChange(change)
-                                                                     .build();
+        final TimestampChange change = createTimestampChange(dueDate);
+        final UpdateTaskDueDate updateTaskDueDate = createUpdateTaskDueDateCmd(taskId, change);
         client.update(updateTaskDueDate);
         this.dueDate = dueDate;
-    }
-
-    private void updatePriorityIfNeeded(TaskId taskId) throws IOException {
-        final String approveValue = obtainApproveValue(SET_PRIORITY_QUESTION);
-        if (approveValue.equals(NEGATIVE_ANSWER)) {
-            return;
-        }
-
-        final TaskPriority priority = obtainTaskPriority(SET_PRIORITY_MESSAGE);
-        final PriorityChange change = PriorityChange.newBuilder()
-                                                    .setNewValue(priority)
-                                                    .build();
-        final UpdateTaskPriority updateTaskPriority = UpdateTaskPriority.newBuilder()
-                                                                        .setId(taskId)
-                                                                        .setPriorityChange(change)
-                                                                        .build();
-        client.update(updateTaskPriority);
-        this.priority = priority;
     }
 
     private void updateTaskValuesIfNeeded(TaskId taskId) throws IOException {
@@ -170,6 +162,25 @@ class CreateTaskMode extends Mode {
         }
     }
 
+    private void updatePriorityIfNeeded(TaskId taskId) throws IOException {
+        final String approveValue = obtainApproveValue(SET_PRIORITY_QUESTION);
+        if (approveValue.equals(NEGATIVE_ANSWER)) {
+            return;
+        }
+
+        final TaskPriority priority;
+        try {
+            priority = obtainTaskPriority(SET_PRIORITY_MESSAGE);
+        } catch (InputCancelledException ignored) {
+            return;
+        }
+
+        final PriorityChange change = createPriorityChange(priority);
+        final UpdateTaskPriority updateTaskPriority = createUpdateTaskPriorityCmd(taskId, change);
+        client.update(updateTaskPriority);
+        this.priority = priority;
+    }
+
     private void clearValues() {
         this.description = "";
         this.priority = TaskPriority.TP_UNDEFINED;
@@ -178,8 +189,8 @@ class CreateTaskMode extends Mode {
 
     class CreateTaskFM extends Mode {
 
-        private CreateTaskFM(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private CreateTaskFM(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
@@ -199,7 +210,11 @@ class CreateTaskMode extends Mode {
             final TaskId taskId = TaskId.newBuilder()
                                         .setValue(newUuid())
                                         .build();
-            createTask(taskId);
+            try {
+                createTask(taskId);
+            } catch (InputCancelledException ignored) {
+                return;
+            }
             updateTaskValuesIfNeeded(taskId);
 
             final String userFriendlyDate = constructUserFriendlyDate(Timestamps.toMillis(dueDate));
@@ -210,22 +225,26 @@ class CreateTaskMode extends Mode {
             clearValues();
         }
 
-        private void createTask(TaskId taskId) throws IOException {
+        private void createTask(TaskId taskId) throws IOException, InputCancelledException {
             final String description = obtainDescriptionValue(SET_DESCRIPTION_MESSAGE, true);
-
-            final CreateBasicTask createTask = CreateBasicTask.newBuilder()
-                                                              .setId(taskId)
-                                                              .setDescription(description)
-                                                              .build();
+            final CreateBasicTask createTask = createTaskCmd(taskId, description);
             client.create(createTask);
             CreateTaskMode.this.description = description;
+        }
+
+        private CreateBasicTask createTaskCmd(TaskId taskId, String description) {
+            final CreateBasicTask result = CreateBasicTask.newBuilder()
+                                                          .setId(taskId)
+                                                          .setDescription(description)
+                                                          .build();
+            return result;
         }
     }
 
     class CreateTaskDM extends Mode {
 
-        private CreateTaskDM(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private CreateTaskDM(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
@@ -245,7 +264,11 @@ class CreateTaskMode extends Mode {
             final TaskId taskId = TaskId.newBuilder()
                                         .setValue(newUuid())
                                         .build();
-            createTaskDraft(taskId);
+            try {
+                createTaskDraft(taskId);
+            } catch (InputCancelledException ignored) {
+                return;
+            }
             updateTaskValuesIfNeeded(taskId);
 
             final String userFriendlyDate = constructUserFriendlyDate(Timestamps.toMillis(dueDate));
@@ -257,22 +280,14 @@ class CreateTaskMode extends Mode {
             clearValues();
         }
 
-        private void createTaskDraft(TaskId taskId) throws IOException {
+        private void createTaskDraft(TaskId taskId) throws IOException, InputCancelledException {
             final String description = obtainDescriptionValue(SET_DESCRIPTION_MESSAGE, true);
 
-            final CreateDraft createTask = CreateDraft.newBuilder()
-                                                      .setId(taskId)
-                                                      .build();
+            final CreateDraft createTask = createDraftCmdInstance(taskId);
             client.create(createTask);
 
-            final StringChange change = StringChange.newBuilder()
-                                                    .setPreviousValue(EMPTY)
-                                                    .setNewValue(description)
-                                                    .build();
-            final UpdateTaskDescription updateTaskDescription = UpdateTaskDescription.newBuilder()
-                                                                                     .setId(taskId)
-                                                                                     .setDescriptionChange(change)
-                                                                                     .build();
+            final StringChange change = createStringChange(description);
+            final UpdateTaskDescription updateTaskDescription = createUpdateTaskDescriptionCmd(taskId, change);
             client.update(updateTaskDescription);
             CreateTaskMode.this.description = description;
         }
@@ -282,11 +297,16 @@ class CreateTaskMode extends Mode {
             if (approveValue.equals(NEGATIVE_ANSWER)) {
                 return;
             }
-            final FinalizeDraft finalizeDraft = FinalizeDraft.newBuilder()
-                                                             .setId(taskId)
-                                                             .build();
+            final FinalizeDraft finalizeDraft = createFinalizeDraftCmd(taskId);
             client.finalize(finalizeDraft);
             sendMessageToUser(DRAFT_FINALIZED_MESSAGE);
+        }
+
+        private CreateDraft createDraftCmdInstance(TaskId taskId) {
+            final CreateDraft result = CreateDraft.newBuilder()
+                                                  .setId(taskId)
+                                                  .build();
+            return result;
         }
     }
 

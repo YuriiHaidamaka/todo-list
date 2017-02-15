@@ -41,8 +41,13 @@ import static org.spine3.examples.todolist.mode.MyTasksMode.MyTasksModeConstants
  */
 public class MyTasksMode extends CommonMode {
 
+    private final TodoClient client;
+    private final ConsoleReader reader;
+
     MyTasksMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
+        this.client = client;
+        this.reader = reader;
     }
 
     @Override
@@ -50,7 +55,7 @@ public class MyTasksMode extends CommonMode {
         reader.setPrompt(MY_TASKS_PROMPT);
         sendMessageToUser(MY_TASKS_MENU);
 
-        final ShowMyTasksMode showMyTasksMode = new ShowMyTasksMode(client, reader);
+        final ShowMyTasksMode showMyTasksMode = new ShowMyTasksMode(reader);
         initModeMap(showMyTasksMode);
 
         showMyTasksMode.start();
@@ -72,10 +77,10 @@ public class MyTasksMode extends CommonMode {
         modeMap.put("1", showMyTasksMode);
     }
 
-    private static class ShowMyTasksMode extends Mode {
+    private class ShowMyTasksMode extends Mode {
 
-        private ShowMyTasksMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private ShowMyTasksMode(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override

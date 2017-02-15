@@ -21,7 +21,6 @@
 package org.spine3.examples.todolist.mode;
 
 import com.google.protobuf.Timestamp;
-import com.google.protobuf.util.Timestamps;
 import jline.console.ConsoleReader;
 import org.spine3.change.StringChange;
 import org.spine3.change.TimestampChange;
@@ -46,13 +45,10 @@ import org.spine3.examples.todolist.client.TodoClient;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static org.spine3.examples.todolist.DateHelper.getDateFormat;
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.DEFAULT_VALUE;
-import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.EMPTY;
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_NEW_COLOR_MESSAGE;
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_NEW_DATE_MESSAGE;
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_NEW_DESCRIPTION_MESSAGE;
@@ -68,6 +64,16 @@ import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.U
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.UPDATED_LABEL_DETAILS_MESSAGE;
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.UPDATED_PRIORITY_MESSAGE;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
+import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendlyDate;
+import static org.spine3.examples.todolist.mode.ModeHelper.createLabelDetails;
+import static org.spine3.examples.todolist.mode.ModeHelper.createLabelDetailsChange;
+import static org.spine3.examples.todolist.mode.ModeHelper.createPriorityChange;
+import static org.spine3.examples.todolist.mode.ModeHelper.createStringChange;
+import static org.spine3.examples.todolist.mode.ModeHelper.createTimestampChangeMode;
+import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateLabelDetailsCmd;
+import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskDescriptionCmd;
+import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskDueDateCmd;
+import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskPriorityCmd;
 
 /**
  * @author Illia Shepilov
@@ -75,68 +81,48 @@ import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATO
 abstract class CommonMode extends Mode {
 
     Map<String, Mode> modeMap;
+    private final TodoClient client;
 
     CommonMode(TodoClient client, ConsoleReader reader) {
-        super(client, reader);
-        initModeMap(client, reader);
+        super(reader);
+        this.client = client;
+        initModeMap(reader);
     }
 
-    private void initModeMap(TodoClient client, ConsoleReader reader) {
+    private void initModeMap(ConsoleReader reader) {
         modeMap = newHashMap();
-        modeMap.put("2", new UpdateTaskDescriptionMode(client, reader));
-        modeMap.put("3", new UpdateTaskPriorityMode(client, reader));
-        modeMap.put("4", new UpdateTaskDueDateMode(client, reader));
-        modeMap.put("5", new UpdateLabelDetailsMode(client, reader));
-        modeMap.put("6", new DeleteTaskMode(client, reader));
-        modeMap.put("7", new ReopenTaskMode(client, reader));
-        modeMap.put("8", new RestoreTaskMode(client, reader));
-        modeMap.put("9", new CompleteTaskMode(client, reader));
-        modeMap.put("10", new AssignLabelToTaskMode(client, reader));
-        modeMap.put("11", new RemoveLabelFromTaskMode(client, reader));
+        modeMap.put("2", new UpdateTaskDescriptionMode(reader));
+        modeMap.put("3", new UpdateTaskPriorityMode(reader));
+        modeMap.put("4", new UpdateTaskDueDateMode(reader));
+        modeMap.put("5", new UpdateLabelDetailsMode(reader));
+        modeMap.put("6", new DeleteTaskMode(reader));
+        modeMap.put("7", new ReopenTaskMode(reader));
+        modeMap.put("8", new RestoreTaskMode(reader));
+        modeMap.put("9", new CompleteTaskMode(reader));
+        modeMap.put("10", new AssignLabelToTaskMode(reader));
+        modeMap.put("11", new RemoveLabelFromTaskMode(reader));
     }
 
-    private static LabelDetailsChange constructLabelDetailsChange(LabelDetails newLabelDetails,
-                                                                  LabelDetails previousLabelDetails) {
-        return LabelDetailsChange.newBuilder()
-                                 .setNewDetails(newLabelDetails)
-                                 .setPreviousDetails(previousLabelDetails)
-                                 .build();
-    }
+    private class UpdateTaskDescriptionMode extends Mode {
 
-    private static LabelDetails constructLabelDetails(String newTitle, LabelColor newColor) {
-        return LabelDetails.newBuilder()
-                           .setTitle(newTitle)
-                           .setColor(newColor)
-                           .build();
-    }
-
-    private static TaskLabelId constructLabelId(String labelIdValue) {
-        return TaskLabelId.newBuilder()
-                          .setValue(labelIdValue)
-                          .build();
-    }
-
-    private static class UpdateTaskDescriptionMode extends Mode {
-
-        private UpdateTaskDescriptionMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private UpdateTaskDescriptionMode(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
         void start() throws IOException {
-            final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = createTaskId(taskIdValue);
-
-            final String newDescription = obtainDescriptionValue(ENTER_NEW_DESCRIPTION_MESSAGE, true);
-            final String previousDescription = obtainDescriptionValue(ENTER_PREVIOUS_DESCRIPTION_MESSAGE, false);
-            final StringChange change = StringChange.newBuilder()
-                                                    .setNewValue(newDescription)
-                                                    .setPreviousValue(previousDescription)
-                                                    .build();
-            final UpdateTaskDescription updateTaskDescription = UpdateTaskDescription.newBuilder()
-                                                                                     .setDescriptionChange(change)
-                                                                                     .setId(taskId)
-                                                                                     .build();
+            final String newDescription;
+            final String previousDescription;
+            final TaskId taskId;
+            try {
+                taskId = obtainTaskId();
+                newDescription = obtainDescriptionValue(ENTER_NEW_DESCRIPTION_MESSAGE, true);
+                previousDescription = obtainDescriptionValue(ENTER_PREVIOUS_DESCRIPTION_MESSAGE, false);
+            } catch (InputCancelledException ignored) {
+                return;
+            }
+            final StringChange change = createStringChange(newDescription, previousDescription);
+            final UpdateTaskDescription updateTaskDescription = createUpdateTaskDescriptionCmd(taskId, change);
             client.update(updateTaskDescription);
             final String previousDescriptionValue = previousDescription.isEmpty() ? DEFAULT_VALUE : previousDescription;
             final String message = String.format(UPDATED_DESCRIPTION_MESSAGE, previousDescriptionValue, newDescription);
@@ -145,84 +131,79 @@ abstract class CommonMode extends Mode {
         }
     }
 
-    private static class UpdateTaskPriorityMode extends Mode {
+    private class UpdateTaskPriorityMode extends Mode {
 
-        private UpdateTaskPriorityMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private UpdateTaskPriorityMode(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
         void start() throws IOException {
-            final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = createTaskId(taskIdValue);
-            final TaskPriority newTaskPriority = obtainTaskPriority(ENTER_NEW_PRIORITY_MESSAGE);
-            final TaskPriority previousTaskPriority = obtainTaskPriority(ENTER_PREVIOUS_PRIORITY_MESSAGE);
-            final PriorityChange change = PriorityChange.newBuilder()
-                                                        .setPreviousValue(previousTaskPriority)
-                                                        .setNewValue(newTaskPriority)
-                                                        .build();
-            final UpdateTaskPriority updateTaskPriority = UpdateTaskPriority.newBuilder()
-                                                                            .setPriorityChange(change)
-                                                                            .setId(taskId)
-                                                                            .build();
+            final TaskId taskId;
+            final TaskPriority newTaskPriority;
+            final TaskPriority previousTaskPriority;
+            try {
+                taskId = obtainTaskId();
+                newTaskPriority = obtainTaskPriority(ENTER_NEW_PRIORITY_MESSAGE);
+                previousTaskPriority = obtainTaskPriority(ENTER_PREVIOUS_PRIORITY_MESSAGE);
+            } catch (InputCancelledException ignored) {
+                return;
+            }
+            final PriorityChange change = createPriorityChange(newTaskPriority, previousTaskPriority);
+            final UpdateTaskPriority updateTaskPriority = createUpdateTaskPriorityCmd(taskId, change);
             client.update(updateTaskPriority);
             final String message = String.format(UPDATED_PRIORITY_MESSAGE, previousTaskPriority, newTaskPriority);
             sendMessageToUser(message);
         }
     }
 
-    private static class UpdateTaskDueDateMode extends Mode {
-        private UpdateTaskDueDateMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+    private class UpdateTaskDueDateMode extends Mode {
+        private UpdateTaskDueDateMode(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
         void start() throws IOException {
+            final TaskId taskId;
+            final Timestamp newDueDate;
+            final Timestamp previousDueDate;
             try {
-                final String taskIdValue = obtainTaskIdValue();
-                final TaskId taskId = createTaskId(taskIdValue);
-                final SimpleDateFormat simpleDateFormat = getDateFormat();
-                final String newDueDateValue = obtainDueDateValue(ENTER_NEW_DATE_MESSAGE, true);
-                final long newDueDateInMS = simpleDateFormat.parse(newDueDateValue)
-                                                            .getTime();
-                final Timestamp newDueDate = Timestamps.fromMillis(newDueDateInMS);
-                final String previousDueDateValue;
-                previousDueDateValue = obtainDueDateValue(ENTER_PREVIOUS_DATE_MESSAGE, false);
-                Timestamp previousDueDate = constructPreviousDueDate(simpleDateFormat, previousDueDateValue);
-                final TimestampChange change = TimestampChange.newBuilder()
-                                                              .setPreviousValue(previousDueDate)
-                                                              .setNewValue(newDueDate)
-                                                              .build();
-                final UpdateTaskDueDate updateTaskDueDate = UpdateTaskDueDate.newBuilder()
-                                                                             .setDueDateChange(change)
-                                                                             .setId(taskId)
-                                                                             .build();
-                client.update(updateTaskDueDate);
-                final boolean isEmpty = previousDueDateValue.equals(EMPTY);
-                final String previousDueDateForUser = isEmpty ? DEFAULT_VALUE : previousDueDateValue;
-                final String message = String.format(UPDATED_DUE_DATE_MESSAGE, previousDueDateForUser, newDueDateValue);
-                sendMessageToUser(message);
+                taskId = obtainTaskId();
+                newDueDate = obtainDueDate(ENTER_NEW_DATE_MESSAGE, true);
+                previousDueDate = obtainDueDate(ENTER_PREVIOUS_DATE_MESSAGE, false);
+            } catch (InputCancelledException ignored) {
+                return;
             } catch (ParseException e) {
                 throw new ParseDateException(e);
             }
+            final TimestampChange change = createTimestampChangeMode(newDueDate, previousDueDate);
+            final UpdateTaskDueDate updateTaskDueDate = createUpdateTaskDueDateCmd(taskId, change);
+            client.update(updateTaskDueDate);
+            final boolean isEmpty = previousDueDate.getSeconds() == 0;
+            final String previousDueDateForUser = isEmpty ? DEFAULT_VALUE :
+                                                  constructUserFriendlyDate(previousDueDate.getSeconds());
+            final String message = String.format(UPDATED_DUE_DATE_MESSAGE,
+                                                 previousDueDateForUser,
+                                                 constructUserFriendlyDate(newDueDate.getSeconds()));
+            sendMessageToUser(message);
         }
     }
 
-    protected static class UpdateLabelDetailsMode extends Mode {
+    protected class UpdateLabelDetailsMode extends Mode {
 
-        private UpdateLabelDetailsMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private UpdateLabelDetailsMode(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
         void start() throws IOException {
-            final String labelIdValue = obtainLabelIdValue();
-            final TaskLabelId labelId = constructLabelId(labelIdValue);
+            final TaskLabelId labelId;
             final String newTitle;
             final String previousTitle;
             final LabelColor newColor;
             final LabelColor previousColor;
             try {
+                labelId = obtainLabelId();
                 newTitle = obtainLabelTitle(ENTER_NEW_TITLE_MESSAGE);
                 previousTitle = obtainLabelTitle(ENTER_PREVIOUS_TITLE_MESSAGE);
                 newColor = obtainLabelColor(ENTER_NEW_COLOR_MESSAGE);
@@ -230,88 +211,110 @@ abstract class CommonMode extends Mode {
             } catch (InputCancelledException ignored) {
                 return;
             }
-            final LabelDetails newLabelDetails = constructLabelDetails(newTitle, newColor);
-            final LabelDetails previousLabelDetails = constructLabelDetails(previousTitle, previousColor);
-            final LabelDetailsChange change = constructLabelDetailsChange(newLabelDetails, previousLabelDetails);
-            final UpdateLabelDetails updateLabelDetails = constructUpdateLabelDetailsCommand(labelId, change);
+            final LabelDetails newLabelDetails = createLabelDetails(newTitle, newColor);
+            final LabelDetails previousLabelDetails = createLabelDetails(previousTitle, previousColor);
+            final LabelDetailsChange change = createLabelDetailsChange(newLabelDetails, previousLabelDetails);
+            final UpdateLabelDetails updateLabelDetails = createUpdateLabelDetailsCmd(labelId, change);
             client.update(updateLabelDetails);
+
             final String message = String.format(UPDATED_LABEL_DETAILS_MESSAGE,
                                                  previousColor, newColor, previousTitle, newTitle);
             sendMessageToUser(message);
         }
     }
 
-    private static UpdateLabelDetails constructUpdateLabelDetailsCommand(TaskLabelId labelId,
-                                                                         LabelDetailsChange change) {
-        return UpdateLabelDetails.newBuilder()
-                                 .setId(labelId)
-                                 .setLabelDetailsChange(change)
-                                 .setId(labelId)
-                                 .build();
-    }
+    private class DeleteTaskMode extends Mode {
 
-    private static class DeleteTaskMode extends Mode {
-
-        private DeleteTaskMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private DeleteTaskMode(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
         void start() throws IOException {
-            final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = createTaskId(taskIdValue);
-            final DeleteTask deleteTask = DeleteTask.newBuilder()
-                                                    .setId(taskId)
-                                                    .build();
+            final TaskId taskId;
+            try {
+                taskId = obtainTaskId();
+            } catch (InputCancelledException ignored) {
+                return;
+            }
+            final DeleteTask deleteTask = createDeleteTaskCmd(taskId);
             client.delete(deleteTask);
         }
+
+        private DeleteTask createDeleteTaskCmd(TaskId taskId) {
+            final DeleteTask result = DeleteTask.newBuilder()
+                                                .setId(taskId)
+                                                .build();
+            return result;
+        }
     }
 
-    private static class ReopenTaskMode extends Mode {
+    private class ReopenTaskMode extends Mode {
 
-        private ReopenTaskMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private ReopenTaskMode(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
         void start() throws IOException {
-            final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = createTaskId(taskIdValue);
-            final ReopenTask reopenTask = ReopenTask.newBuilder()
-                                                    .setId(taskId)
-                                                    .build();
-
+            final TaskId taskId;
+            try {
+                taskId = obtainTaskId();
+            } catch (InputCancelledException ignored) {
+                return;
+            }
+            final ReopenTask reopenTask = createReopenTaskCmd(taskId);
             client.reopen(reopenTask);
         }
+
+        private ReopenTask createReopenTaskCmd(TaskId taskId) {
+            final ReopenTask result = ReopenTask.newBuilder()
+                                                .setId(taskId)
+                                                .build();
+            return result;
+        }
     }
 
-    private static class RestoreTaskMode extends Mode {
+    private class RestoreTaskMode extends Mode {
 
-        private RestoreTaskMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private RestoreTaskMode(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
         void start() throws IOException {
-            final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = createTaskId(taskIdValue);
-            final RestoreDeletedTask restoreDeletedTask = RestoreDeletedTask.newBuilder()
-                                                                            .setId(taskId)
-                                                                            .build();
+            final TaskId taskId;
+            try {
+                taskId = obtainTaskId();
+            } catch (InputCancelledException ignored) {
+                return;
+            }
+            final RestoreDeletedTask restoreDeletedTask = createRestoreDeletedTaskCmd(taskId);
             client.restore(restoreDeletedTask);
         }
+
+        private RestoreDeletedTask createRestoreDeletedTaskCmd(TaskId taskId) {
+            final RestoreDeletedTask result = RestoreDeletedTask.newBuilder()
+                                                                .setId(taskId)
+                                                                .build();
+            return result;
+        }
     }
 
-    private static class CompleteTaskMode extends Mode {
+    private class CompleteTaskMode extends Mode {
 
-        private CompleteTaskMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private CompleteTaskMode(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
         void start() throws IOException {
-            final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = createTaskId(taskIdValue);
+            final TaskId taskId;
+            try {
+                taskId = obtainTaskId();
+            } catch (InputCancelledException ignored) {
+                return;
+            }
             final CompleteTask completeTask = CompleteTask.newBuilder()
                                                           .setId(taskId)
                                                           .build();
@@ -319,48 +322,65 @@ abstract class CommonMode extends Mode {
         }
     }
 
-    private static class AssignLabelToTaskMode extends Mode {
+    private class AssignLabelToTaskMode extends Mode {
 
-        private AssignLabelToTaskMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private AssignLabelToTaskMode(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
         void start() throws IOException {
-            final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = createTaskId(taskIdValue);
-            final String labelIdValue = obtainLabelIdValue();
-            final TaskLabelId labelId = constructLabelId(labelIdValue);
-            final AssignLabelToTask assignLabelToTask = AssignLabelToTask.newBuilder()
-                                                                         .setId(taskId)
-                                                                         .setLabelId(labelId)
-                                                                         .build();
+            final TaskId taskId;
+            final TaskLabelId labelId;
+            try {
+                taskId = obtainTaskId();
+                labelId = obtainLabelId();
+            } catch (InputCancelledException ignored) {
+                return;
+            }
+            final AssignLabelToTask assignLabelToTask = createAssignLabelToTaskCmd(taskId, labelId);
             client.assignLabel(assignLabelToTask);
+        }
+
+        private AssignLabelToTask createAssignLabelToTaskCmd(TaskId taskId, TaskLabelId labelId) {
+            final AssignLabelToTask result = AssignLabelToTask.newBuilder()
+                                                              .setId(taskId)
+                                                              .setLabelId(labelId)
+                                                              .build();
+            return result;
         }
     }
 
-    private static class RemoveLabelFromTaskMode extends Mode {
+    private class RemoveLabelFromTaskMode extends Mode {
 
-        private RemoveLabelFromTaskMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+        private RemoveLabelFromTaskMode(ConsoleReader reader) {
+            super(reader);
         }
 
         @Override
         void start() throws IOException {
-            final String taskIdValue = obtainTaskIdValue();
-            final TaskId taskId = createTaskId(taskIdValue);
-            final String labelIdValue = obtainLabelIdValue();
-            final TaskLabelId labelId = constructLabelId(labelIdValue);
-            final RemoveLabelFromTask removeLabelFromTask = RemoveLabelFromTask.newBuilder()
-                                                                               .setId(taskId)
-                                                                               .setLabelId(labelId)
-                                                                               .build();
+            final TaskId taskId;
+            final TaskLabelId labelId;
+            try {
+                taskId = obtainTaskId();
+                labelId = obtainLabelId();
+            } catch (InputCancelledException ignored) {
+                return;
+            }
+            final RemoveLabelFromTask removeLabelFromTask = constructRemoveLabelFromTaskCmd(taskId, labelId);
             client.removeLabel(removeLabelFromTask);
+        }
+
+        private RemoveLabelFromTask constructRemoveLabelFromTaskCmd(TaskId taskId, TaskLabelId labelId) {
+            final RemoveLabelFromTask result = RemoveLabelFromTask.newBuilder()
+                                                                  .setId(taskId)
+                                                                  .setLabelId(labelId)
+                                                                  .build();
+            return result;
         }
     }
 
     static class CommonModeConstants {
-        static final String EMPTY = "";
         static final String DEFAULT_VALUE = "default";
         static final String UPDATED_DESCRIPTION_MESSAGE = "The task description updated. %s --> %s";
         static final String UPDATED_PRIORITY_MESSAGE = "The task priority updated. %s --> %s";

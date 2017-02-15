@@ -25,6 +25,7 @@ import com.google.protobuf.util.Timestamps;
 import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.LabelColor;
 import org.spine3.examples.todolist.TaskId;
+import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.TaskPriority;
 import org.spine3.examples.todolist.client.TodoClient;
 import org.spine3.examples.todolist.validator.ApproveValidator;
@@ -42,6 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static org.spine3.examples.todolist.DateHelper.getDateFormat;
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_ID_MESSAGE;
 import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.ENTER_LABEL_ID_MESSAGE;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.INCORRECT_INPUT;
@@ -53,7 +55,7 @@ import static org.spine3.examples.todolist.mode.Mode.ModeConstants.TASK_PRIORITY
  */
 abstract class Mode {
 
-    private static final String CANCELED_INPUT = "canceled";
+    private static final String CANCELED_INPUT = "cancel";
     private static final String INPUT_IS_CANCELED = "Input is canceled";
     private Validator priorityValidator;
     private Validator dueDateValidator;
@@ -64,11 +66,9 @@ abstract class Mode {
     private Validator approveValidator;
     private final Map<String, TaskPriority> priorityMap;
     private final Map<String, LabelColor> colorMap;
-    final TodoClient client;
-    final ConsoleReader reader;
+    private final ConsoleReader reader;
 
-    Mode(TodoClient client, ConsoleReader reader) {
-        this.client = client;
+    Mode(ConsoleReader reader) {
         this.reader = reader;
         priorityMap = initPriorityMap();
         colorMap = initColorMap();
@@ -119,20 +119,13 @@ abstract class Mode {
         return title;
     }
 
-    Timestamp constructPreviousDueDate(SimpleDateFormat simpleDateFormat, String previousDueDateValue)
-            throws ParseException {
-        Timestamp previousDueDate = Timestamp.getDefaultInstance();
-        if (!previousDueDateValue.isEmpty()) {
-            final long previousDueDateInMS = simpleDateFormat.parse(previousDueDateValue)
-                                                             .getTime();
-            previousDueDate = Timestamps.fromMillis(previousDueDateInMS);
-        }
-        return previousDueDate;
-    }
-
-    String obtainDescriptionValue(String message, boolean isNew) throws IOException {
+    String obtainDescriptionValue(String message, boolean isNew) throws IOException, InputCancelledException {
         sendMessageToUser(message);
         String description = reader.readLine();
+
+        if (CANCELED_INPUT.equals(description)) {
+            throw new InputCancelledException(INPUT_IS_CANCELED);
+        }
 
         if (description.isEmpty() && !isNew) {
             return description;
@@ -147,28 +140,22 @@ abstract class Mode {
         return description;
     }
 
-    TaskPriority obtainTaskPriority(String message) throws IOException {
-        final String priorityValue = obtainPriorityValue(message + TASK_PRIORITY_VALUE);
-        final TaskPriority result = priorityMap.get(priorityValue);
+    Timestamp obtainDueDate(String message, boolean isNew) throws ParseException, IOException, InputCancelledException {
+        final String dueDateValue = obtainDueDateValue(message, isNew);
+        final SimpleDateFormat simpleDateFormat = getDateFormat();
+        final long dueDateInMillis = simpleDateFormat.parse(dueDateValue)
+                                                     .getTime();
+        final Timestamp result = Timestamps.fromMillis(dueDateInMillis);
         return result;
     }
 
-    private String obtainPriorityValue(String message) throws IOException {
-        sendMessageToUser(message);
-        String priorityNumber = reader.readLine();
-        priorityNumber = priorityNumber == null ? null : priorityNumber.toUpperCase();
-        final boolean isValid = priorityValidator.validate(priorityNumber);
-
-        if (!isValid) {
-            sendMessageToUser(INCORRECT_INPUT);
-            priorityNumber = obtainPriorityValue(message);
-        }
-        return priorityNumber;
-    }
-
-    String obtainDueDateValue(String message, boolean isNew) throws IOException, ParseException {
+    String obtainDueDateValue(String message, boolean isNew) throws IOException, ParseException, InputCancelledException {
         sendMessageToUser(message);
         String dueDate = reader.readLine();
+
+        if (CANCELED_INPUT.equals(dueDate)) {
+            throw new InputCancelledException(INPUT_IS_CANCELED);
+        }
 
         if (dueDate.isEmpty() && !isNew) {
             return dueDate;
@@ -183,25 +170,66 @@ abstract class Mode {
         return dueDate;
     }
 
-    String obtainLabelIdValue() throws IOException {
-        sendMessageToUser(ENTER_LABEL_ID_MESSAGE);
-        String labelIdInput = reader.readLine();
-        final boolean isValid = idValidator.validate(labelIdInput);
-
-        if (!isValid) {
-            sendMessageToUser(idValidator.getMessage());
-            labelIdInput = obtainLabelIdValue();
+    //TODO:2017-02-15:illiashepilov: is it needed?
+    Timestamp constructPreviousDueDate(SimpleDateFormat simpleDateFormat, String previousDueDateValue)
+            throws ParseException {
+        Timestamp previousDueDate = Timestamp.getDefaultInstance();
+        if (!previousDueDateValue.isEmpty()) {
+            final long previousDueDateInMS = simpleDateFormat.parse(previousDueDateValue)
+                                                             .getTime();
+            previousDueDate = Timestamps.fromMillis(previousDueDateInMS);
         }
-        return labelIdInput;
+        return previousDueDate;
     }
 
-    String obtainTaskIdValue() throws IOException {
-        sendMessageToUser(ENTER_ID_MESSAGE);
+    TaskPriority obtainTaskPriority(String message) throws IOException, InputCancelledException {
+        final String priorityValue = obtainPriorityValue(message + TASK_PRIORITY_VALUE);
+        final TaskPriority result = priorityMap.get(priorityValue);
+        return result;
+    }
+
+    private String obtainPriorityValue(String message) throws IOException, InputCancelledException {
+        sendMessageToUser(message);
+        String priority = reader.readLine();
+
+        if (CANCELED_INPUT.equals(priority)) {
+            throw new InputCancelledException(INPUT_IS_CANCELED);
+        }
+
+        priority = priority == null ? null : priority.toUpperCase();
+        final boolean isValid = priorityValidator.validate(priority);
+
+        if (!isValid) {
+            sendMessageToUser(INCORRECT_INPUT);
+            priority = obtainPriorityValue(message);
+        }
+        return priority;
+    }
+
+    TaskLabelId obtainLabelId() throws IOException, InputCancelledException {
+        final String idValue = obtainIdValue(ENTER_LABEL_ID_MESSAGE);
+        final TaskLabelId result = createLabelId(idValue);
+        return result;
+    }
+
+    TaskId obtainTaskId() throws IOException, InputCancelledException {
+        final String idValue = obtainIdValue(ENTER_ID_MESSAGE);
+        final TaskId result = createTaskId(idValue);
+        return result;
+    }
+
+    private String obtainIdValue(String message) throws IOException, InputCancelledException {
+        sendMessageToUser(message);
         String taskIdValue = reader.readLine();
+
+        if (CANCELED_INPUT.equals(taskIdValue)) {
+            throw new InputCancelledException(INPUT_IS_CANCELED);
+        }
+
         final boolean isValid = idValidator.validate(taskIdValue);
         if (!isValid) {
             sendMessageToUser(idValidator.getMessage());
-            taskIdValue = obtainTaskIdValue();
+            taskIdValue = obtainIdValue(message);
         }
         return taskIdValue;
     }
@@ -217,10 +245,18 @@ abstract class Mode {
         return approveValue;
     }
 
+    static TaskLabelId createLabelId(String labelIdValue) {
+        final TaskLabelId result = TaskLabelId.newBuilder()
+                                              .setValue(labelIdValue)
+                                              .build();
+        return result;
+    }
+
     static TaskId createTaskId(String taskIdValue) {
-        return TaskId.newBuilder()
-                     .setValue(taskIdValue)
-                     .build();
+        final TaskId result = TaskId.newBuilder()
+                                    .setValue(taskIdValue)
+                                    .build();
+        return result;
     }
 
     private void initValidators() {

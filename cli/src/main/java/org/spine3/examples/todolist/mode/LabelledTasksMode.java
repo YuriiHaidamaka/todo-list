@@ -43,8 +43,13 @@ import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendly
 @SuppressWarnings("unused")
 public class LabelledTasksMode extends CommonMode {
 
+    private final TodoClient client;
+    private final ConsoleReader reader;
+
     LabelledTasksMode(TodoClient client, ConsoleReader reader) {
         super(client, reader);
+        this.client = client;
+        this.reader = reader;
     }
 
     @Override
@@ -73,10 +78,10 @@ public class LabelledTasksMode extends CommonMode {
         modeMap.put("1", labelledTasksMode);
     }
 
-    private static class ShowLabelledTasksMode extends Mode {
+    private class ShowLabelledTasksMode extends Mode {
 
         private ShowLabelledTasksMode(TodoClient client, ConsoleReader reader) {
-            super(client, reader);
+            super(reader);
         }
 
         @Override
