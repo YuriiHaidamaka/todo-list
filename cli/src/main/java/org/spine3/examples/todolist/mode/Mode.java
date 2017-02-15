@@ -139,8 +139,12 @@ abstract class Mode {
         return description;
     }
 
-    protected Timestamp obtainDueDate(String message, boolean isNew) throws ParseException, IOException, InputCancelledException {
+    protected Timestamp obtainDueDate(String message, boolean isNew)
+            throws ParseException, IOException, InputCancelledException {
         final String dueDateValue = obtainDueDateValue(message, isNew);
+        if (dueDateValue.isEmpty()){
+            return Timestamp.getDefaultInstance();
+        }
         final SimpleDateFormat simpleDateFormat = getDateFormat();
         final long dueDateInMillis = simpleDateFormat.parse(dueDateValue)
                                                      .getTime();
@@ -148,37 +152,26 @@ abstract class Mode {
         return result;
     }
 
-    private String obtainDueDateValue(String message, boolean isNew) throws IOException, ParseException, InputCancelledException {
+    private String obtainDueDateValue(String message, boolean isNew)
+            throws IOException, ParseException, InputCancelledException {
         sendMessageToUser(message);
-        String dueDate = reader.readLine();
+        String dueDateValue = reader.readLine();
 
-        if (CANCELED_INPUT.equals(dueDate)) {
+        if (CANCELED_INPUT.equals(dueDateValue)) {
             throw new InputCancelledException(INPUT_IS_CANCELED);
         }
 
-        if (dueDate.isEmpty() && !isNew) {
-            return dueDate;
+        if (dueDateValue.isEmpty() && !isNew) {
+            return dueDateValue;
         }
 
-        final boolean isValid = dueDateValidator.validate(dueDate);
+        final boolean isValid = dueDateValidator.validate(dueDateValue);
 
         if (!isValid) {
             sendMessageToUser(dueDateValidator.getMessage());
-            dueDate = obtainDueDateValue(message, isNew);
+            dueDateValue = obtainDueDateValue(message, isNew);
         }
-        return dueDate;
-    }
-
-    //TODO:2017-02-15:illiashepilov: is it needed?
-    private Timestamp constructPreviousDueDate(SimpleDateFormat simpleDateFormat, String previousDueDateValue)
-            throws ParseException {
-        Timestamp previousDueDate = Timestamp.getDefaultInstance();
-        if (!previousDueDateValue.isEmpty()) {
-            final long previousDueDateInMS = simpleDateFormat.parse(previousDueDateValue)
-                                                             .getTime();
-            previousDueDate = Timestamps.fromMillis(previousDueDateInMS);
-        }
-        return previousDueDate;
+        return dueDateValue;
     }
 
     protected TaskPriority obtainTaskPriority(String message) throws IOException, InputCancelledException {
