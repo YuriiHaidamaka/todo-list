@@ -21,6 +21,7 @@
 package org.spine3.examples.todolist.mode;
 
 import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.Timestamps;
 import jline.console.ConsoleReader;
 import org.spine3.change.StringChange;
 import org.spine3.change.TimestampChange;
@@ -185,10 +186,10 @@ abstract class CommonMode extends Mode {
             client.update(updateTaskDueDate);
             final boolean isEmpty = previousDueDate.getSeconds() == 0;
             final String previousDueDateForUser = isEmpty ? DEFAULT_VALUE :
-                                                  constructUserFriendlyDate(previousDueDate.getSeconds());
+                                                  constructUserFriendlyDate(Timestamps.toMillis(previousDueDate));
             final String message = String.format(UPDATED_DUE_DATE_MESSAGE,
                                                  previousDueDateForUser,
-                                                 constructUserFriendlyDate(newDueDate.getSeconds()));
+                                                 constructUserFriendlyDate(Timestamps.toMillis(newDueDate)));
             sendMessageToUser(message);
         }
     }
