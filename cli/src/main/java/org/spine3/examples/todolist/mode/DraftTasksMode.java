@@ -57,7 +57,7 @@ class DraftTasksMode extends CommonMode {
     }
 
     @Override
-    void start() throws IOException {
+    public void start() throws IOException {
         reader.setPrompt(DRAFT_TASKS_PROMPT);
         sendMessageToUser(DRAFT_TASKS_MENU);
         final ShowDraftTasksMode draftTasksMode = new ShowDraftTasksMode(client, reader);
@@ -89,7 +89,7 @@ class DraftTasksMode extends CommonMode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final DraftTasksView draftTasksView = client.getDraftTasksView();
             final int itemsCount = draftTasksView.getDraftTasks()
                                                  .getItemsCount();
@@ -105,7 +105,7 @@ class DraftTasksMode extends CommonMode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final TaskId taskId;
             try {
                 taskId = obtainTaskId();

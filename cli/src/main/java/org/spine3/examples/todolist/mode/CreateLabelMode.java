@@ -61,7 +61,7 @@ class CreateLabelMode extends Mode {
     }
 
     @Override
-    void start() throws IOException {
+    public void start() throws IOException {
         reader.setPrompt(CREATE_LABEL_PROMPT);
         String line = "";
         while (!line.equals(NEGATIVE_ANSWER)) {

@@ -54,7 +54,7 @@ public class LabelledTasksMode extends CommonMode {
     }
 
     @Override
-    void start() throws IOException {
+    public void start() throws IOException {
         reader.setPrompt(LABELLED_TASKS_PROMPT);
         sendMessageToUser(LABELLED_TASKS_MENU);
 
@@ -86,7 +86,7 @@ public class LabelledTasksMode extends CommonMode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final List<LabelledTasksView> labelledTasks = client.getLabelledTasksView();
             final String message = labelledTasks.isEmpty() ? EMPTY_LABELLED_TASKS :
                                    DisplayHelper.constructUserFriendlyLabelledTasks(labelledTasks);

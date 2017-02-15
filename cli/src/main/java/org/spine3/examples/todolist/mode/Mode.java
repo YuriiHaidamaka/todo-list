@@ -52,7 +52,7 @@ import static org.spine3.examples.todolist.mode.Mode.ModeConstants.TASK_PRIORITY
 /**
  * @author Illia Shepilov
  */
-abstract class Mode {
+public abstract class Mode {
 
     private static final String CANCELED_INPUT = "cancel";
     private static final String INPUT_IS_CANCELED = "Input is canceled";
@@ -74,7 +74,7 @@ abstract class Mode {
         initValidators();
     }
 
-    abstract void start() throws IOException;
+    public abstract void start() throws IOException;
 
     protected LabelColor obtainLabelColor(String message) throws IOException, InputCancelledException {
         final String labelColorValue = obtainLabelColorValue(message);
@@ -142,7 +142,7 @@ abstract class Mode {
     protected Timestamp obtainDueDate(String message, boolean isNew)
             throws ParseException, IOException, InputCancelledException {
         final String dueDateValue = obtainDueDateValue(message, isNew);
-        if (dueDateValue.isEmpty()){
+        if (dueDateValue.isEmpty()) {
             return Timestamp.getDefaultInstance();
         }
         final SimpleDateFormat simpleDateFormat = getDateFormat();

@@ -64,8 +64,8 @@ import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.U
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.UPDATED_DUE_DATE_MESSAGE;
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.UPDATED_LABEL_DETAILS_MESSAGE;
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.UPDATED_PRIORITY_MESSAGE;
-import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.mode.DisplayHelper.constructUserFriendlyDate;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.mode.TodoListCommands.createLabelDetails;
 import static org.spine3.examples.todolist.mode.TodoListCommands.createLabelDetailsChange;
 import static org.spine3.examples.todolist.mode.TodoListCommands.createPriorityChange;
@@ -115,7 +115,7 @@ abstract class CommonMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final String newDescription;
             final String previousDescription;
             final TaskId taskId;
@@ -143,7 +143,7 @@ abstract class CommonMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final TaskId taskId;
             final TaskPriority newTaskPriority;
             final TaskPriority previousTaskPriority;
@@ -168,7 +168,7 @@ abstract class CommonMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final TaskId taskId;
             final Timestamp newDueDate;
             final Timestamp previousDueDate;
@@ -201,7 +201,7 @@ abstract class CommonMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final TaskLabelId labelId;
             final String newTitle;
             final String previousTitle;
@@ -235,7 +235,7 @@ abstract class CommonMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final TaskId taskId;
             try {
                 taskId = obtainTaskId();
@@ -261,7 +261,7 @@ abstract class CommonMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final TaskId taskId;
             try {
                 taskId = obtainTaskId();
@@ -287,7 +287,7 @@ abstract class CommonMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final TaskId taskId;
             try {
                 taskId = obtainTaskId();
@@ -313,7 +313,7 @@ abstract class CommonMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final TaskId taskId;
             try {
                 taskId = obtainTaskId();
@@ -334,7 +334,7 @@ abstract class CommonMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final TaskId taskId;
             final TaskLabelId labelId;
             try {
@@ -363,7 +363,7 @@ abstract class CommonMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final TaskId taskId;
             final TaskLabelId labelId;
             try {

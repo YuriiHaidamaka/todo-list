@@ -57,6 +57,7 @@ import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeCon
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.SET_DUE_DATE_QUESTION;
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_MESSAGE;
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.SET_PRIORITY_QUESTION;
+import static org.spine3.examples.todolist.mode.DisplayHelper.constructUserFriendlyDate;
 import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.HELP_ADVICE;
 import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK;
@@ -64,7 +65,6 @@ import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK_TO_THE_M
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.INCORRECT_COMMAND;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.POSITIVE_ANSWER;
-import static org.spine3.examples.todolist.mode.DisplayHelper.constructUserFriendlyDate;
 import static org.spine3.examples.todolist.mode.TodoListCommands.createFinalizeDraftCmd;
 import static org.spine3.examples.todolist.mode.TodoListCommands.createPriorityChange;
 import static org.spine3.examples.todolist.mode.TodoListCommands.createStringChange;
@@ -101,7 +101,7 @@ class CreateTaskMode extends Mode {
     }
 
     @Override
-    void start() throws IOException {
+    public void start() throws IOException {
         sendMessageToUser(CREATE_TASK_TITLE);
         reader.setPrompt(CREATE_TASK_PROMPT);
         String line = "";
@@ -188,7 +188,7 @@ class CreateTaskMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             String line = "";
             while (!line.equals(BACK)) {
                 createTask();
@@ -242,7 +242,7 @@ class CreateTaskMode extends Mode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             String line = "";
             while (!line.equals(BACK)) {
                 createTaskDraft();

@@ -37,7 +37,7 @@ public class HelpMode extends Mode {
     }
 
     @Override
-    void start() throws IOException {
+    public void start() throws IOException {
         sendMessageToUser(helpMessage);
     }
 }

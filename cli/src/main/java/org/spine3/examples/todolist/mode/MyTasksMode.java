@@ -52,7 +52,7 @@ public class MyTasksMode extends CommonMode {
     }
 
     @Override
-    void start() throws IOException {
+    public void start() throws IOException {
         reader.setPrompt(MY_TASKS_PROMPT);
         sendMessageToUser(MY_TASKS_MENU);
 
@@ -85,7 +85,7 @@ public class MyTasksMode extends CommonMode {
         }
 
         @Override
-        void start() throws IOException {
+        public void start() throws IOException {
             final MyListView myListView = client.getMyListView();
             final int itemsCount = myListView.getMyList()
                                              .getItemsCount();

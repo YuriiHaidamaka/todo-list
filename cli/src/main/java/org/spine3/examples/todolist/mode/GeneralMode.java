@@ -43,7 +43,7 @@ public class GeneralMode extends Mode {
     private final TodoClient client;
     private final ConsoleReader reader;
 
-    GeneralMode(TodoClient client, ConsoleReader reader) {
+    public GeneralMode(TodoClient client, ConsoleReader reader) {
         super(reader);
         this.client = client;
         this.reader = reader;
@@ -60,7 +60,7 @@ public class GeneralMode extends Mode {
     }
 
     @Override
-    void start() throws IOException {
+    public void start() throws IOException {
         sendMessageToUser(HELP_MESSAGE);
         reader.setPrompt(TODO_PROMPT);
         String line = "";
