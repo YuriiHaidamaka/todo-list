@@ -41,10 +41,10 @@ import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeC
 import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.NEGATIVE_ANSWER;
-import static org.spine3.examples.todolist.mode.ModeHelper.createBasicLabelCmd;
-import static org.spine3.examples.todolist.mode.ModeHelper.createLabelDetails;
-import static org.spine3.examples.todolist.mode.ModeHelper.createLabelDetailsChange;
-import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateLabelDetailsCmd;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createBasicLabelCmd;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createLabelDetails;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createLabelDetailsChange;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createUpdateLabelDetailsCmd;
 
 /**
  * @author Illia Shepilov

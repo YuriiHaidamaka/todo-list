@@ -65,16 +65,16 @@ import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.U
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.UPDATED_LABEL_DETAILS_MESSAGE;
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.UPDATED_PRIORITY_MESSAGE;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
-import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendlyDate;
-import static org.spine3.examples.todolist.mode.ModeHelper.createLabelDetails;
-import static org.spine3.examples.todolist.mode.ModeHelper.createLabelDetailsChange;
-import static org.spine3.examples.todolist.mode.ModeHelper.createPriorityChange;
-import static org.spine3.examples.todolist.mode.ModeHelper.createStringChange;
-import static org.spine3.examples.todolist.mode.ModeHelper.createTimestampChangeMode;
-import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateLabelDetailsCmd;
-import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskDescriptionCmd;
-import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskDueDateCmd;
-import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskPriorityCmd;
+import static org.spine3.examples.todolist.mode.DisplayHelper.constructUserFriendlyDate;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createLabelDetails;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createLabelDetailsChange;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createPriorityChange;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createStringChange;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createTimestampChangeMode;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createUpdateLabelDetailsCmd;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createUpdateTaskDescriptionCmd;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createUpdateTaskDueDateCmd;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createUpdateTaskPriorityCmd;
 
 /**
  * @author Illia Shepilov

@@ -38,8 +38,7 @@ import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TO
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
-import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendlyDraftTasks;
-import static org.spine3.examples.todolist.mode.ModeHelper.createFinalizeDraftCmd;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createFinalizeDraftCmd;
 
 /**
  * @author Illia Shepilov
@@ -95,7 +94,7 @@ class DraftTasksMode extends CommonMode {
             final int itemsCount = draftTasksView.getDraftTasks()
                                                  .getItemsCount();
             final boolean isEmpty = itemsCount == 0;
-            final String message = isEmpty ? EMPTY_DRAFT_TASKS : constructUserFriendlyDraftTasks(draftTasksView);
+            final String message = isEmpty ? EMPTY_DRAFT_TASKS : DisplayHelper.constructUserFriendlyDraftTasks(draftTasksView);
             sendMessageToUser(message);
         }
     }

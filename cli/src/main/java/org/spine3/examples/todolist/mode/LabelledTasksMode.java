@@ -36,7 +36,6 @@ import static org.spine3.examples.todolist.mode.LabelledTasksMode.LabelledTasksM
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
-import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendlyLabelledTasks;
 
 /**
  * @author Illia Shepilov
@@ -90,7 +89,7 @@ public class LabelledTasksMode extends CommonMode {
         void start() throws IOException {
             final List<LabelledTasksView> labelledTasks = client.getLabelledTasksView();
             final String message = labelledTasks.isEmpty() ? EMPTY_LABELLED_TASKS :
-                                   constructUserFriendlyLabelledTasks(labelledTasks);
+                                   DisplayHelper.constructUserFriendlyLabelledTasks(labelledTasks);
             sendMessageToUser(message);
         }
     }

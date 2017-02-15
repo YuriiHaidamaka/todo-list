@@ -31,7 +31,6 @@ import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TO
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
-import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendlyMyList;
 import static org.spine3.examples.todolist.mode.MyTasksMode.MyTasksModeConstants.EMPTY_MY_LIST_TASKS;
 import static org.spine3.examples.todolist.mode.MyTasksMode.MyTasksModeConstants.HELP_MESSAGE;
 import static org.spine3.examples.todolist.mode.MyTasksMode.MyTasksModeConstants.MY_TASKS_MENU;
@@ -91,7 +90,7 @@ public class MyTasksMode extends CommonMode {
             final int itemsCount = myListView.getMyList()
                                              .getItemsCount();
             final boolean isEmpty = itemsCount == 0;
-            final String message = isEmpty ? EMPTY_MY_LIST_TASKS : constructUserFriendlyMyList(myListView);
+            final String message = isEmpty ? EMPTY_MY_LIST_TASKS : DisplayHelper.constructUserFriendlyMyList(myListView);
             sendMessageToUser(message);
 
         }

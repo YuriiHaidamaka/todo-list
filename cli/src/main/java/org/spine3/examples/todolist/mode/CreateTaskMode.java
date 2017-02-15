@@ -64,14 +64,14 @@ import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK_TO_THE_M
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.INCORRECT_COMMAND;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.POSITIVE_ANSWER;
-import static org.spine3.examples.todolist.mode.ModeHelper.constructUserFriendlyDate;
-import static org.spine3.examples.todolist.mode.ModeHelper.createFinalizeDraftCmd;
-import static org.spine3.examples.todolist.mode.ModeHelper.createPriorityChange;
-import static org.spine3.examples.todolist.mode.ModeHelper.createStringChange;
-import static org.spine3.examples.todolist.mode.ModeHelper.createTimestampChange;
-import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskDescriptionCmd;
-import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskDueDateCmd;
-import static org.spine3.examples.todolist.mode.ModeHelper.createUpdateTaskPriorityCmd;
+import static org.spine3.examples.todolist.mode.DisplayHelper.constructUserFriendlyDate;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createFinalizeDraftCmd;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createPriorityChange;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createStringChange;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createTimestampChange;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createUpdateTaskDescriptionCmd;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createUpdateTaskDueDateCmd;
+import static org.spine3.examples.todolist.mode.TodoListCommands.createUpdateTaskPriorityCmd;
 
 /**
  * @author Illia Shepilov
@@ -211,7 +211,7 @@ class CreateTaskMode extends Mode {
             }
             updateTaskValuesIfNeeded(taskId);
 
-            final String userFriendlyDate = constructUserFriendlyDate(Timestamps.toMillis(dueDate));
+            final String userFriendlyDate = DisplayHelper.constructUserFriendlyDate(Timestamps.toMillis(dueDate));
             final String idValue = taskId.getValue();
             final String result = String.format(CREATED_TASK_MESSAGE, idValue, description, priority, userFriendlyDate);
             sendMessageToUser(result);
