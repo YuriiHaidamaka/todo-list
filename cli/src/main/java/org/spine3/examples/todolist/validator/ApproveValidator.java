@@ -33,7 +33,7 @@ public class ApproveValidator implements Validator {
     @Override
     public boolean validate(String input) {
 
-        final boolean isNegativeOrPositiveAns = input.equals(NEGATIVE_ANSWER) || input.equals(POSITIVE_ANSWER);
+        final boolean isNegativeOrPositiveAns = NEGATIVE_ANSWER.equals(input) || POSITIVE_ANSWER.equals(input);
         final boolean invalidInput = input.isEmpty() || !isNegativeOrPositiveAns;
 
         if (invalidInput) {
