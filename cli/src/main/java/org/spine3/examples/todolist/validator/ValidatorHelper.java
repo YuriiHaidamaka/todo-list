@@ -21,6 +21,8 @@
 package org.spine3.examples.todolist.validator;
 
 /**
+ * Serves as utility class for the {@link Validator} classes.
+ *
  * @author Illia Shepilov
  */
 class ValidatorHelper {
