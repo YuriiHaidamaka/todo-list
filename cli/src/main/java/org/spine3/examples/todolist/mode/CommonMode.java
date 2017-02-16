@@ -195,7 +195,7 @@ abstract class CommonMode extends Mode {
         }
     }
 
-    protected class UpdateLabelDetailsMode extends Mode {
+    private class UpdateLabelDetailsMode extends Mode {
 
         private UpdateLabelDetailsMode(ConsoleReader reader) {
             super(reader);
