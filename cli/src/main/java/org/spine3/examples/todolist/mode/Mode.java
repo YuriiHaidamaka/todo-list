@@ -24,8 +24,8 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.LabelColor;
+import org.spine3.examples.todolist.LabelId;
 import org.spine3.examples.todolist.TaskId;
-import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.TaskPriority;
 import org.spine3.examples.todolist.validator.ApproveValidator;
 import org.spine3.examples.todolist.validator.CommonValidator;
@@ -198,9 +198,9 @@ public abstract class Mode {
         return priority;
     }
 
-    protected TaskLabelId obtainLabelId() throws IOException, InputCancelledException {
+    protected LabelId obtainLabelId() throws IOException, InputCancelledException {
         final String idValue = obtainIdValue(ENTER_LABEL_ID_MESSAGE);
-        final TaskLabelId result = createLabelId(idValue);
+        final LabelId result = createLabelId(idValue);
         return result;
     }
 
@@ -237,10 +237,10 @@ public abstract class Mode {
         return approveValue;
     }
 
-    protected static TaskLabelId createLabelId(String labelIdValue) {
-        final TaskLabelId result = TaskLabelId.newBuilder()
-                                              .setValue(labelIdValue)
-                                              .build();
+    protected static LabelId createLabelId(String labelIdValue) {
+        final LabelId result = LabelId.newBuilder()
+                                      .setValue(labelIdValue)
+                                      .build();
         return result;
     }
 

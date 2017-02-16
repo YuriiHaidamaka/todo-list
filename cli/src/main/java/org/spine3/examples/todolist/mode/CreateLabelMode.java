@@ -24,7 +24,7 @@ import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.LabelColor;
 import org.spine3.examples.todolist.LabelDetails;
 import org.spine3.examples.todolist.LabelDetailsChange;
-import org.spine3.examples.todolist.TaskLabelId;
+import org.spine3.examples.todolist.LabelId;
 import org.spine3.examples.todolist.c.commands.CreateBasicLabel;
 import org.spine3.examples.todolist.c.commands.UpdateLabelDetails;
 import org.spine3.examples.todolist.client.TodoClient;
@@ -34,10 +34,10 @@ import java.io.IOException;
 import static org.spine3.base.Identifiers.newUuid;
 import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.CREATE_LABEL_PROMPT;
 import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.CREATE_ONE_MORE_LABEL_QUESTION;
-import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.LABEL_CREATED_MESSAGE;
 import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.ENTER_COLOR_MESSAGE;
-import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.SET_LABEL_COLOR_QUESTION;
 import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.ENTER_TITLE_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.LABEL_CREATED_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.SET_LABEL_COLOR_QUESTION;
 import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.CANCEL_HINT;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
@@ -73,14 +73,13 @@ class CreateLabelMode extends Mode {
     }
 
     private void createLabel() throws IOException {
-        final TaskLabelId labelId = createLabelId(newUuid());
+        final LabelId labelId = createLabelId(newUuid());
         final String title;
         try {
             title = obtainLabelTitle(ENTER_TITLE_MESSAGE);
         } catch (InputCancelledException ignored) {
             return;
         }
-
         final CreateBasicLabel createBasicLabel = createBasicLabelCmd(labelId, title);
         client.create(createBasicLabel);
 
@@ -89,7 +88,7 @@ class CreateLabelMode extends Mode {
         sendMessageToUser(message);
     }
 
-    private LabelDetails updateLabelDetailsIfNeeded(TaskLabelId labelId, String title) throws IOException {
+    private LabelDetails updateLabelDetailsIfNeeded(LabelId labelId, String title) throws IOException {
         final String approveValue = obtainApproveValue(SET_LABEL_COLOR_QUESTION);
         final LabelDetails defaultInstance = LabelDetails.getDefaultInstance();
         if (approveValue.equals(NEGATIVE_ANSWER)) {
@@ -102,7 +101,6 @@ class CreateLabelMode extends Mode {
         } catch (InputCancelledException ignored) {
             return defaultInstance;
         }
-
         final LabelDetails newLabelDetails = createLabelDetails(title, labelColor);
         final LabelDetailsChange labelDetailsChange = createLabelDetailsChange(newLabelDetails);
         final UpdateLabelDetails updateLabelDetails = createUpdateLabelDetailsCmd(labelId, labelDetailsChange);

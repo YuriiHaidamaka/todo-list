@@ -26,9 +26,9 @@ import org.spine3.change.TimestampChange;
 import org.spine3.examples.todolist.LabelColor;
 import org.spine3.examples.todolist.LabelDetails;
 import org.spine3.examples.todolist.LabelDetailsChange;
+import org.spine3.examples.todolist.LabelId;
 import org.spine3.examples.todolist.PriorityChange;
 import org.spine3.examples.todolist.TaskId;
-import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.TaskPriority;
 import org.spine3.examples.todolist.c.commands.CreateBasicLabel;
 import org.spine3.examples.todolist.c.commands.FinalizeDraft;
@@ -73,7 +73,7 @@ class TodoListCommands {
         return result;
     }
 
-    static CreateBasicLabel createBasicLabelCmd(TaskLabelId labelId, String title) {
+    static CreateBasicLabel createBasicLabelCmd(LabelId labelId, String title) {
         final CreateBasicLabel result = CreateBasicLabel.newBuilder()
                                                         .setLabelTitle(title)
                                                         .setLabelId(labelId)
@@ -81,7 +81,7 @@ class TodoListCommands {
         return result;
     }
 
-    static UpdateLabelDetails createUpdateLabelDetailsCmd(TaskLabelId labelId,
+    static UpdateLabelDetails createUpdateLabelDetailsCmd(LabelId labelId,
                                                           LabelDetailsChange labelDetailsChange) {
         final UpdateLabelDetails result = UpdateLabelDetails.newBuilder()
                                                             .setLabelDetailsChange(labelDetailsChange)

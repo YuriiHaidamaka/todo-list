@@ -23,9 +23,11 @@ package org.spine3.examples.todolist;
 import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.client.CommandLineTodoClient;
 import org.spine3.examples.todolist.client.TodoClient;
+import org.spine3.examples.todolist.context.TodoListBoundedContext;
 import org.spine3.examples.todolist.mode.GeneralMode;
 import org.spine3.examples.todolist.mode.Mode;
 import org.spine3.examples.todolist.server.Server;
+import org.spine3.server.BoundedContext;
 import org.spine3.server.storage.memory.InMemoryStorageFactory;
 import org.spine3.util.Exceptions;
 
@@ -44,10 +46,10 @@ public class CliEntryPoint {
     }
 
     public static void main(String[] args) throws Exception {
-        final InMemoryStorageFactory storageFactory = InMemoryStorageFactory.getInstance();
-        final Server server = new Server(storageFactory);
+        final BoundedContext boundedContext = TodoListBoundedContext.getInstance();
+        final Server server = new Server(boundedContext);
         startServer(server);
-        final TodoClient client = new CommandLineTodoClient("localhost", DEFAULT_CLIENT_SERVICE_PORT);
+        final TodoClient client = new CommandLineTodoClient("localhost", DEFAULT_CLIENT_SERVICE_PORT, boundedContext);
         final ConsoleReader reader = new ConsoleReader();
         final Mode entryPoint = new GeneralMode(client, reader);
         entryPoint.start();

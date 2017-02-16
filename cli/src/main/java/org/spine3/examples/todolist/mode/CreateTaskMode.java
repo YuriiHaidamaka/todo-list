@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Map;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static org.spine3.base.Identifiers.newUuid;
 import static org.spine3.examples.todolist.DateHelper.DATE_FORMAT;
 import static org.spine3.examples.todolist.mode.CreateTaskMode.CreateTaskModeConstants.BACK_TO_THE_PREVIOUS_MENU_QUESTION;
@@ -83,7 +84,7 @@ class CreateTaskMode extends Mode {
     private Timestamp dueDate = Timestamp.getDefaultInstance();
     private TaskPriority priority = TaskPriority.TP_UNDEFINED;
     private String description;
-    private final Map<String, Mode> map = Maps.newHashMap();
+    private final Map<String, Mode> map = newHashMap();
 
     private final TodoClient client;
     private final ConsoleReader reader;
@@ -202,9 +203,7 @@ class CreateTaskMode extends Mode {
         }
 
         private void createTask() throws IOException {
-            final TaskId taskId = TaskId.newBuilder()
-                                        .setValue(newUuid())
-                                        .build();
+            final TaskId taskId = createTaskId(newUuid());
             try {
                 createTask(taskId);
             } catch (InputCancelledException ignored) {

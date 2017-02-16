@@ -21,10 +21,10 @@
 package org.spine3.examples.todolist.mode;
 
 import com.google.protobuf.util.Timestamps;
-import org.spine3.examples.todolist.q.projections.DraftTasksView;
-import org.spine3.examples.todolist.q.projections.LabelledTasksView;
-import org.spine3.examples.todolist.q.projections.MyListView;
-import org.spine3.examples.todolist.q.projections.TaskView;
+import org.spine3.examples.todolist.q.projection.DraftTasksView;
+import org.spine3.examples.todolist.q.projection.LabelledTasksView;
+import org.spine3.examples.todolist.q.projection.MyListView;
+import org.spine3.examples.todolist.q.projection.TaskView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

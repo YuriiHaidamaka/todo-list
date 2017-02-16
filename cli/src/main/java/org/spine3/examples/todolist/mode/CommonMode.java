@@ -28,9 +28,9 @@ import org.spine3.change.TimestampChange;
 import org.spine3.examples.todolist.LabelColor;
 import org.spine3.examples.todolist.LabelDetails;
 import org.spine3.examples.todolist.LabelDetailsChange;
+import org.spine3.examples.todolist.LabelId;
 import org.spine3.examples.todolist.PriorityChange;
 import org.spine3.examples.todolist.TaskId;
-import org.spine3.examples.todolist.TaskLabelId;
 import org.spine3.examples.todolist.TaskPriority;
 import org.spine3.examples.todolist.c.commands.AssignLabelToTask;
 import org.spine3.examples.todolist.c.commands.CompleteTask;
@@ -203,7 +203,7 @@ abstract class CommonMode extends Mode {
 
         @Override
         public void start() throws IOException {
-            final TaskLabelId labelId;
+            final LabelId labelId;
             final String newTitle;
             final String previousTitle;
             final LabelColor newColor;
@@ -337,7 +337,7 @@ abstract class CommonMode extends Mode {
         @Override
         public void start() throws IOException {
             final TaskId taskId;
-            final TaskLabelId labelId;
+            final LabelId labelId;
             try {
                 taskId = obtainTaskId();
                 labelId = obtainLabelId();
@@ -348,7 +348,7 @@ abstract class CommonMode extends Mode {
             client.assignLabel(assignLabelToTask);
         }
 
-        private AssignLabelToTask createAssignLabelToTaskCmd(TaskId taskId, TaskLabelId labelId) {
+        private AssignLabelToTask createAssignLabelToTaskCmd(TaskId taskId, LabelId labelId) {
             final AssignLabelToTask result = AssignLabelToTask.newBuilder()
                                                               .setId(taskId)
                                                               .setLabelId(labelId)
@@ -366,7 +366,7 @@ abstract class CommonMode extends Mode {
         @Override
         public void start() throws IOException {
             final TaskId taskId;
-            final TaskLabelId labelId;
+            final LabelId labelId;
             try {
                 taskId = obtainTaskId();
                 labelId = obtainLabelId();
@@ -377,7 +377,7 @@ abstract class CommonMode extends Mode {
             client.removeLabel(removeLabelFromTask);
         }
 
-        private RemoveLabelFromTask constructRemoveLabelFromTaskCmd(TaskId taskId, TaskLabelId labelId) {
+        private RemoveLabelFromTask constructRemoveLabelFromTaskCmd(TaskId taskId, LabelId labelId) {
             final RemoveLabelFromTask result = RemoveLabelFromTask.newBuilder()
                                                                   .setId(taskId)
                                                                   .setLabelId(labelId)

@@ -24,7 +24,7 @@ import jline.console.ConsoleReader;
 import org.spine3.examples.todolist.TaskId;
 import org.spine3.examples.todolist.c.commands.FinalizeDraft;
 import org.spine3.examples.todolist.client.TodoClient;
-import org.spine3.examples.todolist.q.projections.DraftTasksView;
+import org.spine3.examples.todolist.q.projection.DraftTasksView;
 
 import java.io.IOException;
 import java.util.Map;

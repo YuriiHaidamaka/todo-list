@@ -21,6 +21,7 @@
 package org.spine3.examples.todolist.context;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Suppliers;
 import org.spine3.examples.todolist.repository.DraftTasksViewRepository;
 import org.spine3.examples.todolist.repository.LabelAggregateRepository;
 import org.spine3.examples.todolist.repository.LabelledTasksViewRepository;
@@ -28,6 +29,9 @@ import org.spine3.examples.todolist.repository.MyListViewRepository;
 import org.spine3.examples.todolist.repository.TaskDefinitionRepository;
 import org.spine3.examples.todolist.repository.TaskLabelsRepository;
 import org.spine3.server.BoundedContext;
+import org.spine3.server.storage.StorageFactorySwitch;
+import org.spine3.server.storage.memory.InMemoryStorageFactory;
+import org.spine3.util.Environment;
 
 /**
  * Serves for creation the {@link BoundedContext} instances.
@@ -93,10 +97,19 @@ public class TodoListBoundedContext {
     }
 
     private static BoundedContext createBoundedContext() {
-        final BoundedContext result = BoundedContext.newBuilder()
-                                                    .setName(NAME)
-                                                    .build();
-        return result;
+        final BoundedContext.Builder result = BoundedContext.newBuilder()
+                                                            .setName(NAME);
+        final boolean testEnv = Environment.getInstance()
+                                           .isTests();
+        if (!testEnv) {
+            final StorageFactorySwitch factorySwitch =
+                    StorageFactorySwitch.init(Suppliers.ofInstance(InMemoryStorageFactory.getInstance()),
+                                              Suppliers.ofInstance(InMemoryStorageFactory.getInstance()));
+            //TODO:2017-02-16:illiashepilov: think about injection storage factory switch
+            result.setStorageFactorySupplier(factorySwitch);
+        }
+
+        return result.build();
     }
 
     /** The holder for the singleton reference. */
