@@ -2,5 +2,6 @@ include "api-java"
 include 'model'
 include 'client'
 include 'server'
+include 'testutil'
 include 'cli'
 
