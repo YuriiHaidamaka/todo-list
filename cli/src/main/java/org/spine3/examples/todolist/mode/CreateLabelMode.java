@@ -35,10 +35,11 @@ import static org.spine3.base.Identifiers.newUuid;
 import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.CREATE_LABEL_PROMPT;
 import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.CREATE_ONE_MORE_LABEL_QUESTION;
 import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.LABEL_CREATED_MESSAGE;
-import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.SET_COLOR_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.ENTER_COLOR_MESSAGE;
 import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.SET_LABEL_COLOR_QUESTION;
-import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.SET_TITLE_MESSAGE;
+import static org.spine3.examples.todolist.mode.CreateLabelMode.CreateLabelModeConstants.ENTER_TITLE_MESSAGE;
 import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.CANCEL_HINT;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.NEGATIVE_ANSWER;
 import static org.spine3.examples.todolist.mode.TodoListCommands.createBasicLabelCmd;
@@ -75,7 +76,7 @@ class CreateLabelMode extends Mode {
         final TaskLabelId labelId = createLabelId(newUuid());
         final String title;
         try {
-            title = obtainLabelTitle(SET_TITLE_MESSAGE);
+            title = obtainLabelTitle(ENTER_TITLE_MESSAGE);
         } catch (InputCancelledException ignored) {
             return;
         }
@@ -97,7 +98,7 @@ class CreateLabelMode extends Mode {
 
         final LabelColor labelColor;
         try {
-            labelColor = obtainLabelColor(SET_COLOR_MESSAGE);
+            labelColor = obtainLabelColor(ENTER_COLOR_MESSAGE);
         } catch (InputCancelledException ignored) {
             return defaultInstance;
         }
@@ -114,8 +115,8 @@ class CreateLabelMode extends Mode {
         static final String CREATE_ONE_MORE_LABEL_QUESTION = "Do you want to create one more label?(y/n)";
         static final String SET_LABEL_COLOR_QUESTION = "Do you want to set the label color?(y/n)";
         static final String LABEL_CREATED_MESSAGE = "Created label with id: %s, title: %s, color: %s";
-        static final String SET_COLOR_MESSAGE = "Please enter the label color: " + LINE_SEPARATOR;
-        static final String SET_TITLE_MESSAGE = "Please enter the label title: " + LINE_SEPARATOR;
+        static final String ENTER_COLOR_MESSAGE = "Please enter the label color: " + LINE_SEPARATOR + CANCEL_HINT;
+        static final String ENTER_TITLE_MESSAGE = "Please enter the label title: " + LINE_SEPARATOR + CANCEL_HINT;
 
         private CreateLabelModeConstants() {
         }

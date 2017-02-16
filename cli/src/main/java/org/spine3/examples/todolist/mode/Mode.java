@@ -45,7 +45,9 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.spine3.examples.todolist.DateHelper.getDateFormat;
 import static org.spine3.examples.todolist.mode.CommonMode.CommonModeConstants.ENTER_ID_MESSAGE;
 import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.ENTER_LABEL_ID_MESSAGE;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.CANCEL_INPUT;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.INCORRECT_INPUT;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.INPUT_IS_CANCELED;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LABEL_COLOR_VALUE;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.TASK_PRIORITY_VALUE;
 
@@ -54,8 +56,6 @@ import static org.spine3.examples.todolist.mode.Mode.ModeConstants.TASK_PRIORITY
  */
 public abstract class Mode {
 
-    private static final String CANCELED_INPUT = "cancel";
-    private static final String INPUT_IS_CANCELED = "Input is canceled";
     private Validator priorityValidator;
     private Validator dueDateValidator;
     private Validator colorValidator;
@@ -86,7 +86,7 @@ public abstract class Mode {
         sendMessageToUser(message + LABEL_COLOR_VALUE);
         String color = reader.readLine();
 
-        if (CANCELED_INPUT.equals(color)) {
+        if (CANCEL_INPUT.equals(color)) {
             throw new InputCancelledException(INPUT_IS_CANCELED);
         }
 
@@ -105,7 +105,7 @@ public abstract class Mode {
         sendMessageToUser(message);
         String title = reader.readLine();
 
-        if (CANCELED_INPUT.equals(title)) {
+        if (CANCEL_INPUT.equals(title)) {
             throw new InputCancelledException(INPUT_IS_CANCELED);
         }
 
@@ -122,7 +122,7 @@ public abstract class Mode {
         sendMessageToUser(message);
         String description = reader.readLine();
 
-        if (CANCELED_INPUT.equals(description)) {
+        if (CANCEL_INPUT.equals(description)) {
             throw new InputCancelledException(INPUT_IS_CANCELED);
         }
 
@@ -157,7 +157,7 @@ public abstract class Mode {
         sendMessageToUser(message);
         String dueDateValue = reader.readLine();
 
-        if (CANCELED_INPUT.equals(dueDateValue)) {
+        if (CANCEL_INPUT.equals(dueDateValue)) {
             throw new InputCancelledException(INPUT_IS_CANCELED);
         }
 
@@ -184,7 +184,7 @@ public abstract class Mode {
         sendMessageToUser(message);
         String priority = reader.readLine();
 
-        if (CANCELED_INPUT.equals(priority)) {
+        if (CANCEL_INPUT.equals(priority)) {
             throw new InputCancelledException(INPUT_IS_CANCELED);
         }
 
@@ -214,7 +214,7 @@ public abstract class Mode {
         sendMessageToUser(message);
         String taskIdValue = reader.readLine();
 
-        if (CANCELED_INPUT.equals(taskIdValue)) {
+        if (CANCEL_INPUT.equals(taskIdValue)) {
             throw new InputCancelledException(INPUT_IS_CANCELED);
         }
 
@@ -285,6 +285,8 @@ public abstract class Mode {
     }
 
     static class ModeConstants {
+        static final String CANCEL_HINT = "Enter `c` to cancel the input.";
+        static final String INPUT_IS_CANCELED = "Input is canceled";
         static final String LINE_SEPARATOR = System.lineSeparator();
         static final String INCORRECT_INPUT = "Incorrect input.";
         static final String TASK_PRIORITY_VALUE = LINE_SEPARATOR +
@@ -302,6 +304,7 @@ public abstract class Mode {
         static final String BACK = "back";
         static final String POSITIVE_ANSWER = "y";
         static final String NEGATIVE_ANSWER = "n";
+        static final String CANCEL_INPUT = "c";
         static final String INCORRECT_COMMAND = "Incorrect command.";
 
         private ModeConstants() {

@@ -29,6 +29,7 @@ import org.spine3.examples.todolist.q.projections.DraftTasksView;
 import java.io.IOException;
 import java.util.Map;
 
+import static org.spine3.examples.todolist.mode.DisplayHelper.constructUserFriendlyDraftTasks;
 import static org.spine3.examples.todolist.mode.DraftTasksMode.DraftTasksModeConstants.DRAFT_FINALIZED_MESSAGE;
 import static org.spine3.examples.todolist.mode.DraftTasksMode.DraftTasksModeConstants.DRAFT_TASKS_MENU;
 import static org.spine3.examples.todolist.mode.DraftTasksMode.DraftTasksModeConstants.DRAFT_TASKS_PROMPT;
@@ -94,7 +95,7 @@ class DraftTasksMode extends CommonMode {
             final int itemsCount = draftTasksView.getDraftTasks()
                                                  .getItemsCount();
             final boolean isEmpty = itemsCount == 0;
-            final String message = isEmpty ? EMPTY_DRAFT_TASKS : DisplayHelper.constructUserFriendlyDraftTasks(draftTasksView);
+            final String message = isEmpty ? EMPTY_DRAFT_TASKS : constructUserFriendlyDraftTasks(draftTasksView);
             sendMessageToUser(message);
         }
     }
@@ -124,7 +125,7 @@ class DraftTasksMode extends CommonMode {
                 LINE_SEPARATOR;
         static final String DRAFT_TASKS_PROMPT = "draft-tasks>";
         static final String EMPTY_DRAFT_TASKS = "No draft tasks.";
-        static final String DRAFT_FINALIZED_MESSAGE = "Task with id value: %s finalized.";
+        static final String DRAFT_FINALIZED_MESSAGE = "Task with id value: %s is finalized.";
         static final String HELP_MESSAGE = "0:    Help." + LINE_SEPARATOR +
                 "1:    Show the tasks in the draft state." + LINE_SEPARATOR +
                 CommonMode.CommonModeConstants.HELP_MESSAGE + LINE_SEPARATOR +

@@ -62,8 +62,10 @@ import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.HE
 import static org.spine3.examples.todolist.mode.GeneralMode.MainModeConstants.TODO_PROMPT;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.BACK_TO_THE_MENU_MESSAGE;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.CANCEL_HINT;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.INCORRECT_COMMAND;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.LINE_SEPARATOR;
+import static org.spine3.examples.todolist.mode.Mode.ModeConstants.NEGATIVE_ANSWER;
 import static org.spine3.examples.todolist.mode.Mode.ModeConstants.POSITIVE_ANSWER;
 import static org.spine3.examples.todolist.mode.TodoListCommands.createFinalizeDraftCmd;
 import static org.spine3.examples.todolist.mode.TodoListCommands.createPriorityChange;
@@ -78,7 +80,6 @@ import static org.spine3.examples.todolist.mode.TodoListCommands.createUpdateTas
  */
 class CreateTaskMode extends Mode {
 
-    private static final String NEGATIVE_ANSWER = "n";
     private Timestamp dueDate = Timestamp.getDefaultInstance();
     private TaskPriority priority = TaskPriority.TP_UNDEFINED;
     private String description;
@@ -305,6 +306,7 @@ class CreateTaskMode extends Mode {
     }
 
     static class CreateTaskModeConstants {
+        static final String EMPTY = "";
         static final String SET_PRIORITY_QUESTION = "Do you want to set the task priority?(y/n)";
         static final String SET_DUE_DATE_QUESTION = "Do you want to set the task due date?(y/n)";
         static final String CREATE_ONE_MORE_TASK_QUESTION = "Do you want to create one more task?(y/n)";
@@ -312,14 +314,13 @@ class CreateTaskMode extends Mode {
         static final String CREATE_TASK_PROMPT = "create-task>";
         private static final String CREATE_TASK_MODE = "******************** Create task menu ********************" +
                 LINE_SEPARATOR;
-        static final String EMPTY = "";
         static final String NEED_TO_FINALIZE_MESSAGE = "Do you want to finalize the created task draft?(y/n)";
         static final String DRAFT_FINALIZED_MESSAGE = "Task draft finalized.";
         static final String SET_DESCRIPTION_MESSAGE = "Please enter the task description " +
-                "(should contain at least 3 symbols): ";
+                "(should contain at least 3 symbols): " + LINE_SEPARATOR + CANCEL_HINT;
         static final String SET_DUE_DATE_MESSAGE = "Please enter the task due date." + LINE_SEPARATOR +
-                "The correct format is: " + DATE_FORMAT;
-        static final String SET_PRIORITY_MESSAGE = "Please enter the task priority.";
+                "The correct format is: " + DATE_FORMAT + LINE_SEPARATOR + CANCEL_HINT;
+        static final String SET_PRIORITY_MESSAGE = "Please enter the task priority." + LINE_SEPARATOR + CANCEL_HINT;
         static final String HELP_MESSAGE = "0:    Help." + LINE_SEPARATOR +
                 "1:    Create the task with specified parameters[description is required]." + LINE_SEPARATOR +
                 "2:    Create the task with specified parameters[description is required][FAST MODE]." +
