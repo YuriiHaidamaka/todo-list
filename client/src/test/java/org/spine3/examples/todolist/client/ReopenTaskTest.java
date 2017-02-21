@@ -47,7 +47,7 @@ import static org.spine3.examples.todolist.testdata.TestTaskCommandFactory.reope
 /**
  * @author Illia Shepilov
  */
-@DisplayName("After execution ReopenTask command")
+@DisplayName("After execution of ReopenTask command")
 public class ReopenTaskTest extends CommandLineTodoClientTest {
 
     private TodoClient client;
@@ -107,7 +107,7 @@ public class ReopenTaskTest extends CommandLineTodoClientTest {
         final TaskId taskId = createTask.getId();
         final LabelId labelId = createLabel.getLabelId();
 
-        final AssignLabelToTask assignLabelToTask = TestTaskLabelsCommandFactory.assignLabelToTaskInstance(taskId, labelId);
+        final AssignLabelToTask assignLabelToTask = assignLabelToTaskInstance(taskId, labelId);
         client.assignLabel(assignLabelToTask);
 
         completeAndReopenTask(isCorrectId, createdTaskId);

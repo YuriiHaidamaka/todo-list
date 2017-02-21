@@ -39,13 +39,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.spine3.examples.todolist.testdata.TestTaskLabelsCommandFactory.assignLabelToTaskInstance;
 import static org.spine3.examples.todolist.testdata.TestTaskCommandFactory.deleteTaskInstance;
+import static org.spine3.examples.todolist.testdata.TestTaskLabelsCommandFactory.assignLabelToTaskInstance;
 
 /**
  * @author Illia Shepilov
  */
-@DisplayName("After execution DeleteTask command")
+@DisplayName("After execution of DeleteTask command")
 public class DeleteTaskTest extends CommandLineTodoClientTest {
 
     private TodoClient client;
@@ -72,7 +72,7 @@ public class DeleteTaskTest extends CommandLineTodoClientTest {
             final LabelId labelId = createLabel.getLabelId();
             final TaskId taskId = createTask.getId();
 
-            final AssignLabelToTask assignLabelToTask = TestTaskLabelsCommandFactory.assignLabelToTaskInstance(taskId, labelId);
+            final AssignLabelToTask assignLabelToTask = assignLabelToTaskInstance(taskId, labelId);
             client.assignLabel(assignLabelToTask);
 
             final DeleteTask deleteTask = deleteTaskInstance(taskId);
@@ -98,7 +98,7 @@ public class DeleteTaskTest extends CommandLineTodoClientTest {
             final LabelId labelId = createLabel.getLabelId();
             final TaskId taskId = createTask.getId();
 
-            final AssignLabelToTask assignLabelToTask = TestTaskLabelsCommandFactory.assignLabelToTaskInstance(taskId, labelId);
+            final AssignLabelToTask assignLabelToTask = assignLabelToTaskInstance(taskId, labelId);
             client.assignLabel(assignLabelToTask);
 
             final DeleteTask deleteTask = deleteTaskInstance(createWrongTaskId());
