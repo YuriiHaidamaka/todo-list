@@ -28,11 +28,12 @@ import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spine3.base.Command;
+import org.spine3.base.Failure;
 import org.spine3.base.Queries;
+import org.spine3.base.Response;
 import org.spine3.client.CommandFactory;
 import org.spine3.client.Query;
 import org.spine3.client.QueryResponse;
-import org.spine3.client.grpc.CommandServiceGrpc;
 import org.spine3.examples.todolist.c.commands.AssignLabelToTask;
 import org.spine3.examples.todolist.c.commands.CompleteTask;
 import org.spine3.examples.todolist.c.commands.CreateBasicLabel;
@@ -51,6 +52,7 @@ import org.spine3.examples.todolist.q.projection.DraftTasksView;
 import org.spine3.examples.todolist.q.projection.LabelledTasksView;
 import org.spine3.examples.todolist.q.projection.MyListView;
 import org.spine3.server.BoundedContext;
+import org.spine3.server.CommandService;
 import org.spine3.server.QueryService;
 import org.spine3.time.ZoneOffsets;
 import org.spine3.users.UserId;
@@ -73,8 +75,9 @@ public class CommandLineTodoClient implements TodoClient {
     private static final int TIMEOUT = 10;
     private final ManagedChannel channel;
     private final QueryService queryService;
-    private final CommandServiceGrpc.CommandServiceBlockingStub commandService;
+    private final CommandService commandService;
     private final CommandFactory commandFactory;
+    private final CommandStreamObserver commandStreamObserver = new CommandStreamObserver();
 
     /**
      * Construct the client connecting to server at {@code host:port}.
@@ -82,7 +85,9 @@ public class CommandLineTodoClient implements TodoClient {
     public CommandLineTodoClient(String host, int port, BoundedContext boundedContext) {
         this.commandFactory = commandFactoryInstance();
         this.channel = initChannel(host, port);
-        this.commandService = CommandServiceGrpc.newBlockingStub(channel);
+        this.commandService = CommandService.newBuilder()
+                                            .add(boundedContext)
+                                            .build();
         this.queryService = QueryService.newBuilder()
                                         .add(boundedContext)
                                         .build();
@@ -91,92 +96,92 @@ public class CommandLineTodoClient implements TodoClient {
     @Override
     public void create(CreateBasicTask cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void create(CreateBasicLabel cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void create(CreateDraft cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void update(UpdateTaskDescription cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void update(UpdateTaskDueDate cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void update(UpdateTaskPriority cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void update(UpdateLabelDetails cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void delete(DeleteTask cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void removeLabel(RemoveLabelFromTask cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void assignLabel(AssignLabelToTask cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void reopen(ReopenTask cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void restore(RestoreDeletedTask cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void complete(CompleteTask cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public void finalize(FinalizeDraft cmd) {
         final Command executableCmd = commandFactory.create(cmd);
-        commandService.post(executableCmd);
+        commandService.post(executableCmd, commandStreamObserver);
     }
 
     @Override
     public MyListView getMyListView() {
         try {
             final Query query = Queries.readAll(MyListView.class);
-            final EventStreamObserver responseObserver = new EventStreamObserver();
+            final QueryStreamObserver responseObserver = new QueryStreamObserver();
             queryService.read(query, responseObserver);
 
             final boolean isEmpty = responseObserver.queryResponses.isEmpty();
@@ -196,7 +201,7 @@ public class CommandLineTodoClient implements TodoClient {
     public List<LabelledTasksView> getLabelledTasksView() {
         try {
             final Query query = Queries.readAll(LabelledTasksView.class);
-            final EventStreamObserver responseObserver = new EventStreamObserver();
+            final QueryStreamObserver responseObserver = new QueryStreamObserver();
             queryService.read(query, responseObserver);
             final List<LabelledTasksView> result = newArrayList();
 
@@ -215,7 +220,7 @@ public class CommandLineTodoClient implements TodoClient {
     public DraftTasksView getDraftTasksView() {
         try {
             final Query query = Queries.readAll(DraftTasksView.class);
-            final EventStreamObserver responseObserver = new EventStreamObserver();
+            final QueryStreamObserver responseObserver = new QueryStreamObserver();
             queryService.read(query, responseObserver);
 
             final boolean isEmpty = responseObserver.queryResponses.isEmpty();
@@ -259,7 +264,50 @@ public class CommandLineTodoClient implements TodoClient {
         return result;
     }
 
-    private static class EventStreamObserver implements StreamObserver<QueryResponse> {
+    private static class CommandStreamObserver implements StreamObserver<Response> {
+
+        private final List<Throwable> errList = newArrayList();
+        private final List<Failure> failureList = newArrayList();
+
+        @Override
+        public void onNext(Response value) {
+            final Failure failure = value.getFailure();
+            if (Failure.getDefaultInstance() != failure) {
+                failureList.add(failure);
+            }
+        }
+
+        @Override
+        public void onError(Throwable t) {
+            errList.add(t);
+        }
+
+        @Override
+        public void onCompleted() {
+            log().info("Command successfully sent");
+        }
+
+        private void clearErrorList() {
+            errList.clear();
+        }
+
+        private void clearFailureList() {
+            failureList.clear();
+        }
+
+        private enum LogSingleton {
+            INSTANCE;
+
+            @SuppressWarnings("NonSerializableFieldInSerializableClass")
+            private final Logger value = LoggerFactory.getLogger(CommandStreamObserver.class);
+        }
+
+        private static Logger log() {
+            return LogSingleton.INSTANCE.value;
+        }
+    }
+
+    private static class QueryStreamObserver implements StreamObserver<QueryResponse> {
 
         private List<Any> queryResponses;
 
@@ -282,7 +330,7 @@ public class CommandLineTodoClient implements TodoClient {
             INSTANCE;
 
             @SuppressWarnings("NonSerializableFieldInSerializableClass")
-            private final Logger value = LoggerFactory.getLogger(EventStreamObserver.class);
+            private final Logger value = LoggerFactory.getLogger(QueryStreamObserver.class);
         }
 
         private static Logger log() {
