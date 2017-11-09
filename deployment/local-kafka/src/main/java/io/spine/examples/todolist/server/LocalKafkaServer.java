@@ -42,7 +42,7 @@ public class LocalKafkaServer {
     }
 
     public static void main(String[] args) throws IOException {
-        final BoundedContext boundedContext = KafkaBoundedContexts.create();
+        final BoundedContext boundedContext = KafkaBoundedContextFactory.instance().create();
         final Server server = new Server(DEFAULT_CLIENT_SERVICE_PORT, boundedContext);
         server.start();
     }

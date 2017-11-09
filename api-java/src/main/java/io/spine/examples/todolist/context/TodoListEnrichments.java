@@ -30,15 +30,20 @@ import io.spine.examples.todolist.TaskDetails;
 import io.spine.examples.todolist.TaskId;
 import io.spine.examples.todolist.TaskLabel;
 import io.spine.examples.todolist.c.aggregate.LabelAggregate;
+import io.spine.examples.todolist.c.aggregate.TaskAggregateRoot;
 import io.spine.examples.todolist.c.aggregate.TaskLabelsPart;
 import io.spine.examples.todolist.c.aggregate.TaskPart;
-import io.spine.examples.todolist.repository.LabelAggregateRepository;
-import io.spine.examples.todolist.repository.TaskLabelsRepository;
-import io.spine.examples.todolist.repository.TaskRepository;
+import io.spine.server.aggregate.Aggregate;
+import io.spine.server.aggregate.AggregateClass;
+import io.spine.server.aggregate.AggregatePartRepository;
+import io.spine.server.aggregate.AggregateRepository;
 import io.spine.server.event.EventBus;
 import io.spine.server.event.EventEnricher;
+import io.spine.server.model.Model;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Serves as class which adds enrichment fields to the {@link EventBus}.
@@ -49,14 +54,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
                            // until the migration of Spine to Java 8 is performed.
 public class TodoListEnrichments {
 
-    private final TaskRepository taskRepo;
-    private final TaskLabelsRepository taskLabelsRepo;
-    private final LabelAggregateRepository labelRepository;
+    private final AggregatePartRepository<TaskId, TaskPart, TaskAggregateRoot> taskRepo;
+    private final AggregatePartRepository<TaskId, TaskLabelsPart, TaskAggregateRoot> taskLabelsRepo;
+    private final AggregateRepository<LabelId, LabelAggregate> labelRepository;
 
     private TodoListEnrichments(Builder builder) {
-        this.taskRepo = builder.taskRepo;
-        this.taskLabelsRepo = builder.taskLabelsRepo;
-        this.labelRepository = builder.labelRepository;
+        this.taskRepo = builder.getRepository(TaskPart.class);
+        this.taskLabelsRepo = builder.getRepository(TaskLabelsPart.class);
+        this.labelRepository = builder.getRepository(LabelAggregate.class);
     }
 
     EventEnricher createEnricher() {
@@ -155,29 +160,24 @@ public class TodoListEnrichments {
      */
     public static class Builder {
 
-        private TaskRepository taskRepo;
-        private TaskLabelsRepository taskLabelsRepo;
-        private LabelAggregateRepository labelRepository;
+        private final Map<AggregateClass<?>, AggregateRepository<?, ?>> repositories =
+                newHashMap();
 
         private Builder() {
         }
 
-        public Builder setTaskRepository(TaskRepository definitionRepository) {
-            checkNotNull(definitionRepository);
-            this.taskRepo = definitionRepository;
+        public Builder addRepository(AggregateRepository<?, ?> repository) {
+            final AggregateClass<?> cls = Model.getInstance()
+                                               .asAggregateClass(repository.getEntityClass());
+            repositories.put(cls, repository);
             return this;
         }
 
-        public Builder setTaskLabelsRepository(TaskLabelsRepository taskLabelsRepository) {
-            checkNotNull(taskLabelsRepository);
-            this.taskLabelsRepo = taskLabelsRepository;
-            return this;
-        }
-
-        public Builder setLabelRepository(LabelAggregateRepository labelRepository) {
-            checkNotNull(labelRepository);
-            this.labelRepository = labelRepository;
-            return this;
+        @SuppressWarnings("unchecked") // Internal invariant of Builder.
+        private <R extends AggregateRepository<I, A>, A extends Aggregate<I, ?, ?>, I> R
+        getRepository(Class<A> aggregateCls) {
+            final AggregateClass<?> cls = Model.getInstance().asAggregateClass(aggregateCls);
+            return (R) repositories.get(cls);
         }
 
         public TodoListEnrichments build() {
