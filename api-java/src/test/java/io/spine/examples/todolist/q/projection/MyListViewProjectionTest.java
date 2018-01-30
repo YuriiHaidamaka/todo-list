@@ -22,9 +22,14 @@ package io.spine.examples.todolist.q.projection;
 
 import com.google.protobuf.Timestamp;
 import io.spine.core.Event;
+import io.spine.examples.todolist.LabelColor;
+import io.spine.examples.todolist.LabelId;
 import io.spine.examples.todolist.TaskId;
 import io.spine.examples.todolist.TaskListId;
 import io.spine.examples.todolist.TaskPriority;
+import io.spine.examples.todolist.c.events.LabelAssignedToTask;
+import io.spine.examples.todolist.c.events.LabelDetailsUpdated;
+import io.spine.examples.todolist.c.events.LabelRemovedFromTask;
 import io.spine.examples.todolist.c.events.TaskCompleted;
 import io.spine.examples.todolist.c.events.TaskCreated;
 import io.spine.examples.todolist.c.events.TaskDeleted;
@@ -40,12 +45,16 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static io.spine.Identifier.newUuid;
+import static io.spine.examples.todolist.testdata.TestLabelCommandFactory.UPDATED_LABEL_TITLE;
+import static io.spine.examples.todolist.testdata.TestLabelEventFactory.labelDetailsUpdatedInstance;
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.ChangeStatusEvents.taskCompletedInstance;
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.ChangeStatusEvents.taskCreatedInstance;
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.ChangeStatusEvents.taskDeletedInstance;
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.ChangeStatusEvents.taskDraftFinalizedInstance;
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.ChangeStatusEvents.taskReopenedInstance;
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.DESCRIPTION;
+import static io.spine.examples.todolist.testdata.TestTaskEventFactory.LABEL_ID;
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.TASK_DUE_DATE;
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.TASK_ID;
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.TASK_PRIORITY;
@@ -53,6 +62,8 @@ import static io.spine.examples.todolist.testdata.TestTaskEventFactory.UPDATED_D
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.UpdateEvents.taskDescriptionUpdatedInstance;
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.UpdateEvents.taskDueDateUpdatedInstance;
 import static io.spine.examples.todolist.testdata.TestTaskEventFactory.UpdateEvents.taskPriorityUpdatedInstance;
+import static io.spine.examples.todolist.testdata.TestTaskLabelsEventFactory.labelAssignedToTaskInstance;
+import static io.spine.examples.todolist.testdata.TestTaskLabelsEventFactory.labelRemovedFromTaskInstance;
 import static io.spine.server.projection.ProjectionEventDispatcher.dispatch;
 import static io.spine.time.Time.getCurrentTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -261,6 +272,97 @@ class MyListViewProjectionTest extends ProjectionTest {
                                                   .get(0);
             assertEquals(TASK_ID, taskView.getId());
             assertNotEquals(updatedTaskPriority, taskView.getPriority());
+        }
+    }
+
+    @Nested
+    @DisplayName("LabelDetailsUpdated event should be interpreted by MyListViewProjection and")
+    class LabelDetailsUpdatedEvent {
+
+        @Test
+        @DisplayName("update the label details in MyListView")
+        void updateLabelDetails() {
+            final TaskCreated taskCreatedEvent = taskCreatedInstance();
+            dispatch(projection, createEvent(taskCreatedEvent));
+
+            final TaskId expectedTaskId = taskCreatedEvent.getId();
+
+            final LabelAssignedToTask labelAssignedToTaskEvent =
+                    labelAssignedToTaskInstance(expectedTaskId, LABEL_ID);
+            dispatch(projection, createEvent(labelAssignedToTaskEvent));
+
+            final LabelColor updatedColor = LabelColor.BLUE;
+
+            final LabelDetailsUpdated labelDetailsUpdatedEvent =
+                    labelDetailsUpdatedInstance(LABEL_ID, updatedColor, UPDATED_LABEL_TITLE);
+            dispatch(projection, createEvent(labelDetailsUpdatedEvent));
+
+            final TaskListView taskListView = projection.getState()
+                                                        .getMyList();
+            assertEquals(1, taskListView.getItemsCount());
+
+            final TaskItem taskView = taskListView.getItemsList()
+                                                  .get(0);
+            assertEquals(LABEL_ID, taskView.getLabelId());
+            assertEquals(updatedColor, taskView.getLabelColor());
+        }
+
+        @Test
+        @DisplayName("not update the label details in MyListView by wrong label ID")
+        void doesNotUpdateLabelDetails() {
+            final TaskCreated taskCreatedEvent = taskCreatedInstance();
+            dispatch(projection, createEvent(taskCreatedEvent));
+
+            final TaskId expectedTaskId = taskCreatedEvent.getId();
+
+            final LabelId wrongLabelId = LabelId.newBuilder()
+                                                .setValue(newUuid())
+                                                .build();
+            final LabelAssignedToTask labelAssignedToTaskEvent =
+                    labelAssignedToTaskInstance(expectedTaskId, wrongLabelId);
+            dispatch(projection, createEvent(labelAssignedToTaskEvent));
+
+            final LabelColor updatedColor = LabelColor.BLUE;
+
+            final LabelDetailsUpdated labelDetailsUpdatedEvent =
+                    labelDetailsUpdatedInstance(LABEL_ID, updatedColor, UPDATED_LABEL_TITLE);
+            dispatch(projection, createEvent(labelDetailsUpdatedEvent));
+
+            final TaskListView taskListView = projection.getState()
+                                                        .getMyList();
+            final int expectedViewListSize = 1;
+            assertEquals(expectedViewListSize, taskListView.getItemsCount());
+
+            final TaskItem taskView = taskListView.getItemsList()
+                                                  .get(0);
+            assertEquals(expectedTaskId, taskView.getId());
+            assertNotEquals(updatedColor, taskView.getLabelColor());
+        }
+    }
+
+    @Nested
+    @DisplayName("LabelRemovedFromTask event should be interpreted by MyListViewProjection and")
+    class LabelRemovedFromTaskEvent {
+
+        @Test
+        @DisplayName("set `LabelId` to default state for the TaskItem")
+        void removeLabelFromTaskItem() {
+            final TaskCreated taskCreatedEvent = taskCreatedInstance();
+            dispatch(projection, createEvent(taskCreatedEvent));
+
+            final TaskId expectedTaskId = taskCreatedEvent.getId();
+
+            final LabelAssignedToTask labelAssignedToTaskEvent =
+                    labelAssignedToTaskInstance(expectedTaskId, LABEL_ID);
+            dispatch(projection, createEvent(labelAssignedToTaskEvent));
+
+            final LabelRemovedFromTask labelRemovedFromTask = labelRemovedFromTaskInstance();
+            dispatch(projection, createEvent(labelRemovedFromTask));
+
+            final TaskItem taskView = projection.getState()
+                                                .getMyList()
+                                                .getItems(0);
+            assertEquals(LabelId.getDefaultInstance(), taskView.getLabelId());
         }
     }
 
