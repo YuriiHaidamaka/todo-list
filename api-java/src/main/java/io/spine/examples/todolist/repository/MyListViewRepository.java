@@ -25,8 +25,8 @@ import io.spine.examples.todolist.q.projection.MyListView;
 import io.spine.examples.todolist.q.projection.MyListViewProjection;
 import io.spine.server.projection.ProjectionRepository;
 
-import static java.util.Collections.singleton;
 import static io.spine.examples.todolist.q.projection.MyListViewProjection.ID;
+import static java.util.Collections.singleton;
 
 /**
  * Repository for the {@link MyListViewProjection}.
@@ -36,9 +36,8 @@ import static io.spine.examples.todolist.q.projection.MyListViewProjection.ID;
 public class MyListViewRepository
         extends ProjectionRepository<TaskListId, MyListViewProjection, MyListView> {
 
-    @Override
-    public void onRegistered() {
-        super.onRegistered();
+    public MyListViewRepository() {
+        super();
         setUpEventRoute();
     }
 

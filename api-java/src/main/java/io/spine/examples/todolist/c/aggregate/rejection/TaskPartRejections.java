@@ -32,7 +32,7 @@ import io.spine.examples.todolist.ReopenTaskRejected;
 import io.spine.examples.todolist.RestoreDeletedTaskRejected;
 import io.spine.examples.todolist.TaskDueDateUpdateRejected;
 import io.spine.examples.todolist.TaskId;
-import io.spine.examples.todolist.c.aggregate.TaskAggregate;
+import io.spine.examples.todolist.c.aggregate.TaskPart;
 import io.spine.examples.todolist.c.commands.CompleteTask;
 import io.spine.examples.todolist.c.commands.CreateDraft;
 import io.spine.examples.todolist.c.commands.DeleteTask;
@@ -53,18 +53,23 @@ import io.spine.examples.todolist.c.rejection.CannotUpdateTaskDueDate;
 import io.spine.examples.todolist.c.rejection.CannotUpdateTaskPriority;
 
 /**
- * Utility class for working with {@link TaskAggregate} rejection.
+ * Utility class for working with {@link TaskPart} rejection.
  *
  * @author Illia Shepilov
  */
-public class TaskAggregateRejections {
+public final class TaskPartRejections {
 
-    private TaskAggregateRejections() {
-        // Prevent instantiation of this utility class.
+    /**
+     * The {@code private} constructor prevents instantiation.
+     */
+    private TaskPartRejections() {
     }
 
-    public static class UpdateRejections {
+    public static final class UpdateRejections {
 
+        /**
+         * The {@code private} constructor prevents the utility class instantiation.
+         */
         private UpdateRejections() {
         }
 
@@ -184,8 +189,11 @@ public class TaskAggregateRejections {
         }
     }
 
-    public static class TaskCreationRejections {
+    public static final class TaskCreationRejections {
 
+        /**
+         * The {@code private} constructor prevents the utility class instantiation.
+         */
         private TaskCreationRejections() {
         }
 
@@ -207,8 +215,11 @@ public class TaskAggregateRejections {
         }
     }
 
-    public static class ChangeStatusRejections {
+    public static final class ChangeStatusRejections {
 
+        /**
+         * The {@code private} constructor prevents the utility class instantiation.
+         */
         private ChangeStatusRejections() {
         }
 

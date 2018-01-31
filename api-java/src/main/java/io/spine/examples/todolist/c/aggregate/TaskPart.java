@@ -25,11 +25,13 @@ import com.google.protobuf.Timestamp;
 import io.spine.change.StringChange;
 import io.spine.change.TimestampChange;
 import io.spine.change.ValueMismatch;
+import io.spine.examples.todolist.LabelId;
 import io.spine.examples.todolist.PriorityChange;
 import io.spine.examples.todolist.Task;
 import io.spine.examples.todolist.TaskDescription;
 import io.spine.examples.todolist.TaskDetails;
 import io.spine.examples.todolist.TaskId;
+import io.spine.examples.todolist.TaskLabels;
 import io.spine.examples.todolist.TaskPriority;
 import io.spine.examples.todolist.TaskStatus;
 import io.spine.examples.todolist.TaskVBuilder;
@@ -44,6 +46,7 @@ import io.spine.examples.todolist.c.commands.UpdateTaskDescription;
 import io.spine.examples.todolist.c.commands.UpdateTaskDueDate;
 import io.spine.examples.todolist.c.commands.UpdateTaskPriority;
 import io.spine.examples.todolist.c.events.DeletedTaskRestored;
+import io.spine.examples.todolist.c.events.LabelledTaskRestored;
 import io.spine.examples.todolist.c.events.TaskCompleted;
 import io.spine.examples.todolist.c.events.TaskCreated;
 import io.spine.examples.todolist.c.events.TaskDeleted;
@@ -62,12 +65,14 @@ import io.spine.examples.todolist.c.rejection.CannotRestoreDeletedTask;
 import io.spine.examples.todolist.c.rejection.CannotUpdateTaskDescription;
 import io.spine.examples.todolist.c.rejection.CannotUpdateTaskDueDate;
 import io.spine.examples.todolist.c.rejection.CannotUpdateTaskPriority;
-import io.spine.server.aggregate.Aggregate;
+import io.spine.server.aggregate.AggregatePart;
+import io.spine.server.aggregate.AggregateRoot;
 import io.spine.server.aggregate.Apply;
 import io.spine.server.command.Assign;
 
 import java.util.List;
 
+import static com.google.common.collect.Lists.newLinkedList;
 import static io.spine.examples.todolist.c.aggregate.MismatchHelper.of;
 import static io.spine.examples.todolist.c.aggregate.TaskFlowValidator.ensureCompleted;
 import static io.spine.examples.todolist.c.aggregate.TaskFlowValidator.ensureDeleted;
@@ -76,42 +81,40 @@ import static io.spine.examples.todolist.c.aggregate.TaskFlowValidator.isValidCr
 import static io.spine.examples.todolist.c.aggregate.TaskFlowValidator.isValidTransition;
 import static io.spine.examples.todolist.c.aggregate.TaskFlowValidator.isValidUpdateTaskDueDateCommand;
 import static io.spine.examples.todolist.c.aggregate.TaskFlowValidator.isValidUpdateTaskPriorityCommand;
-import static io.spine.examples.todolist.c.aggregate.rejection.TaskAggregateRejections.ChangeStatusRejections.throwCannotCompleteTask;
-import static io.spine.examples.todolist.c.aggregate.rejection.TaskAggregateRejections.ChangeStatusRejections.throwCannotDeleteTask;
-import static io.spine.examples.todolist.c.aggregate.rejection.TaskAggregateRejections.ChangeStatusRejections.throwCannotFinalizeDraft;
-import static io.spine.examples.todolist.c.aggregate.rejection.TaskAggregateRejections.ChangeStatusRejections.throwCannotReopenTask;
-import static io.spine.examples.todolist.c.aggregate.rejection.TaskAggregateRejections.ChangeStatusRejections.throwCannotRestoreDeletedTask;
-import static io.spine.examples.todolist.c.aggregate.rejection.TaskAggregateRejections.TaskCreationRejections.throwCannotCreateDraft;
-import static io.spine.examples.todolist.c.aggregate.rejection.TaskAggregateRejections.UpdateRejections.throwCannotUpdateDescription;
-import static io.spine.examples.todolist.c.aggregate.rejection.TaskAggregateRejections.UpdateRejections.throwCannotUpdateTaskDescription;
-import static io.spine.examples.todolist.c.aggregate.rejection.TaskAggregateRejections.UpdateRejections.throwCannotUpdateTaskDueDate;
-import static io.spine.examples.todolist.c.aggregate.rejection.TaskAggregateRejections.UpdateRejections.throwCannotUpdateTaskPriority;
+import static io.spine.examples.todolist.c.aggregate.rejection.TaskPartRejections.ChangeStatusRejections.throwCannotCompleteTask;
+import static io.spine.examples.todolist.c.aggregate.rejection.TaskPartRejections.ChangeStatusRejections.throwCannotDeleteTask;
+import static io.spine.examples.todolist.c.aggregate.rejection.TaskPartRejections.ChangeStatusRejections.throwCannotFinalizeDraft;
+import static io.spine.examples.todolist.c.aggregate.rejection.TaskPartRejections.ChangeStatusRejections.throwCannotReopenTask;
+import static io.spine.examples.todolist.c.aggregate.rejection.TaskPartRejections.ChangeStatusRejections.throwCannotRestoreDeletedTask;
+import static io.spine.examples.todolist.c.aggregate.rejection.TaskPartRejections.TaskCreationRejections.throwCannotCreateDraft;
+import static io.spine.examples.todolist.c.aggregate.rejection.TaskPartRejections.UpdateRejections.throwCannotUpdateDescription;
+import static io.spine.examples.todolist.c.aggregate.rejection.TaskPartRejections.UpdateRejections.throwCannotUpdateTaskDescription;
+import static io.spine.examples.todolist.c.aggregate.rejection.TaskPartRejections.UpdateRejections.throwCannotUpdateTaskDueDate;
+import static io.spine.examples.todolist.c.aggregate.rejection.TaskPartRejections.UpdateRejections.throwCannotUpdateTaskPriority;
 import static io.spine.time.Time.getCurrentTime;
 import static io.spine.time.Timestamps2.compare;
 import static java.util.Collections.singletonList;
 
 /**
- * The aggregate managing the state of a {@link Task}.
+ * The aggregate part managing the state of a {@link Task}.
  *
  * @author Illia Shepilov
  */
-@SuppressWarnings({"ClassWithTooManyMethods", /* Task definition cannot be separated and should
-                                                 process all commands and events related to it
-                                                 according to the domain model.
-                                                 The {@code Aggregate} does it with methods
-                                                 annotated as {@code Assign} and {@code Apply}.
-                                                 In that case class has too many methods.*/
-        "OverlyCoupledClass"}) /* As each method needs dependencies  necessary to perform execution
-                                                 that class also overly coupled.*/
-public class TaskAggregate extends Aggregate<TaskId,
-                                            Task,
-                                            TaskVBuilder> {
+@SuppressWarnings({
+        "ClassWithTooManyMethods",
+            // All message handlers must be placed in this class.
+        "unused",
+            // Message handlers are accessed via reflection.
+        "OverlyCoupledClass"
+            // All the handled message types and their fields' types are// required.
+})
+public class TaskPart extends AggregatePart<TaskId, Task, TaskVBuilder, TaskAggregateRoot> {
 
     /**
-     * @see Aggregate#Aggregate(Object)
+     * @see AggregatePart#AggregatePart(AggregateRoot)
      */
-    public TaskAggregate(TaskId id) {
-        super(id);
+    public TaskPart(TaskAggregateRoot root) {
+        super(root);
     }
 
     @Assign
@@ -132,19 +135,16 @@ public class TaskAggregate extends Aggregate<TaskId,
         if (!isValid) {
             throwCannotUpdateTaskDescription(cmd);
         }
-
         final StringChange descriptionChange = cmd.getDescriptionChange();
         final String actualDescription = getState().getDescription()
                                                    .getValue();
         final String expectedDescription = descriptionChange.getPreviousValue();
-        final boolean isEquals = actualDescription.equals(expectedDescription);
-
-        if (!isEquals) {
+        final boolean equal = actualDescription.equals(expectedDescription);
+        if (!equal) {
             final ValueMismatch mismatch = unexpectedValue(expectedDescription, actualDescription,
                                                            descriptionChange.getNewValue());
             throwCannotUpdateDescription(cmd, mismatch);
         }
-
         final TaskId taskId = cmd.getId();
         final TaskDescriptionUpdated taskDescriptionUpdated =
                 TaskDescriptionUpdated.newBuilder()
@@ -159,24 +159,19 @@ public class TaskAggregate extends Aggregate<TaskId,
         final Task state = getState();
         final TaskStatus taskStatus = state.getTaskStatus();
         final boolean isValid = isValidUpdateTaskDueDateCommand(taskStatus);
-
         if (!isValid) {
             throwCannotUpdateTaskDueDate(cmd);
         }
-
         final TimestampChange change = cmd.getDueDateChange();
         final Timestamp actualDueDate = state.getDueDate();
         final Timestamp expectedDueDate = change.getPreviousValue();
-
-        final boolean isEquals = compare(actualDueDate, expectedDueDate) == 0;
-
-        if (!isEquals) {
+        final boolean equal = compare(actualDueDate, expectedDueDate) == 0;
+        if (!equal) {
             final Timestamp newDueDate = change.getNewValue();
             final ValueMismatch mismatch = unexpectedValue(expectedDueDate, actualDueDate,
                                                            newDueDate);
             throwCannotUpdateTaskDueDate(cmd, mismatch);
         }
-
         final TaskId taskId = cmd.getId();
         final TaskDueDateUpdated taskDueDateUpdated =
                 TaskDueDateUpdated.newBuilder()
@@ -191,30 +186,26 @@ public class TaskAggregate extends Aggregate<TaskId,
         final Task state = getState();
         final TaskStatus taskStatus = state.getTaskStatus();
         final boolean isValid = isValidUpdateTaskPriorityCommand(taskStatus);
-
         if (!isValid) {
             throwCannotUpdateTaskPriority(cmd);
         }
-
         final PriorityChange priorityChange = cmd.getPriorityChange();
         final TaskPriority actualPriority = state.getPriority();
         final TaskPriority expectedPriority = priorityChange.getPreviousValue();
 
-        boolean isEquals = actualPriority == expectedPriority;
-
-        if (!isEquals) {
+        final boolean equal = actualPriority == expectedPriority;
+        if (!equal) {
             final TaskPriority newPriority = priorityChange.getNewValue();
             final ValueMismatch mismatch = of(expectedPriority, actualPriority, newPriority,
                                               getVersion());
             throwCannotUpdateTaskPriority(cmd, mismatch);
         }
-
         final TaskId taskId = cmd.getId();
-        final TaskPriorityUpdated taskPriorityUpdated = TaskPriorityUpdated.newBuilder()
-                                                                           .setTaskId(taskId)
-                                                                           .setPriorityChange(
-                                                                                   priorityChange)
-                                                                           .build();
+        final TaskPriorityUpdated taskPriorityUpdated =
+                TaskPriorityUpdated.newBuilder()
+                                   .setTaskId(taskId)
+                                   .setPriorityChange(priorityChange)
+                                   .build();
         return singletonList(taskPriorityUpdated);
     }
 
@@ -223,11 +214,9 @@ public class TaskAggregate extends Aggregate<TaskId,
         final Task state = getState();
         final TaskStatus currentStatus = state.getTaskStatus();
         final boolean isValid = ensureCompleted(currentStatus);
-
         if (!isValid) {
             throwCannotReopenTask(cmd);
         }
-
         final TaskId taskId = cmd.getId();
         final TaskReopened taskReopened = TaskReopened.newBuilder()
                                                       .setTaskId(taskId)
@@ -241,11 +230,9 @@ public class TaskAggregate extends Aggregate<TaskId,
         final TaskStatus currentStatus = state.getTaskStatus();
         final TaskStatus newStatus = TaskStatus.DELETED;
         final boolean isValid = isValidTransition(currentStatus, newStatus);
-
         if (!isValid) {
             throwCannotDeleteTask(cmd);
         }
-
         final TaskId taskId = cmd.getId();
         final TaskDeleted taskDeleted = TaskDeleted.newBuilder()
                                                    .setTaskId(taskId)
@@ -259,11 +246,9 @@ public class TaskAggregate extends Aggregate<TaskId,
         final TaskStatus currentStatus = state.getTaskStatus();
         final TaskStatus newStatus = TaskStatus.COMPLETED;
         final boolean isValid = isValidTransition(currentStatus, newStatus);
-
         if (!isValid) {
             throwCannotCompleteTask(cmd);
         }
-
         final TaskId taskId = cmd.getId();
         final TaskCompleted taskCompleted = TaskCompleted.newBuilder()
                                                          .setTaskId(taskId)
@@ -274,11 +259,9 @@ public class TaskAggregate extends Aggregate<TaskId,
     @Assign
     List<? extends Message> handle(CreateDraft cmd) throws CannotCreateDraft {
         final boolean isValid = isValidCreateDraftCommand(getState().getTaskStatus());
-
         if (!isValid) {
             throwCannotCreateDraft(cmd);
         }
-
         final TaskId taskId = cmd.getId();
         final TaskDraftCreated draftCreated =
                 TaskDraftCreated.newBuilder()
@@ -293,11 +276,9 @@ public class TaskAggregate extends Aggregate<TaskId,
         final TaskStatus currentStatus = getState().getTaskStatus();
         final TaskStatus newStatus = TaskStatus.FINALIZED;
         final boolean isValid = isValidTransition(currentStatus, newStatus);
-
         if (!isValid) {
             throwCannotFinalizeDraft(cmd);
         }
-
         final TaskId taskId = cmd.getId();
         final TaskDraftFinalized taskDraftFinalized = TaskDraftFinalized.newBuilder()
                                                                         .setTaskId(taskId)
@@ -306,7 +287,7 @@ public class TaskAggregate extends Aggregate<TaskId,
     }
 
     @Assign
-    DeletedTaskRestored handle(RestoreDeletedTask cmd) throws CannotRestoreDeletedTask {
+    List<? extends Message> handle(RestoreDeletedTask cmd) throws CannotRestoreDeletedTask {
         final TaskStatus currentStatus = getState().getTaskStatus();
         final boolean isValid = ensureDeleted(currentStatus);
         if (!isValid) {
@@ -316,7 +297,21 @@ public class TaskAggregate extends Aggregate<TaskId,
         final DeletedTaskRestored deletedTaskRestored = DeletedTaskRestored.newBuilder()
                                                                            .setTaskId(taskId)
                                                                            .build();
-        return deletedTaskRestored;
+        final List<Message> result = newLinkedList();
+        result.add(deletedTaskRestored);
+
+        final TaskLabels taskLabels = getPartState(TaskLabels.class);
+        final List<LabelId> LabelIdList = taskLabels.getLabelIdList()
+                                                    .getIdsList();
+        for (LabelId labelId : LabelIdList) {
+            final LabelledTaskRestored labelledTaskRestored =
+                    LabelledTaskRestored.newBuilder()
+                                        .setTaskId(taskId)
+                                        .setLabelId(labelId)
+                                        .build();
+            result.add(labelledTaskRestored);
+        }
+        return result;
     }
 
     /*
@@ -369,6 +364,11 @@ public class TaskAggregate extends Aggregate<TaskId,
 
     @Apply
     private void deletedTaskRestored(DeletedTaskRestored event) {
+        getBuilder().setTaskStatus(TaskStatus.OPEN);
+    }
+
+    @Apply
+    private void labelledTaskRestored(LabelledTaskRestored event) {
         getBuilder().setTaskStatus(TaskStatus.OPEN);
     }
 

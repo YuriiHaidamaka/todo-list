@@ -18,22 +18,26 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package io.spine.examples.todolist.q.projection;
+package io.spine.examples.todolist.c.aggregate;
+
+import io.spine.examples.todolist.TaskId;
+import io.spine.server.BoundedContext;
+import io.spine.server.aggregate.AggregateRoot;
 
 /**
- * An exception thrown when enrichment cannot be found in
- * {@link io.spine.core.EventContext EventContext}.
+ * The aggregate root for the {@code Task} aggregate.
  *
  * @author Illia Shepilov
+ * @see AggregateRoot
+ * @see TaskPart
+ * @see TaskLabelsPart
  */
-final class EnrichmentNotFoundException extends RuntimeException {
-
-    private static final long serialVersionUID = 0L;
+public class TaskAggregateRoot extends AggregateRoot<TaskId> {
 
     /**
-     * @see RuntimeException#RuntimeException(String)
+     * @see AggregateRoot#AggregateRoot(BoundedContext, Object)
      */
-    EnrichmentNotFoundException(String message) {
-        super(message);
+    public TaskAggregateRoot(BoundedContext boundedContext, TaskId id) {
+        super(boundedContext, id);
     }
 }
