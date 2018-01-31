@@ -106,7 +106,7 @@ class TaskLabelsPartTest {
             dispatchCommand(taskLabelsPart, CommandEnvelope.of(command().get()));
 
             final TaskLabels state = taskLabelsPart.getState();
-            final List<LabelId> labelIds = state.getLabelIdsList()
+            final List<LabelId> labelIds = state.getLabelIdList()
                                                 .getIdsList();
             assertEquals(taskId, state.getTaskId());
             assertTrue(labelIds.contains(labelId));
@@ -173,13 +173,13 @@ class TaskLabelsPartTest {
             createBasicTask();
             assignLabelToTask();
             final List<LabelId> labelIdsBeforeRemove = taskLabelsPart.getState()
-                                                                     .getLabelIdsList()
+                                                                     .getLabelIdList()
                                                                      .getIdsList();
             assertTrue(labelIdsBeforeRemove.contains(labelId));
 
             dispatchCommand(taskLabelsPart, CommandEnvelope.of(command().get()));
             final List<LabelId> labelIdsAfterRemove = taskLabelsPart.getState()
-                                                                    .getLabelIdsList()
+                                                                    .getLabelIdList()
                                                                     .getIdsList();
             assertTrue(labelIdsAfterRemove.isEmpty());
         }
@@ -238,7 +238,7 @@ class TaskLabelsPartTest {
         @DisplayName("assign all labels to the task")
         void testContainsAllLabels() {
             final Collection<LabelId> actualLabels = taskLabelsPart.getState()
-                                                                   .getLabelIdsList()
+                                                                   .getLabelIdList()
                                                                    .getIdsList();
             assertThat(actualLabels, containsInAnyOrder(labelIds.toArray()));
         }
